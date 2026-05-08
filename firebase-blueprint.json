@@ -1,0 +1,136 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and subscription status",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin", "kitchen"] },
+        "planId": { "type": "string" },
+        "planStatus": { "type": "string", "enum": ["none", "pending", "active", "expired"] },
+        "daysRemaining": { "type": "number" },
+        "proteinGoal": { "type": "number" },
+        "avgProtein": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Plan": {
+      "title": "Plan",
+      "description": "Subscription plan details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["trial", "pro"] },
+        "price": { "type": "number" },
+        "durationDays": { "type": "number" },
+        "features": { "type": "array" }
+      }
+    },
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "Café menu items (bowls, smoothies, shakes)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string", "enum": ["Bowl", "Smoothie", "Shake"] },
+        "protein": { "type": "number" },
+        "calories": { "type": "number" },
+        "description": { "type": "string" },
+        "isTrialFixed": { "type": "boolean" }
+      }
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Daily food order",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "items": { "type": "array" },
+        "status": { "type": "string", "enum": ["pending", "preparing", "out-for-delivery", "delivered"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "User payment for plans",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "userName": { "type": "string" },
+        "planId": { "type": "string" },
+        "planName": { "type": "string" },
+        "amount": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Asset": {
+      "title": "Asset",
+      "description": "Stored image asset mappings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "url": { "type": "string" },
+        "type": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "url"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "Global application settings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "logoUrl": { "type": "string" },
+        "siteName": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/plans/{planId}": {
+      "schema": "Plan",
+      "description": "Available plans"
+    },
+    "/menu/{itemId}": {
+      "schema": "MenuItem",
+      "description": "Café menu items"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Daily orders for the kitchen"
+    },
+    "/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Payment records for admin approval"
+    },
+    "/assets/{assetId}": {
+      "schema": "Asset",
+      "description": "Image asset mappings"
+    },
+    "/settings/{settingId}": {
+      "schema": "Setting",
+      "description": "Global configuration"
+    }
+  }
+}
