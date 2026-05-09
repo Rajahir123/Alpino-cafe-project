@@ -127,7 +127,7 @@ service cloud.firestore {
 
     // --- Assets ---
     match /assets/{assetId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 

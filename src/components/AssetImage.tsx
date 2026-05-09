@@ -15,27 +15,16 @@ export default function AssetImage({ assetName, fallbackUrl, alt, className = ""
 
   useEffect(() => {
     async function resolveAsset() {
-      setLoading(true);
+      if (!assetName) {
+        setLoading(false);
+        return;
+      }
+      
       try {
-        // 1. Try matching by Name (e.g. "Banana Shake")
-        const nameId = assetName.replace(/\s+/g, '_').toLowerCase();
-        const nameDoc = await getDoc(doc(db, 'assets', nameId));
-        
-        if (nameDoc.exists()) {
-          setUrl(nameDoc.data().url);
-          return;
-        }
-
-        // 2. Try matching by Filename if fallback was a local path (e.g. "input_file_0.png")
-        if (fallbackUrl && (fallbackUrl.startsWith('/') || fallbackUrl.includes('input_file'))) {
-          const filename = fallbackUrl.split('/').pop()?.toLowerCase() || '';
-          if (filename) {
-            const fileDoc = await getDoc(doc(db, 'assets', filename));
-            if (fileDoc.exists()) {
-              setUrl(fileDoc.data().url);
-              return;
-            }
-          }
+        const assetId = assetName.replace(/\s+/g, '_').toLowerCase();
+        const assetDoc = await getDoc(doc(db, 'assets', assetId));
+        if (assetDoc.exists()) {
+          setUrl(assetDoc.data().url);
         }
       } catch (error) {
         console.error("Asset resolution failed:", error);
