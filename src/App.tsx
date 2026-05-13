@@ -52,17 +52,13 @@ function App() {
     testConnection();
   }, []);
 
-  const handleFinished = () => {
-    setLoadingDone(true);
-  };
-
   if (authLoading || settingsLoading || !loadingDone) {
     return (
       <LoadingScreen 
         customUrl={settings?.loadingUrl} 
         videoUrl={settings?.loadingVideoUrl} 
         logoUrl={settings?.logoUrl}
-        onFinished={handleFinished}
+        onFinished={() => setLoadingDone(true)}
       />
     );
   }
