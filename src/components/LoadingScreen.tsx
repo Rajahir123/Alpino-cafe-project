@@ -36,10 +36,10 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     setIsBuffering(true);
     setMinLogoTimePassed(false);
     
-    // Ensure logo stays for at least 3.5 seconds for brand impact
+    // Ensure logo stays for at least 2.5 seconds for brand impact but feels snappy
     const timer = window.setTimeout(() => {
       setMinLogoTimePassed(true);
-    }, 3500);
+    }, 2500);
     
     return () => clearTimeout(timer);
   }, [videoUrl]);
@@ -81,14 +81,18 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   }, [isMobile]);
 
   const [isExiting, setIsExiting] = useState(false);
+  const onFinishedRef = useRef(onFinished);
+  useEffect(() => {
+    onFinishedRef.current = onFinished;
+  }, [onFinished]);
 
   const handleFinish = () => {
     if (isExiting) return;
     setIsExiting(true);
-    // Give time for exit animation
+    // Smooth fade/wipe time
     setTimeout(() => {
-      onFinished?.();
-    }, 800);
+      onFinishedRef.current?.();
+    }, 600);
   };
 
   useEffect(() => {
@@ -191,7 +195,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
       if (timeoutId) clearTimeout(timeoutId);
       if (finishTimer) clearTimeout(finishTimer);
     };
-  }, [videoUrl, videoLoaded, videoError, onFinished]);
+  }, [videoUrl, videoLoaded, videoError]);
 
   return (
     <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-[100] overflow-hidden cursor-pointer" onClick={() => {
@@ -201,20 +205,13 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         videoRef.current.play().catch(e => console.error("Manual play failed:", e instanceof Error ? e.message : String(e)));
       }
     }}>
-      {/* Exit Transition Wipe */}
+      {/* Exit Transition Wipe - Minimalist pure color for faster perceived speed */}
       <motion.div
         initial={{ x: "-100%" }}
         animate={{ x: isExiting ? "0%" : "-100%" }}
-        transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1] }}
-        className="absolute inset-0 z-[200] bg-[#C90000] flex items-center justify-center"
-      >
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-           <Mountain size={100} className="text-white fill-white" />
-        </motion.div>
-      </motion.div>
+        transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
+        className="absolute inset-0 z-[200] bg-[#C90000]"
+      />
 
       {/* 0. Transition Flash Effect - Triggers when loading completes */}
       <motion.div
