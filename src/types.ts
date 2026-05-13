@@ -28,6 +28,8 @@ export interface MenuItem {
   price: number;
   isTrialFixed: boolean;
   image?: string;
+  bgImage?: string;
+  spinningImage?: string;
   description?: string;
 }
 

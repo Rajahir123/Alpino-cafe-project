@@ -36,3 +36,19 @@ export function useAsset(name: string) {
 
   return { url, loading };
 }
+
+export function getGoogleDriveDirectUrl(url: string | null | undefined): string {
+  if (!url) return '';
+  
+  // Handle already converted or non-drive URLs
+  if (url.includes('googleusercontent.com/d/')) return url;
+  if (url.includes('docs.google.com/uc')) return url;
+
+  // Handle drive.google.com/file/d/ID/view...
+  const driveMatch = url.match(/\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
+  if (driveMatch && driveMatch[1]) {
+    return `https://docs.google.com/uc?id=${driveMatch[1]}`;
+  }
+
+  return url;
+}

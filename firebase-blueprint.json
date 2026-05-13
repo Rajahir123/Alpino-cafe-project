@@ -98,8 +98,29 @@
       "properties": {
         "id": { "type": "string" },
         "logoUrl": { "type": "string" },
+        "loadingUrl": { "type": "string" },
+        "loadingVideoUrl": { "type": "string" },
         "siteName": { "type": "string" },
         "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Draft": {
+      "title": "Draft",
+      "description": "Auto-saved form data for persistence",
+      "type": "object",
+      "properties": {
+        "panelId": { "type": "string" },
+        "data": { "type": "object" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Note": {
+      "title": "Note",
+      "description": "Admin logs and records",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       }
     }
   },
@@ -131,6 +152,14 @@
     "/settings/{settingId}": {
       "schema": "Setting",
       "description": "Global configuration"
+    },
+    "/users/{userId}/drafts/{panelId}": {
+      "schema": "Draft",
+      "description": "Auto-saved user drafts"
+    },
+    "/notes/{noteId}": {
+      "schema": "Note",
+      "description": "Administrative records and history"
     }
   }
 }

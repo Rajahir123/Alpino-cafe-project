@@ -45,18 +45,18 @@ export default function KitchenDashboard() {
   if (loading) return <div className="p-20 text-center font-black animate-pulse text-red-600 italic">SYNCING KITCHEN...</div>;
 
   return (
-    <div className="min-h-screen bg-black text-white p-8 font-sans">
-      <div className="max-w-7xl mx-auto space-y-12">
-        <header className="flex justify-between items-center border-b border-white/5 pb-8">
+    <div className="min-h-screen bg-black text-white p-4 md:p-8 font-sans">
+      <div className="max-w-7xl mx-auto space-y-8 md:space-y-12">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8 border-b border-white/5 pb-8">
           <div>
             <div className="flex items-center gap-2 text-red-600 mb-2">
-              <Utensils size={20} />
-              <span className="text-xs font-black uppercase tracking-[0.3em]">Kitchen OS</span>
+              <Utensils size={16} md:size={20} />
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em]">Kitchen OS</span>
             </div>
-            <h1 className="text-5xl font-black italic uppercase tracking-tighter">Live <span className="text-red-600">Service</span></h1>
+            <h1 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter">Live <span className="text-red-600">Service</span></h1>
           </div>
-          <div className="h-12 flex items-center gap-4 bg-neutral-900 border border-white/5 px-6 rounded-full">
-            <div className="w-2 h-2 bg-red-600 rounded-full animate-ping" />
+          <div className="h-10 md:h-12 flex items-center gap-4 bg-neutral-900 border border-white/5 px-4 md:px-6 rounded-full">
+            <div className="w-2 h-2 bg-red-600 rounded-full animate-ping shrink-0" />
             <span className="text-[10px] font-black uppercase tracking-widest italic">{activeOrders.length} LIVE TICKETS</span>
           </div>
         </header>
@@ -79,26 +79,26 @@ export default function KitchenDashboard() {
                     <motion.div 
                       key={order.id}
                       layout
-                      className="bg-neutral-900 border border-white/5 p-8 rounded-[2rem] shadow-xl relative overflow-hidden"
+                      className="bg-neutral-900 border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-xl relative overflow-hidden"
                     >
-                      <div className="absolute top-0 right-0 py-2 px-6 bg-red-600 text-white font-black italic uppercase text-[10px] tracking-widest">Urgent</div>
+                      <div className="absolute top-0 right-0 py-2 px-4 md:px-6 bg-red-600 text-white font-black italic uppercase text-[8px] md:text-[10px] tracking-widest">Urgent</div>
                       
                       <div className="flex justify-between items-start mb-6">
                          <div>
-                           <div className="text-[10px] font-black uppercase text-red-600 tracking-widest mb-1 italic">Ticket #{order.id.slice(-4)}</div>
-                           <h3 className="text-2xl font-black italic uppercase leading-none">{order.userName}</h3>
+                           <div className="text-[8px] md:text-[10px] font-black uppercase text-red-600 tracking-widest mb-1 italic">Ticket #{order.id.slice(-4)}</div>
+                           <h3 className="text-xl md:text-2xl font-black italic uppercase leading-none">{order.userName}</h3>
                          </div>
                          <div className="text-right">
-                            <div className="text-[10px] font-bold uppercase text-white/30 tracking-widest">Status</div>
-                            <div className="text-sm font-black italic text-white uppercase">{order.status}</div>
+                            <div className="text-[8px] md:text-[10px] font-bold uppercase text-white/30 tracking-widest">Status</div>
+                            <div className="text-xs md:text-sm font-black italic text-white uppercase">{order.status}</div>
                          </div>
                       </div>
 
-                      <div className="space-y-3 mb-8">
+                      <div className="space-y-2 md:space-y-3 mb-8">
                         {order.items.map((item, idx) => (
-                          <div key={idx} className="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
-                            <div className="font-black uppercase italic tracking-tighter text-lg">{item.name}</div>
-                            <div className="text-[10px] font-bold uppercase p-1 bg-red-600 rounded text-white">{item.category}</div>
+                           <div key={idx} className="flex justify-between items-center p-3 md:p-4 bg-white/5 rounded-2xl border border-white/5">
+                            <div className="font-black uppercase italic tracking-tighter text-sm md:text-lg">{item.name}</div>
+                            <div className="text-[8px] md:text-[10px] font-bold uppercase p-1 bg-red-600 rounded text-white shrink-0 ml-2">{item.category}</div>
                           </div>
                         ))}
                       </div>
@@ -107,7 +107,7 @@ export default function KitchenDashboard() {
                         {order.status === 'pending' && (
                           <button 
                             onClick={() => updateStatus(order.id, 'preparing')}
-                            className="flex-grow bg-white text-black h-14 rounded-2xl font-black uppercase tracking-widest hover:bg-neutral-200 transition-all flex items-center justify-center gap-2"
+                            className="flex-grow bg-white text-black h-12 md:h-14 rounded-2xl font-black uppercase tracking-widest hover:bg-neutral-200 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
                           >
                             Start Prep <Utensils size={18} />
                           </button>
@@ -115,7 +115,7 @@ export default function KitchenDashboard() {
                         {order.status === 'preparing' && (
                           <button 
                             onClick={() => updateStatus(order.id, 'out-for-delivery')}
-                            className="flex-grow bg-red-600 text-white h-14 rounded-2xl font-black uppercase tracking-widest hover:bg-red-700 transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(220,38,38,0.3)]"
+                            className="flex-grow bg-red-600 text-white h-12 md:h-14 rounded-2xl font-black uppercase tracking-widest hover:bg-red-700 transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(220,38,38,0.3)] text-sm md:text-base"
                           >
                             Out for Delivery <Truck size={18} />
                           </button>
@@ -123,7 +123,7 @@ export default function KitchenDashboard() {
                         {order.status === 'out-for-delivery' && (
                           <button 
                             onClick={() => updateStatus(order.id, 'delivered')}
-                            className="flex-grow bg-green-600 text-white h-14 rounded-2xl font-black uppercase tracking-widest hover:bg-green-700 transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(22,163,74,0.2)]"
+                            className="flex-grow bg-green-600 text-white h-12 md:h-14 rounded-2xl font-black uppercase tracking-widest hover:bg-green-700 transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(22,163,74,0.2)] text-sm md:text-base"
                           >
                             Mark Delivered <CheckCircle2 size={18} />
                           </button>

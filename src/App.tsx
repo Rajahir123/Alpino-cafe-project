@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
+import { useSettings } from './hooks/useSettings';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import UserDashboard from './pages/UserDashboard';
@@ -17,15 +18,21 @@ import { db } from './lib/firebase';
 
 function App() {
   const { user, profile, loading: authLoading } = useAuth();
-  const [minLoadingDone, setMinLoadingDone] = useState(false);
+  const { settings, loading: settingsLoading } = useSettings();
+  const [loadingDone, setLoadingDone] = useState(false);
   const [cloudConnected, setCloudConnected] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Artificial delay to show the logo/branding
-    const timer = setTimeout(() => {
-      setMinLoadingDone(true);
-    }, 2000);
+    // If there's no loading video, we still want to show the splash for at least 3 seconds
+    if (!settingsLoading && !settings?.loadingVideoUrl) {
+      const timer = setTimeout(() => {
+        setLoadingDone(true);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [settingsLoading, settings?.loadingVideoUrl]);
 
+  useEffect(() => {
     // Mandated Firestore connection test
     async function testConnection() {
       try {
@@ -43,12 +50,17 @@ function App() {
       }
     }
     testConnection();
-
-    return () => clearTimeout(timer);
   }, []);
 
-  if (authLoading || !minLoadingDone) {
-    return <LoadingScreen />;
+  if (authLoading || settingsLoading || !loadingDone) {
+    return (
+      <LoadingScreen 
+        customUrl={settings?.loadingUrl} 
+        videoUrl={settings?.loadingVideoUrl} 
+        logoUrl={settings?.logoUrl}
+        onFinished={() => setLoadingDone(true)}
+      />
+    );
   }
 
   return (

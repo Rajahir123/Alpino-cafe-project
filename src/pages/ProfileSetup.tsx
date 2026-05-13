@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { User, Phone, MapPin, ChevronRight, Mountain } from 'lucide-react';
+import { User, Phone, MapPin, ChevronRight, Mountain, CloudCheck } from 'lucide-react';
+import { usePersistedState } from '../hooks/usePersistedState';
 
 export default function ProfileSetup() {
   const { profile } = useAuth();
-  const [phone, setPhone] = useState(profile?.phone || '');
-  const [address, setAddress] = useState(profile?.address || '');
+  const [phone, setPhone, loadingPhone] = usePersistedState('setup_phone', profile?.phone || '');
+  const [address, setAddress, loadingAddress] = usePersistedState('setup_address', profile?.address || '');
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
+
+  // Sync with profile if it loads later
+  useEffect(() => {
+    if (profile?.phone && !phone) setPhone(profile.phone);
+    if (profile?.address && !address) setAddress(profile.address);
+  }, [profile]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,14 +47,20 @@ export default function ProfileSetup() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-xl w-full bg-neutral-900 border border-white/10 p-12 rounded-[3rem] shadow-2xl"
       >
-        <div className="flex items-center gap-4 mb-10">
-           <div className="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
-             <Mountain size={24} className="fill-current" />
-           </div>
-           <div>
-             <h1 className="text-3xl font-black italic uppercase italic tracking-tighter leading-none mb-1">Set Your Goal</h1>
-             <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">Member Onboarding</div>
-           </div>
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-4">
+             <div className="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+               <Mountain size={24} className="fill-current" />
+             </div>
+             <div>
+               <h1 className="text-3xl font-black italic uppercase italic tracking-tighter leading-none mb-1">Set Your Goal</h1>
+               <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">Member Onboarding</div>
+             </div>
+          </div>
+          <div className="flex items-center gap-2 text-green-500/50">
+             <CloudCheck size={16} />
+             <span className="text-[8px] font-black uppercase tracking-widest">Active Sync</span>
+          </div>
         </div>
 
         <form onSubmit={handleSave} className="space-y-8">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { getGoogleDriveDirectUrl } from '../lib/assets';
 
 interface AssetImageProps {
   assetName: string;
@@ -24,7 +25,8 @@ export default function AssetImage({ assetName, fallbackUrl, alt, className = ""
         const assetId = assetName.replace(/\s+/g, '_').toLowerCase();
         const assetDoc = await getDoc(doc(db, 'assets', assetId));
         if (assetDoc.exists()) {
-          setUrl(assetDoc.data().url);
+          const rawUrl = assetDoc.data().url;
+          setUrl(getGoogleDriveDirectUrl(rawUrl));
         }
       } catch (error) {
         console.error("Asset resolution failed:", error);
@@ -37,15 +39,24 @@ export default function AssetImage({ assetName, fallbackUrl, alt, className = ""
   }, [assetName, fallbackUrl]);
 
   return (
-    <img 
-      src={url} 
-      alt={alt} 
-      onError={(e) => {
-        if (url !== fallbackUrl) {
-          setUrl(fallbackUrl);
-        }
-      }}
-      className={className} 
-    />
+    <div className={`relative overflow-hidden ${className}`}>
+      {loading && (
+        <div className="absolute inset-0 bg-neutral-800 animate-pulse flex items-center justify-center">
+           <div className="w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+        </div>
+      )}
+      <img 
+        src={url} 
+        alt={alt} 
+        onLoad={() => setLoading(false)}
+        onError={(e) => {
+          if (url !== fallbackUrl) {
+            setUrl(fallbackUrl);
+          }
+          setLoading(false);
+        }}
+        className={`w-full h-full object-cover transition-opacity duration-700 ${loading ? 'opacity-0' : 'opacity-100'}`} 
+      />
+    </div>
   );
 }

@@ -85,17 +85,17 @@ export default function UserDashboard() {
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Welcome Header */}
-        <div className="flex justify-between items-end mb-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
            <div>
              <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-red-600 mb-2 underline underline-offset-8 decoration-red-600/30">Welcome back</div>
-             <h1 className="text-4xl font-black italic uppercase italic leading-none">Hey {profile?.name.split(' ')[0]}</h1>
+             <h1 className="text-3xl md:text-4xl font-black italic uppercase leading-none">Hey {profile?.name.split(' ')[0]}</h1>
            </div>
-           <div className="flex bg-neutral-900 border border-white/5 rounded-2xl p-4 divide-x divide-white/10 shadow-lg">
-              <div className="px-6 text-center">
+           <div className="flex w-full md:w-auto bg-neutral-900 border border-white/5 rounded-2xl p-4 divide-x divide-white/10 shadow-lg">
+              <div className="flex-1 md:flex-none px-4 md:px-6 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1">Days Left</div>
-                <div className="text-2xl font-black text-white">{getDayLeft()}</div>
+                <div className="text-xl md:text-2xl font-black text-white">{getDayLeft()}</div>
               </div>
-              <div className="px-6 text-center">
+              <div className="flex-1 md:flex-none px-4 md:px-6 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1">Avg Protein</div>
                 <div className="text-2xl font-black text-red-600">{profile?.avgProtein}g</div>
                 <div className="text-[9px] uppercase font-bold text-white/20 mt-1">Goal: {profile?.proteinGoal}g+</div>
@@ -132,28 +132,28 @@ export default function UserDashboard() {
         </div>
 
         {/* Change Recipe Section */}
-        <section className="bg-neutral-900/50 border border-white/10 rounded-[2.5rem] p-10 relative">
+        <section className="bg-neutral-900/50 border border-white/10 rounded-[2.5rem] p-6 md:p-10 relative">
           <div className="flex justify-between items-start mb-10">
             <div>
-              <h2 className="text-2xl font-black italic uppercase mb-2">Tomorrow — Change Recipe</h2>
-              <p className="text-xs text-white/40 font-bold uppercase tracking-widest bg-white/5 inline-block px-3 py-1 rounded">Pick before 9 PM tonight — updates kitchen instantly</p>
+              <h2 className="text-xl md:text-2xl font-black italic uppercase mb-2">Tomorrow — Change Recipe</h2>
+              <p className="text-[10px] md:text-xs text-white/40 font-bold uppercase tracking-widest bg-white/5 inline-block px-3 py-1 rounded">Pick before 9 PM tonight — updates kitchen instantly</p>
             </div>
-            <Calendar className="text-red-600" size={32} />
+            <Calendar className="text-red-600 hidden md:block" size={32} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-10">
              {availableMenu.map((item) => (
                <motion.div 
                  key={item.id}
                  whileTap={{ scale: 0.98 }}
                  onClick={() => setSelectedItem(item)}
-                 className={`p-6 rounded-[1.5rem] border-2 cursor-pointer transition-all ${
+                 className={`p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] border-2 cursor-pointer transition-all ${
                    selectedItem?.id === item.id ? 'border-red-600 bg-red-600/10' : 'border-white/5 bg-black hover:border-white/20'
                  }`}
                >
-                  <div className="flex items-center justify-between gap-4 mb-2">
-                    <div className="text-[10px] font-black tracking-widest text-white/40 uppercase">{item.category}</div>
-                    <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/10 bg-neutral-900">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="text-[8px] md:text-[10px] font-black tracking-widest text-white/40 uppercase truncate">{item.category}</div>
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded overflow-hidden border border-white/10 bg-neutral-900 flex-shrink-0">
                       <AssetImage 
                         assetName={item.name}
                         fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=200`}
@@ -162,10 +162,10 @@ export default function UserDashboard() {
                       />
                     </div>
                   </div>
-                 <h3 className="font-bold uppercase text-sm leading-tight mb-4">{item.name}</h3>
+                 <h3 className="font-bold uppercase text-[10px] md:text-sm leading-tight mb-2 md:mb-4 line-clamp-2 min-h-[2.5em]">{item.name}</h3>
                  <div className="flex justify-between items-baseline">
-                   <span className="text-lg font-black text-red-600 italic">{item.protein}g</span>
-                   <span className="text-[10px] font-bold text-white/30 uppercase">Protein</span>
+                   <span className="text-sm md:text-lg font-black text-red-600 italic">{item.protein}g</span>
+                   <span className="text-[8px] md:text-[10px] font-bold text-white/30 uppercase">Protein</span>
                  </div>
                </motion.div>
              ))}
@@ -173,16 +173,16 @@ export default function UserDashboard() {
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-white/5">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-red-600 animate-pulse">
-                <Clock size={24} />
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-white/5 rounded-full flex items-center justify-center text-red-600 animate-pulse flex-shrink-0">
+                <Clock size={20} />
               </div>
-              <div className="text-sm font-bold uppercase tracking-widest text-white/60 italic">Updating to kitchen instantly...</div>
+              <div className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-white/60 italic">Updating to kitchen instantly...</div>
             </div>
             
             <button 
               disabled={!selectedItem || saving}
               onClick={handleSaveToKitchen}
-              className={`px-10 py-4 rounded-2xl font-black uppercase tracking-widest flex items-center gap-3 transition-all ${
+              className={`w-full md:w-auto px-10 py-4 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${
                 selectedItem ? 'bg-red-600 hover:bg-red-700 text-white shadow-[0_0_30px_rgba(220,38,38,0.3)]' : 'bg-white/5 text-white/20 cursor-not-allowed'
               }`}
             >

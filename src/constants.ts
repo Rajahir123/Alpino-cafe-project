@@ -211,3 +211,17 @@ export const MENU_ITEMS = [
   { id: 'o1', name: 'Chocolatey Oats Date Bowl', category: 'Oats', protein: 18, calories: 325, price: 209, isTrialFixed: false, image: 'https://images.unsplash.com/photo-1517673400267-0251440c45dc?auto=format&fit=crop&q=80&w=800', description: 'Creamy Chocolate Oats sweetened with Dates and Topped with Seeds.' },
   { id: 'o2', name: 'Turbo Charge Honey Oats Bowl', category: 'Oats', protein: 21, calories: 396, price: 209, isTrialFixed: false, image: 'https://images.unsplash.com/photo-1505253149613-112d21d9f6a9?auto=format&fit=crop&q=80&w=800', description: 'Honey flavored Oats with Muesli, Nuts and Crunchy Seeds.' },
 ];
+
+export const LANDING_PAGE_ITEM_NAMES = [
+  'Mexican Paneer Rice Bowl',
+  'Chole Power Rice Bowl',
+  'Lean Mexi Cali Salad Bowl',
+  'Strawberry Hit',
+  'Mango Surge',
+  'Hydration Fuel Watermelon',
+  'Bulk Fuel (PB Banana Oats)',
+  'Caffeine Warrior',
+  'Chocolate Shake',
+  'Chocolatey Oats Date Bowl',
+  'Turbo Charge Honey Oats Bowl'
+];
