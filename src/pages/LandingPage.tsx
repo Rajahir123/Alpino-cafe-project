@@ -89,6 +89,11 @@ export default function LandingPage() {
         <div className="flex gap-4 md:gap-10 items-center">
           <a href="#menu" className="hidden lg:block text-xs font-black hover:text-red-500 transition-colors uppercase tracking-[0.3em]">Menu</a>
           <a href="#plans" className="hidden lg:block text-xs font-black hover:text-red-500 transition-colors uppercase tracking-[0.3em]">Plans</a>
+          <Link to="/login" className={`hidden md:block bg-transparent hover:bg-white/10 text-white rounded-xl text-[10px] md:text-sm font-black uppercase tracking-[0.2em] transition-all border border-white/20 hover:border-white/50 ${
+            scrolled ? 'px-4 py-2' : 'px-6 py-3'
+          }`}>
+            Admin Login
+          </Link>
           <Link to="/login" className={`bg-red-600 hover:bg-red-700 text-white rounded-xl text-[10px] md:text-sm font-black uppercase tracking-[0.2em] transition-all shadow-[0_4px_25px_rgba(220,38,38,0.4)] hover:scale-105 active:scale-95 ${
             scrolled ? 'px-4 md:px-8 py-2 md:py-3' : 'px-6 md:px-10 py-3 md:py-4'
           }`}>
@@ -636,6 +641,7 @@ export default function LandingPage() {
             <a href="#" className="hover:text-red-500 font-bold uppercase text-xs tracking-widest">Instagram</a>
             <a href="#" className="hover:text-red-500 font-bold uppercase text-xs tracking-widest">Twitter</a>
             <a href="#" className="hover:text-red-500 font-bold uppercase text-xs tracking-widest">Facebook</a>
+            <Link to="/login" className="hover:text-red-500 font-bold uppercase text-xs tracking-widest">Admin Login</Link>
           </div>
           <div className="text-white/20 text-[10px] uppercase font-bold tracking-[0.2em]">
             © 2026 ALPINO PROTEIN CAFÉ. ALL RIGHTS RESERVED.

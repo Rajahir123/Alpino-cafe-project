@@ -42,12 +42,18 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined): string 
   
   // Handle already converted or non-drive URLs
   if (url.includes('googleusercontent.com/d/')) return url;
-  if (url.includes('docs.google.com/uc')) return url;
+  if (url.includes('docs.google.com/uc')) {
+    const idMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
+    if (idMatch && idMatch[1]) {
+      return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+    }
+    return url;
+  }
 
   // Handle drive.google.com/file/d/ID/view...
   const driveMatch = url.match(/\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
   if (driveMatch && driveMatch[1]) {
-    return `https://docs.google.com/uc?id=${driveMatch[1]}`;
+    return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
   }
 
   return url;
