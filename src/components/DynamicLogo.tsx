@@ -51,7 +51,7 @@ export default function DynamicLogo({
         >
           <div style={{ width: size * 1.6, height: size * 1.6 }} className="flex items-center justify-center overflow-hidden relative">
             {logoUrl ? (
-              <img src={logoUrl} alt="Alpino" className="w-full h-full object-contain" />
+              <img src={logoUrl} alt="Alpino" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
             ) : (
               <motion.div 
                 className="bg-red-600 rounded-xl w-full h-full flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.4)] relative overflow-hidden"

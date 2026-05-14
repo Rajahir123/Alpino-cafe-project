@@ -55,7 +55,8 @@ export default function AssetImage({ assetName, fallbackUrl, alt, className = ""
           }
           setLoading(false);
         }}
-        className={`w-full h-full object-cover transition-opacity duration-700 ${loading ? 'opacity-0' : 'opacity-100'}`} 
+        className={`w-full h-full object-cover transition-opacity duration-700 ${loading ? 'opacity-0' : 'opacity-100'}`}
+        referrerPolicy="no-referrer"
       />
     </div>
   );

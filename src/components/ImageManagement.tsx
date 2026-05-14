@@ -153,7 +153,7 @@ export default function ImageManagement() {
     else setLoadingPageLoading(true);
 
     try {
-      const finalUrl = getGoogleDriveDirectUrl(driveUrl);
+      const finalUrl = getGoogleDriveDirectUrl(driveUrl, field !== 'loadingVideoUrl');
       const settingsRef = doc(db, 'settings', 'global');
       await setDoc(settingsRef, {
         [field]: finalUrl,
@@ -212,9 +212,9 @@ export default function ImageManagement() {
         </div>
 
         <div className="flex flex-col md:flex-row items-start md:items-center gap-8 relative z-10">
-           <div className="w-32 h-32 rounded-3xl bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden group relative shadow-2xl">
+            <div className="w-32 h-32 rounded-3xl bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden group relative shadow-2xl">
               {logoUrl ? (
-                <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-4" />
+                <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-4" referrerPolicy="no-referrer" />
               ) : (
                 <ImageIcon className="text-white/10" size={40} />
               )}
@@ -223,7 +223,7 @@ export default function ImageManagement() {
                   <RefreshCw className="animate-spin text-red-600" size={24} />
                 </div>
               )}
-           </div>
+            </div>
            
            <div className="flex-grow space-y-6 w-full md:w-auto">
               <div className="space-y-2">
@@ -272,9 +272,9 @@ export default function ImageManagement() {
         </div>
 
         <div className="mt-12 pt-12 border-t border-white/5 flex flex-col md:flex-row items-start md:items-center gap-8 relative z-10">
-           <div className="w-32 h-32 rounded-3xl bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden group relative shadow-2xl">
+            <div className="w-32 h-32 rounded-3xl bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden group relative shadow-2xl">
               {loadingUrl ? (
-                <img src={loadingUrl} alt="Loading Page" className="w-full h-full object-contain p-4" />
+                <img src={loadingUrl} alt="Loading Page" className="w-full h-full object-contain p-4" referrerPolicy="no-referrer" />
               ) : (
                 <RefreshCw className="text-white/10" size={40} />
               )}
@@ -283,7 +283,7 @@ export default function ImageManagement() {
                   <RefreshCw className="animate-spin text-red-600" size={24} />
                 </div>
               )}
-           </div>
+            </div>
 
            <div className="flex-grow space-y-6 w-full md:w-auto">
               <div className="space-y-2">
@@ -410,6 +410,10 @@ export default function ImageManagement() {
           </div>
           
           <div className="flex bg-neutral-900 border border-white/5 p-1 rounded-xl">
+            <div className="flex items-center gap-2 px-3 py-1 bg-red-600/10 border border-red-600/20 rounded-lg mr-4">
+              <Info size={12} className="text-red-500" />
+              <span className="text-[8px] font-black uppercase text-red-500 tracking-widest whitespace-nowrap">Ensure Drive files are shared publicly</span>
+            </div>
             <button 
               onClick={() => setAssetMode('upload')}
               className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${assetMode === 'upload' ? 'bg-white text-black' : 'text-white/40'}`}
@@ -492,7 +496,7 @@ export default function ImageManagement() {
                className="bg-neutral-900 border border-white/5 rounded-3xl overflow-hidden group relative hover:border-red-600/50 transition-all shadow-xl"
              >
                 <div className="aspect-square bg-black p-4 relative group-hover:scale-105 transition-transform duration-700">
-                   <img src={asset.url} alt={asset.name} className="w-full h-full object-contain" />
+                   <img src={asset.url} alt={asset.name} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
                    {asset.type === 'image/external' && (
                      <div className="absolute top-4 left-4 bg-red-600 p-1.5 rounded-lg shadow-lg">
                         <LinkIcon size={12} className="text-white" />

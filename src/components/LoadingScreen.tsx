@@ -26,7 +26,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   const driveId = videoUrl ? getDriveId(videoUrl) : null;
   const isDriveVideo = !!driveId;
   const embedUrl = driveId ? `https://drive.google.com/file/d/${driveId}/preview?autoplay=1&mute=1` : null;
-  const directVideoUrl = getGoogleDriveDirectUrl(videoUrl);
+  const directVideoUrl = getGoogleDriveDirectUrl(videoUrl, false);
   const directPhotoUrl = getGoogleDriveDirectUrl(customUrl);
   const directLogoUrl = getGoogleDriveDirectUrl(logoUrl);
 
@@ -334,9 +334,10 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     onWaiting={() => setIsBuffering(true)}
                     onPlaying={() => setIsBuffering(false)}
                     className={`relative z-10 w-full h-full object-cover transition-opacity duration-1000 will-change-transform ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    referrerPolicy="no-referrer"
                   >
                     {directVideoUrl && <source src={directVideoUrl} type="video/mp4" />}
-                    {driveId && <source src={`https://docs.google.com/uc?id=${driveId}`} type="video/mp4" />}
+                    {driveId && <source src={`https://docs.google.com/uc?export=download&id=${driveId}`} type="video/mp4" />}
                   </video>
                   {/* High Fidelity Sharpening Overlay - Faded in smoothly to avoid perceived drop */}
                   <div className={`absolute inset-0 z-20 pointer-events-none bg-black/5 contrast-[1.15] saturate-[1.1] mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-40' : 'opacity-0'}`} />
@@ -353,6 +354,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     }}
                     allow="autoplay; fullscreen"
                     style={{ opacity: videoLoaded ? 1.0 : 0 }}
+                    referrerPolicy="no-referrer"
                   />
                   {/* Cinematic overlays and sharpening */}
                   <div className={`absolute inset-0 z-20 pointer-events-none border-[10vw] border-black/20 blur-[60px] mix-blend-multiply transition-opacity duration-700 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`} />

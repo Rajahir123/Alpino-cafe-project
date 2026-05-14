@@ -7,6 +7,7 @@ import { motion } from 'motion/react';
 import { Check, X, ShieldCheck, Users, CreditCard, LayoutDashboard, Search, Image as ImageIcon, Utensils, Plus, Trash2, Save, History, FileText } from 'lucide-react';
 import ImageManagement from '../components/ImageManagement';
 import { usePersistedState } from '../hooks/usePersistedState';
+import { getGoogleDriveDirectUrl } from '../lib/assets';
 
 export default function AdminDashboard() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
@@ -97,6 +98,8 @@ export default function AdminDashboard() {
       const id = newItem.name.replace(/\s+/g, '-').toLowerCase();
       await setDoc(doc(db, 'menu', id), {
         ...newItem,
+        bgImage: getGoogleDriveDirectUrl(newItem.bgImage),
+        spinningImage: getGoogleDriveDirectUrl(newItem.spinningImage),
         id,
         updatedAt: Timestamp.now()
       });
@@ -337,7 +340,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center overflow-hidden border border-white/5">
                            {(item.spinningImage || item.image) ? (
-                             <img src={item.spinningImage || item.image} alt="" className="w-full h-full object-cover" />
+                             <img src={getGoogleDriveDirectUrl(item.spinningImage || item.image)} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                            ) : (
                              <Utensils className="text-white/10" size={24} />
                            )}

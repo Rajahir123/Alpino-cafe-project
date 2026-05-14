@@ -420,7 +420,12 @@ export default function LandingPage() {
                             {/* Static Background Image layer - High Visibility */}
                             <div className="absolute inset-0 z-0">
                               {bgUrl ? (
-                                <img src={bgUrl} alt="" className="w-full h-full object-cover transition-all duration-700 opacity-90 group-hover:opacity-100" />
+                                <img 
+                                  src={bgUrl} 
+                                  alt="" 
+                                  className="w-full h-full object-cover transition-all duration-700 opacity-90 group-hover:opacity-100" 
+                                  referrerPolicy="no-referrer"
+                                />
                               ) : (
                                 <AssetImage 
                                   assetName={item.name}
@@ -460,7 +465,8 @@ export default function LandingPage() {
                                 <img 
                                   src={spinningUrl} 
                                   alt={item.name} 
-                                  className={`w-full h-full transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'object-contain p-2 scale-100' : 'object-cover scale-[2]'}`} 
+                                  className={`w-full h-full transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'object-contain p-2 scale-100' : 'object-cover scale-[2]'}`}
+                                  referrerPolicy="no-referrer"
                                 />
                               ) : (
                                 <AssetImage 
