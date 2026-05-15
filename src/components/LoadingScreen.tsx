@@ -99,13 +99,13 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     const useVideo = !!videoUrl;
 
     if (useVideo) {
-      // Safety timeout: If nothing happens within 20 seconds, move on
+      // Safety timeout: If nothing happens within 7 seconds, move to fallback (iframe or photo)
       timeoutId = window.setTimeout(() => {
         if (!videoLoaded && !videoError) {
-          console.warn("Video loading timed out, moving to fallback.");
-          handleFinish();
+          console.warn("Video loading timed out, attempting fallback.");
+          setVideoError(true);
         }
-      }, 20000);
+      }, 7000);
     } else {
       // Photo case or no video case - stay for 3 seconds for branding impact
       timeoutId = window.setTimeout(() => {
@@ -312,6 +312,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     playsInline
                     loop
                     preload="auto"
+                    crossOrigin="anonymous"
                     key={videoUrl}
                     onCanPlay={() => {
                       setVideoLoaded(true);
@@ -336,8 +337,8 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     className={`relative z-10 w-full h-full object-cover transition-opacity duration-1000 will-change-transform ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
                     referrerPolicy="no-referrer"
                   >
-                    {directVideoUrl && <source src={directVideoUrl} type="video/mp4" />}
-                    {driveId && <source src={`https://docs.google.com/uc?export=download&id=${driveId}`} type="video/mp4" />}
+                    {directVideoUrl && <source src={directVideoUrl} />}
+                    {driveId && <source src={`https://drive.google.com/uc?export=view&id=${driveId}`} />}
                   </video>
                   {/* High Fidelity Sharpening Overlay - Faded in smoothly to avoid perceived drop */}
                   <div className={`absolute inset-0 z-20 pointer-events-none bg-black/5 contrast-[1.15] saturate-[1.1] mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-40' : 'opacity-0'}`} />
@@ -354,12 +355,22 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     }}
                     allow="autoplay; fullscreen"
                     style={{ opacity: videoLoaded ? 1.0 : 0 }}
-                    referrerPolicy="no-referrer"
                   />
                   {/* Cinematic overlays and sharpening */}
                   <div className={`absolute inset-0 z-20 pointer-events-none border-[10vw] border-black/20 blur-[60px] mix-blend-multiply transition-opacity duration-700 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`} />
                   <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 to-transparent z-10" />
                   <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent z-10" />
+                </div>
+              ) : directPhotoUrl ? (
+                <div className="absolute inset-0">
+                  <img 
+                    src={directPhotoUrl} 
+                    alt="Background" 
+                    className="w-full h-full object-cover transition-opacity duration-1000"
+                    onLoad={() => setVideoLoaded(true)}
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-black/20" />
                 </div>
               ) : (
                 <div className="w-full h-full bg-black" />
