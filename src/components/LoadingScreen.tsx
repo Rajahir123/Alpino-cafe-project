@@ -102,25 +102,42 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     const useVideo = !!videoUrl;
 
     if (useVideo) {
+      // Faster mobile timeouts - be extra aggressive for mobile UX
+      const loadTimeout = isMobile ? 3000 : 8000;
+      const ultimateTimeout = isMobile ? 10000 : 25000;
+
       // HQ Video load timeout
       timeoutId = window.setTimeout(() => {
         if (!videoLoaded && !videoError) {
-          console.warn("HQ Video loading timed out (8s), attempting iframe fallback.");
+          console.warn(`HQ Video loading timed out (${loadTimeout/1000}s), attempting iframe fallback.`);
           setVideoError(true);
         }
-      }, 8000);
+      }, loadTimeout);
 
-      // Ultimate safety timeout: If even fallback doesn't work within 25s, skip loading
+      // Ultimate safety timeout
       const escapeTimeout = window.setTimeout(() => {
         if (!isExiting) {
-          console.warn("Ultimate loading timeout reached (25s), force entering app.");
+          console.warn(`Ultimate loading timeout reached (${ultimateTimeout/1000}s), force entering app.`);
           handleFinish();
         }
-      }, 25000);
+      }, ultimateTimeout);
+
+      // Add a global "touch/click" listener to jump-start the video
+      // This is the most reliable way to bypass "autoplay blocked" on mobile
+      const jumpstartPlay = () => {
+        if (videoRef.current) {
+          videoRef.current.play().catch(() => {});
+        }
+      };
+
+      window.addEventListener('touchstart', jumpstartPlay, { once: true });
+      window.addEventListener('mousedown', jumpstartPlay, { once: true });
 
       return () => {
         clearTimeout(timeoutId);
         clearTimeout(escapeTimeout);
+        window.removeEventListener('touchstart', jumpstartPlay);
+        window.removeEventListener('mousedown', jumpstartPlay);
       };
     } else {
       // Photo case or no video case - stay for 3 seconds for branding impact
@@ -139,28 +156,29 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     const video = videoRef.current;
     if (useVideo && video && !videoError) {
       video.muted = true;
+      video.defaultMuted = true;
       video.playsInline = true;
-      video.playbackRate = 1.5; 
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
       video.setAttribute('preload', 'auto');
       
-      // Force immediate header fetch
+      // Force immediate load
       video.load();
       
       const attemptPlay = async () => {
         if (!video) return;
         try {
           if (video.paused) {
-            await video.play();
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+              await playPromise;
+              // Set rate AFTER playback starts to be safer on mobile
+              video.playbackRate = isMobile ? 1.1 : 1.5;
+            }
           }
         } catch (err) {
-          // Silent - user interaction fallback
+          // Attempting play on user gesture is handled by the global listener
         }
-      };
-
-      const handleCanPlay = () => {
-        setIsBuffering(false);
-        setVideoLoaded(true);
-        attemptPlay();
       };
 
       const handlePlaying = () => {
@@ -174,22 +192,23 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
       if (video.readyState >= 2) {
         setVideoLoaded(true);
         setIsBuffering(false);
+        attemptPlay();
       }
 
       attemptPlay();
       
       const fastInterval = window.setInterval(() => {
-        // Aggressive 0.1s detection - even partial data (readyState 2) can show a frame
+        // Aggressive 0.1s detection
         if (video.readyState >= 2 && !videoLoaded) {
           setVideoLoaded(true);
           setIsBuffering(false);
+          attemptPlay();
         }
         if (video.paused && !videoError && (videoLoaded || video.readyState >= 1)) {
           attemptPlay();
         }
       }, 100); 
 
-      video.addEventListener('canplay', handleCanPlay);
       video.addEventListener('playing', handlePlaying);
       video.addEventListener('waiting', handleWaiting);
 
@@ -197,7 +216,6 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         clearTimeout(timeoutId);
         clearTimeout(finishTimer);
         clearInterval(fastInterval);
-        video.removeEventListener('canplay', handleCanPlay);
         video.removeEventListener('playing', handlePlaying);
         video.removeEventListener('waiting', handleWaiting);
       };
@@ -328,22 +346,11 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     playsInline
                     loop
                     preload="auto"
-                    crossOrigin="anonymous"
                     key={videoUrl}
-                    onCanPlay={() => {
-                      setVideoLoaded(true);
-                      setIsBuffering(false);
-                      setVideoError(false);
-                      if (videoRef.current) {
-                        videoRef.current.play().catch(() => {});
-                      }
-                    }}
+                    src={directVideoUrl}
                     onPlay={() => {
                       setVideoLoaded(true);
                       setIsBuffering(false);
-                      if (videoRef.current) {
-                        videoRef.current.playbackRate = 1.2; // Slightly more conservative initial rate
-                      }
                     }}
                     onEnded={() => {
                       console.log("Video ended, finishing loading.");
@@ -358,10 +365,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     onPlaying={() => setIsBuffering(false)}
                     className={`relative z-10 w-full h-full object-cover transition-opacity duration-1000 will-change-transform ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
                     referrerPolicy="no-referrer"
-                  >
-                    {directVideoUrl && <source src={directVideoUrl} type="video/mp4" />}
-                    {driveId && <source src={`https://drive.google.com/uc?id=${driveId}&export=download&confirm=t`} type="video/mp4" />}
-                  </video>
+                  />
                   {/* High Fidelity Sharpening Overlay - Faded in smoothly to avoid perceived drop */}
                   <div className={`absolute inset-0 z-20 pointer-events-none bg-black/5 contrast-[1.15] saturate-[1.1] mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-40' : 'opacity-0'}`} />
                   <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent z-10" />

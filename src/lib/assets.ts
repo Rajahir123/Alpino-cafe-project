@@ -49,7 +49,7 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined, isImage:
     // For videos, conversion is needed
     const idMatch = cleanUrl.match(/d\/([a-zA-Z0-9_-]+)/);
     if (idMatch && idMatch[1]) {
-      return `https://docs.google.com/uc?export=download&id=${idMatch[1]}`;
+      return `https://docs.google.com/uc?id=${idMatch[1]}&export=download`;
     }
     return cleanUrl;
   }
@@ -66,9 +66,9 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined, isImage:
       // images work best via googleusercontent
       return `https://lh3.googleusercontent.com/d/${driveId}`;
     } else {
-      // videos work via uc?export=download (with some limitations like virus scan for >100MB)
-      // Using drive.google.com instead of docs.google.com sometimes helps with some restrictions
-      return `https://drive.google.com/uc?id=${driveId}&export=download&confirm=t`;
+      // videos work via uc?export=download
+      // For small videos (<100MB), this direct link is usually reliable
+      return `https://docs.google.com/uc?id=${driveId}&export=download`;
     }
   }
 
