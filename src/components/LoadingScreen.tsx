@@ -17,6 +17,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   const [minLogoTimePassed, setMinLogoTimePassed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [showForceStart, setShowForceStart] = useState(false);
 
     const getDriveId = (url: string) => {
     if (!url) return null;
@@ -32,6 +33,9 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   const directVideoUrl = getGoogleDriveDirectUrl(videoUrl, false);
   const directPhotoUrl = getGoogleDriveDirectUrl(customUrl);
   const directLogoUrl = getGoogleDriveDirectUrl(logoUrl);
+
+  // Use a high-quality thumbnail from Drive as poster if available
+  const hqPoster = driveId ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1280` : (directPhotoUrl || undefined);
 
   // Quick check for Low Power Mode (approximate)
   const [lowPowerMode, setLowPowerMode] = useState(false);
@@ -106,8 +110,8 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
 
     if (useVideo) {
       // Faster mobile timeouts - be extra aggressive for mobile UX
-      const loadTimeout = isMobile ? 3000 : 8000;
-      const ultimateTimeout = isMobile ? 10000 : 25000;
+      const loadTimeout = isMobile ? 4000 : 8000;
+      const ultimateTimeout = isMobile ? 12000 : 25000;
 
       // HQ Video load timeout
       timeoutId = window.setTimeout(() => {
@@ -116,6 +120,13 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
           setVideoError(true);
         }
       }, loadTimeout);
+
+      // Force Start hint for mobile - if not loaded in 5s
+      const forceStartTimer = window.setTimeout(() => {
+        if (!videoLoaded && !videoError && isMobile) {
+          setShowForceStart(true);
+        }
+      }, 5000);
 
       // Ultimate safety timeout
       const escapeTimeout = window.setTimeout(() => {
@@ -148,6 +159,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
       return () => {
         clearTimeout(timeoutId);
         clearTimeout(escapeTimeout);
+        clearTimeout(forceStartTimer);
         window.removeEventListener('touchstart', jumpstartPlay);
         window.removeEventListener('mousedown', jumpstartPlay);
         document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -376,7 +388,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     loop
                     preload="auto"
                     disablePictureInPicture
-                    poster={directPhotoUrl}
+                    poster={hqPoster}
                     key={videoUrl}
                     src={directVideoUrl}
                     onPlay={() => {
@@ -397,6 +409,26 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     className={`relative z-10 w-full h-full object-cover transition-opacity duration-1000 will-change-transform ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
                     referrerPolicy="no-referrer"
                   />
+                  
+                  {/* Mobile Force Start UI */}
+                  {showForceStart && !videoLoaded && !videoError && isMobile && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 text-center"
+                      onClick={() => {
+                        if (videoRef.current) {
+                          videoRef.current.play().catch(() => {});
+                        }
+                      }}
+                    >
+                      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                        <Zap className="w-12 h-12 text-white mx-auto mb-4 animate-pulse" />
+                        <h3 className="text-white font-medium mb-1">Tap to start intro</h3>
+                        <p className="text-white/60 text-sm">Tap anywhere to play the cinematic loading video.</p>
+                      </div>
+                    </motion.div>
+                  )}
                   {/* High Fidelity Sharpening Overlay - Faded in smoothly to avoid perceived drop */}
                   <div className={`absolute inset-0 z-20 pointer-events-none bg-black/5 contrast-[1.15] saturate-[1.1] mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-40' : 'opacity-0'}`} />
                   <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent z-10" />

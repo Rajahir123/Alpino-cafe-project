@@ -61,13 +61,12 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined, isImage:
     cleanUrl.match(/d\/([a-zA-Z0-9_-]+)/)?.[1] ||
     cleanUrl.match(/\/open\?id=([a-zA-Z0-9_-]+)/)?.[1];
 
-    if (driveId) {
+  if (driveId) {
     if (isImage) {
       // images work best via googleusercontent
       return `https://lh3.googleusercontent.com/d/${driveId}`;
     } else {
       // videos work via uc?export=download
-      // For small videos (<100MB), this direct link is usually reliable
       return `https://docs.google.com/uc?id=${driveId}&export=download`;
     }
   }
