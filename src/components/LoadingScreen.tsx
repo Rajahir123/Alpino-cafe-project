@@ -33,6 +33,9 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   const directPhotoUrl = getGoogleDriveDirectUrl(customUrl);
   const directLogoUrl = getGoogleDriveDirectUrl(logoUrl);
 
+  // Quick check for Low Power Mode (approximate)
+  const [lowPowerMode, setLowPowerMode] = useState(false);
+
   useEffect(() => {
     setVideoLoaded(false);
     setVideoError(false);
@@ -126,18 +129,28 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
       // This is the most reliable way to bypass "autoplay blocked" on mobile
       const jumpstartPlay = () => {
         if (videoRef.current) {
+          videoRef.current.play().catch((e) => {
+            console.log("Jumpstart play failed:", e.message);
+          });
+        }
+      };
+
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible' && videoRef.current && videoRef.current.paused) {
           videoRef.current.play().catch(() => {});
         }
       };
 
       window.addEventListener('touchstart', jumpstartPlay, { once: true });
       window.addEventListener('mousedown', jumpstartPlay, { once: true });
+      document.addEventListener('visibilitychange', handleVisibilityChange);
 
       return () => {
         clearTimeout(timeoutId);
         clearTimeout(escapeTimeout);
         window.removeEventListener('touchstart', jumpstartPlay);
         window.removeEventListener('mousedown', jumpstartPlay);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
       };
     } else {
       // Photo case or no video case - stay for 3 seconds for branding impact
@@ -161,6 +174,9 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
       video.setAttribute('playsinline', '');
       video.setAttribute('webkit-playsinline', '');
       video.setAttribute('preload', 'auto');
+      if (directPhotoUrl) {
+        video.setAttribute('poster', directPhotoUrl);
+      }
       
       // Force immediate load
       video.load();
@@ -177,7 +193,10 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
             }
           }
         } catch (err) {
-          // Attempting play on user gesture is handled by the global listener
+          // Playback might be deferred to jumpstartPlay on mobile
+          if (err instanceof Error && err.name === 'NotAllowedError') {
+            setLowPowerMode(true);
+          }
         }
       };
 
@@ -187,6 +206,14 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
       };
 
       const handleWaiting = () => setIsBuffering(true);
+
+      const handleTimeUpdate = () => {
+        // If currentTime has moved, video is definitely playing
+        if (video.currentTime > 0 && !videoLoaded) {
+          setVideoLoaded(true);
+          setIsBuffering(false);
+        }
+      };
 
       // Check readyState 2 (HAVE_CURRENT_DATA) or better for ultra-fast 0.1s start
       if (video.readyState >= 2) {
@@ -211,6 +238,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
 
       video.addEventListener('playing', handlePlaying);
       video.addEventListener('waiting', handleWaiting);
+      video.addEventListener('timeupdate', handleTimeUpdate);
 
       return () => {
         clearTimeout(timeoutId);
@@ -218,6 +246,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         clearInterval(fastInterval);
         video.removeEventListener('playing', handlePlaying);
         video.removeEventListener('waiting', handleWaiting);
+        video.removeEventListener('timeupdate', handleTimeUpdate);
       };
     }
 
@@ -346,6 +375,8 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     playsInline
                     loop
                     preload="auto"
+                    disablePictureInPicture
+                    poster={directPhotoUrl}
                     key={videoUrl}
                     src={directVideoUrl}
                     onPlay={() => {
