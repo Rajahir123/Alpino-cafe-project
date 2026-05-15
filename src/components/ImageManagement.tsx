@@ -153,7 +153,7 @@ export default function ImageManagement() {
     else setLoadingPageLoading(true);
 
     try {
-      const finalUrl = getGoogleDriveDirectUrl(driveUrl, field !== 'loadingVideoUrl');
+      const finalUrl = getGoogleDriveDirectUrl(driveUrl);
       const settingsRef = doc(db, 'settings', 'global');
       await setDoc(settingsRef, {
         [field]: finalUrl,

@@ -37,39 +37,24 @@ export function useAsset(name: string) {
   return { url, loading };
 }
 
-export function getGoogleDriveDirectUrl(url: string | null | undefined, isImage: boolean = true): string {
+export function getGoogleDriveDirectUrl(url: string | null | undefined): string {
   if (!url) return '';
   
-  // Clean up whitespace
-  const cleanUrl = url.trim();
-
-  // If it's already a direct googleusercontent link (common for images)
-  if (cleanUrl.includes('googleusercontent.com/d/')) {
-    if (isImage) return cleanUrl;
-    // For videos, conversion is needed
-    const idMatch = cleanUrl.match(/d\/([a-zA-Z0-9_-]+)/);
+  // Handle already converted or non-drive URLs
+  if (url.includes('googleusercontent.com/d/')) return url;
+  if (url.includes('docs.google.com/uc')) {
+    const idMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
     if (idMatch && idMatch[1]) {
-      return `https://docs.google.com/uc?id=${idMatch[1]}&export=download`;
+      return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
     }
-    return cleanUrl;
+    return url;
   }
 
-  // Handle various sharing formats
-  const driveId = 
-    cleanUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1] || 
-    cleanUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/)?.[1] ||
-    cleanUrl.match(/d\/([a-zA-Z0-9_-]+)/)?.[1] ||
-    cleanUrl.match(/\/open\?id=([a-zA-Z0-9_-]+)/)?.[1];
-
-  if (driveId) {
-    if (isImage) {
-      // images work best via googleusercontent
-      return `https://lh3.googleusercontent.com/d/${driveId}`;
-    } else {
-      // videos work via uc?export=download
-      return `https://docs.google.com/uc?id=${driveId}&export=download`;
-    }
+  // Handle drive.google.com/file/d/ID/view...
+  const driveMatch = url.match(/\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
+  if (driveMatch && driveMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
   }
 
-  return cleanUrl;
+  return url;
 }
