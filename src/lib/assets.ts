@@ -40,29 +40,37 @@ export function useAsset(name: string) {
 export function getGoogleDriveDirectUrl(url: string | null | undefined, isImage: boolean = true): string {
   if (!url) return '';
   
-  // Handle already converted or non-drive URLs
-  if (url.includes('googleusercontent.com/d/')) {
-    if (isImage) return url;
-    // If it's a video but we have a direct image link, try to extract ID
-    const idMatch = url.match(/d\/([a-zA-Z0-9_-]+)/);
+  // Clean up whitespace
+  const cleanUrl = url.trim();
+
+  // If it's already a direct googleusercontent link (common for images)
+  if (cleanUrl.includes('googleusercontent.com/d/')) {
+    if (isImage) return cleanUrl;
+    // For videos, conversion is needed
+    const idMatch = cleanUrl.match(/d\/([a-zA-Z0-9_-]+)/);
     if (idMatch && idMatch[1]) {
       return `https://docs.google.com/uc?export=download&id=${idMatch[1]}`;
     }
-    return url;
+    return cleanUrl;
   }
 
-  const ucMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
-  const pathMatch = url.match(/\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
-  
-  const driveId = ucMatch?.[1] || pathMatch?.[1];
+  // Handle various sharing formats
+  const driveId = 
+    cleanUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1] || 
+    cleanUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/)?.[1] ||
+    cleanUrl.match(/d\/([a-zA-Z0-9_-]+)/)?.[1] ||
+    cleanUrl.match(/\/open\?id=([a-zA-Z0-9_-]+)/)?.[1];
 
-  if (driveId) {
+    if (driveId) {
     if (isImage) {
+      // images work best via googleusercontent
       return `https://lh3.googleusercontent.com/d/${driveId}`;
     } else {
-      return `https://docs.google.com/uc?export=download&id=${driveId}`;
+      // videos work via uc?export=download (with some limitations like virus scan for >100MB)
+      // Using drive.google.com instead of docs.google.com sometimes helps with some restrictions
+      return `https://drive.google.com/uc?id=${driveId}&export=download&confirm=t`;
     }
   }
 
-  return url;
+  return cleanUrl;
 }

@@ -18,8 +18,11 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const getDriveId = (url: string) => {
-    const match = url?.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url?.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    const getDriveId = (url: string) => {
+    if (!url) return null;
+    const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
+                  url.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+                  url.match(/d\/([a-zA-Z0-9_-]+)/);
     return match ? match[1] : null;
   };
 
@@ -99,13 +102,26 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     const useVideo = !!videoUrl;
 
     if (useVideo) {
-      // Safety timeout: If nothing happens within 20 seconds, move on
+      // HQ Video load timeout
       timeoutId = window.setTimeout(() => {
         if (!videoLoaded && !videoError) {
-          console.warn("Video loading timed out, moving to fallback.");
+          console.warn("HQ Video loading timed out (8s), attempting iframe fallback.");
+          setVideoError(true);
+        }
+      }, 8000);
+
+      // Ultimate safety timeout: If even fallback doesn't work within 25s, skip loading
+      const escapeTimeout = window.setTimeout(() => {
+        if (!isExiting) {
+          console.warn("Ultimate loading timeout reached (25s), force entering app.");
           handleFinish();
         }
-      }, 20000);
+      }, 25000);
+
+      return () => {
+        clearTimeout(timeoutId);
+        clearTimeout(escapeTimeout);
+      };
     } else {
       // Photo case or no video case - stay for 3 seconds for branding impact
       timeoutId = window.setTimeout(() => {
@@ -312,15 +328,22 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     playsInline
                     loop
                     preload="auto"
+                    crossOrigin="anonymous"
                     key={videoUrl}
                     onCanPlay={() => {
                       setVideoLoaded(true);
                       setIsBuffering(false);
                       setVideoError(false);
+                      if (videoRef.current) {
+                        videoRef.current.play().catch(() => {});
+                      }
                     }}
                     onPlay={() => {
                       setVideoLoaded(true);
                       setIsBuffering(false);
+                      if (videoRef.current) {
+                        videoRef.current.playbackRate = 1.2; // Slightly more conservative initial rate
+                      }
                     }}
                     onEnded={() => {
                       console.log("Video ended, finishing loading.");
@@ -337,7 +360,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     referrerPolicy="no-referrer"
                   >
                     {directVideoUrl && <source src={directVideoUrl} type="video/mp4" />}
-                    {driveId && <source src={`https://docs.google.com/uc?export=download&id=${driveId}`} type="video/mp4" />}
+                    {driveId && <source src={`https://drive.google.com/uc?id=${driveId}&export=download&confirm=t`} type="video/mp4" />}
                   </video>
                   {/* High Fidelity Sharpening Overlay - Faded in smoothly to avoid perceived drop */}
                   <div className={`absolute inset-0 z-20 pointer-events-none bg-black/5 contrast-[1.15] saturate-[1.1] mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-40' : 'opacity-0'}`} />
