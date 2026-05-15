@@ -46,7 +46,7 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined, isImage:
     // If it's a video but we have a direct image link, try to extract ID
     const idMatch = url.match(/d\/([a-zA-Z0-9_-]+)/);
     if (idMatch && idMatch[1]) {
-      return `https://drive.google.com/uc?id=${idMatch[1]}&confirm=t`;
+      return `https://docs.google.com/uc?export=download&id=${idMatch[1]}`;
     }
     return url;
   }
@@ -60,8 +60,7 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined, isImage:
     if (isImage) {
       return `https://lh3.googleusercontent.com/d/${driveId}`;
     } else {
-      // Use drive.google.com/uc and confirm=t without export=download for better playback compatibility
-      return `https://drive.google.com/uc?id=${driveId}&confirm=t`;
+      return `https://docs.google.com/uc?export=download&id=${driveId}`;
     }
   }
 
