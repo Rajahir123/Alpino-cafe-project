@@ -37,7 +37,7 @@ export function useAsset(name: string) {
   return { url, loading };
 }
 
-export function getGoogleDriveDirectUrl(url: string | null | undefined): string {
+export function getGoogleDriveDirectUrl(url: string | null | undefined, isVideo: boolean = false): string {
   if (!url) return '';
   
   // Handle already converted or non-drive URLs
@@ -45,7 +45,9 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined): string 
   if (url.includes('docs.google.com/uc')) {
     const idMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
     if (idMatch && idMatch[1]) {
-      return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+      return isVideo 
+        ? `https://docs.google.com/uc?export=download&id=${idMatch[1]}`
+        : `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
     }
     return url;
   }
@@ -53,7 +55,9 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined): string 
   // Handle drive.google.com/file/d/ID/view...
   const driveMatch = url.match(/\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
   if (driveMatch && driveMatch[1]) {
-    return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+    return isVideo 
+      ? `https://docs.google.com/uc?export=download&id=${driveMatch[1]}`
+      : `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
   }
 
   return url;

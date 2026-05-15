@@ -26,7 +26,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   const driveId = videoUrl ? getDriveId(videoUrl) : null;
   const isDriveVideo = !!driveId;
   const embedUrl = driveId ? `https://drive.google.com/file/d/${driveId}/preview?autoplay=1&mute=1` : null;
-  const directVideoUrl = getGoogleDriveDirectUrl(videoUrl);
+  const directVideoUrl = getGoogleDriveDirectUrl(videoUrl, true);
   const directPhotoUrl = getGoogleDriveDirectUrl(customUrl);
   const directLogoUrl = getGoogleDriveDirectUrl(logoUrl);
 
@@ -99,13 +99,16 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     const useVideo = !!videoUrl;
 
     if (useVideo) {
-      // Safety timeout: If nothing happens within 20 seconds, move on
+      // Safety timeout: If nothing happens within 10 seconds, move on
       timeoutId = window.setTimeout(() => {
         if (!videoLoaded && !videoError) {
           console.warn("Video loading timed out, moving to fallback.");
-          handleFinish();
+          // Try to show whatever we have before moving on
+          setVideoLoaded(true);
+          setIsBuffering(false);
+          setTimeout(() => handleFinish(), 2000);
         }
-      }, 20000);
+      }, 10000);
     } else {
       // Photo case or no video case - stay for 3 seconds for branding impact
       timeoutId = window.setTimeout(() => {
