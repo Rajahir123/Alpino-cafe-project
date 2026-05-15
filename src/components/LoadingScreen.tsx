@@ -95,6 +95,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   useEffect(() => {
     let timeoutId: number;
     let finishTimer: number;
+    let playCheckInterval: number;
 
     const useVideo = !!videoUrl;
 
@@ -104,23 +105,32 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         if (!videoLoaded) setShowSkip(true);
       }, 5000);
 
-      // Safety timeout: If nothing happens within 9 seconds, attempt fallback to iframe or photo
+      // Safety timeout: If nothing happens within 8 seconds, attempt fallback
       timeoutId = window.setTimeout(() => {
         if (!videoLoaded && !videoError) {
-          console.warn("LoadingScreen: Video loading timed out, fallback to iframe/photo");
+          console.warn("Video loading timed out, attempting fallback.");
           setVideoError(true);
-          if (!isDriveVideo) {
-             setVideoLoaded(true); 
-          }
         }
-      }, 9000);
+      }, 8000);
+
+      if (videoLoaded && !videoError) {
+        // Intelligent Hide: Once high-quality video starts playing, wait for impact, then finish
+        finishTimer = window.setTimeout(() => {
+          handleFinish();
+        }, 4000); 
+      }
 
       const video = videoRef.current;
       if (video && !videoError) {
         video.muted = true;
         video.playsInline = true;
+        video.playbackRate = 1.35; 
+        video.setAttribute('preload', 'auto');
+        
+        video.load();
         
         const attemptPlay = async () => {
+          if (!video) return;
           try {
             if (video.paused) {
               await video.play();
@@ -129,8 +139,8 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         };
 
         const handleCanPlay = () => {
-          setVideoLoaded(true);
           setIsBuffering(false);
+          setVideoLoaded(true);
           attemptPlay();
         };
 
@@ -139,40 +149,52 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
           setVideoLoaded(true);
         };
 
+        const handleWaiting = () => setIsBuffering(true);
+
+        if (video.readyState >= 2) {
+          setVideoLoaded(true);
+          setIsBuffering(false);
+        }
+
+        attemptPlay();
+        
+        const fastInterval = window.setInterval(() => {
+          if (video.readyState >= 2 && !videoLoaded) {
+            setVideoLoaded(true);
+            setIsBuffering(false);
+          }
+          if (video.paused && !videoError && (videoLoaded || video.readyState >= 1)) {
+            attemptPlay();
+          }
+        }, 200); 
+
         video.addEventListener('canplay', handleCanPlay);
         video.addEventListener('playing', handlePlaying);
-        video.addEventListener('waiting', () => setIsBuffering(true));
-
-        video.load();
-        attemptPlay();
+        video.addEventListener('waiting', handleWaiting);
 
         return () => {
           clearTimeout(skipTimer);
           clearTimeout(timeoutId);
           clearTimeout(finishTimer);
+          clearInterval(fastInterval);
           video.removeEventListener('canplay', handleCanPlay);
           video.removeEventListener('playing', handlePlaying);
+          video.removeEventListener('waiting', handleWaiting);
         };
-      }
-
-      if (videoLoaded && !videoError) {
-        finishTimer = window.setTimeout(() => {
-          handleFinish();
-        }, 6000);
       }
 
       return () => {
         clearTimeout(skipTimer);
         clearTimeout(timeoutId);
-        clearTimeout(finishTimer);
       };
     } else {
+      // Photo case or no video case - stay for 3 seconds for branding impact
       timeoutId = window.setTimeout(() => {
         handleFinish();
-      }, 4000);
+      }, 3000);
       return () => clearTimeout(timeoutId);
     }
-  }, [videoUrl, videoLoaded, videoError, onFinished, isDriveVideo]);
+  }, [videoUrl, videoLoaded, videoError, onFinished]);
 
   return (
     <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-[100] overflow-hidden cursor-pointer" onClick={() => {
@@ -284,8 +306,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
       >
         {videoUrl ? (
            <div className="w-full h-full relative flex items-center justify-center bg-black">
-              {/* Primary Video Element */}
-              {!videoError && (
+              {!videoError ? (
                 <div className="absolute inset-0 z-10">
                   <video 
                     ref={videoRef}
@@ -298,75 +319,72 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     onCanPlay={() => {
                       setVideoLoaded(true);
                       setIsBuffering(false);
+                      setVideoError(false);
                     }}
-                    onPlaying={() => setIsBuffering(false)}
-                    onWaiting={() => setIsBuffering(true)}
+                    onPlay={() => {
+                      setVideoLoaded(true);
+                      setIsBuffering(false);
+                    }}
+                    onEnded={() => {
+                      console.log("Video ended, finishing loading.");
+                      handleFinish();
+                    }}
                     onError={() => {
-                      console.warn("LoadingScreen: Video element failed");
+                      console.warn("Video element failed. Attempting fallback.");
                       setVideoError(true);
+                      setIsBuffering(false);
                     }}
-                    className={`relative z-10 w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded && !videoError ? 'opacity-100' : 'opacity-0'}`}
+                    onWaiting={() => setIsBuffering(true)}
+                    onPlaying={() => setIsBuffering(false)}
+                    className={`relative z-10 w-full h-full object-cover transition-opacity duration-1000 will-change-transform ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    referrerPolicy="no-referrer"
                   >
-                    {directVideoUrl && <source src={directVideoUrl} type="video/mp4" />}
-                    {driveId && <source src={`https://drive.google.com/uc?export=download&id=${driveId}&confirm=t`} type="video/mp4" />}
+                    {directVideoUrl && <source src={directVideoUrl} />}
+                    {driveId && <source src={`https://drive.google.com/uc?id=${driveId}&confirm=t`} />}
                   </video>
+                  {/* High Fidelity Sharpening Overlay - Faded in smoothly to avoid perceived drop */}
                   <div className={`absolute inset-0 z-20 pointer-events-none bg-black/5 contrast-[1.15] saturate-[1.1] mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-40' : 'opacity-0'}`} />
                   <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent z-10" />
                 </div>
-              )}
-
-              {/* Fallback Layer (Iframe or Photo) */}
-              {(videoError || (isDriveVideo && !videoLoaded)) && (
+              ) : isDriveVideo && embedUrl ? (
                 <div className="absolute inset-0 overflow-hidden bg-black flex items-center justify-center">
-                  {isDriveVideo && !videoLoaded && !videoError && (
-                    <div className="absolute inset-x-0 bottom-32 z-50 flex items-center justify-center pointer-events-none">
-                       <p className="text-white/20 text-[8px] uppercase tracking-widest font-mono">Initializing Stream...</p>
-                    </div>
-                  )}
-                  
-                  {isDriveVideo && embedUrl && !videoError ? (
-                    <iframe 
-                      src={`${embedUrl}&vq=hd720&hd=1&modestbranding=1&rel=0&fs=0&controls=0&disablekb=1&showinfo=0&iv_load_policy=3`}
-                      className="w-full h-[calc(110%+160px)] -mt-[10%] border-none pointer-events-none transition-opacity duration-1000 scale-[1.05]"
-                      onLoad={() => {
-                        setVideoLoaded(true);
-                      }}
-                      allow="autoplay; fullscreen"
-                      style={{ opacity: videoLoaded ? 1.0 : 0 }}
-                    />
-                  ) : directPhotoUrl ? (
-                    <img 
-                      src={directPhotoUrl} 
-                      alt="Background" 
-                      className="w-full h-full object-cover transition-opacity duration-1000"
-                      onLoad={() => setVideoLoaded(true)}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-black" />
-                  )}
-                  
+                  <iframe 
+                    src={`${embedUrl}&vq=hd720&hd=1&modestbranding=1&rel=0&fs=0&controls=0&disablekb=1&showinfo=0&iv_load_policy=3`}
+                    className="w-full h-[calc(110%+160px)] -mt-[10%] border-none pointer-events-none transition-opacity duration-1000 will-change-transform scale-[1.05]"
+                    onLoad={() => {
+                      setVideoLoaded(true);
+                      setTimeout(() => handleFinish(), 10000); // 10s for high-def impact
+                    }}
+                    allow="autoplay; fullscreen"
+                    style={{ opacity: videoLoaded ? 1.0 : 0 }}
+                  />
+                  {/* Cinematic overlays and sharpening */}
                   <div className={`absolute inset-0 z-20 pointer-events-none border-[10vw] border-black/20 blur-[60px] mix-blend-multiply transition-opacity duration-700 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`} />
+                  <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 to-transparent z-10" />
                   <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent z-10" />
                 </div>
+              ) : directPhotoUrl ? (
+                <div className="absolute inset-0">
+                  <img 
+                    src={directPhotoUrl} 
+                    alt="Background" 
+                    className="w-full h-full object-cover transition-opacity duration-1000"
+                    onLoad={() => setVideoLoaded(true)}
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-black/20" />
+                </div>
+              ) : (
+                <div className="w-full h-full bg-black" />
               )}
              
-             {/* Cinematic Overlays */}
-             <div className="absolute inset-0 bg-black/5 backdrop-contrast-[1.02] pointer-events-none" />
+             {/* Cinematic Overlays - Optimized for 1080p 60fps Visual Fidelity */}
+             <div className="absolute inset-0 bg-black/5 backdrop-contrast-[1.02] will-change-transform" />
              <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-black/40 pointer-events-none" />
-             <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-[0.03]' : 'opacity-0'}`} />
+             <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`} />
            </div>
-        ) : directPhotoUrl ? (
-          <div className="absolute inset-0">
-            <img 
-              src={directPhotoUrl} 
-              alt="Background" 
-              className="w-full h-full object-cover"
-              onLoad={() => setVideoLoaded(true)}
-            />
-            <div className="absolute inset-0 bg-black/40" />
-          </div>
         ) : (
-          <div className="w-full h-full bg-black" />
+          <div className="w-full h-full relative bg-black" />
         )}
       </motion.div>
 

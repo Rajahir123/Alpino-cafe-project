@@ -60,8 +60,8 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined, isImage:
     if (isImage) {
       return `https://lh3.googleusercontent.com/d/${driveId}`;
     } else {
-      // Use drive.google.com/uc?export=download for best binary stream compatibility in video tags
-      return `https://drive.google.com/uc?export=download&id=${driveId}&confirm=t`;
+      // Use drive.google.com/uc and confirm=t without export=download for better playback compatibility
+      return `https://drive.google.com/uc?id=${driveId}&confirm=t`;
     }
   }
 
