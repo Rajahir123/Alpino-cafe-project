@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { put } from '@vercel/blob';
+import { Readable } from 'stream';
 
 async function startServer() {
   const app = express();
@@ -41,6 +42,52 @@ async function startServer() {
         errorMessage = 'Vercel Blob Error: Your store is configured as PRIVATE. Please go to your Vercel Dashboard -> Storage -> Blob -> Settings and change "Storage Visibility" to PUBLIC so your website can play the videos.';
       }
       res.status(500).json({ error: errorMessage });
+    }
+  });
+
+  // Google Drive Proxy to bypass cookie/auth/referer issues
+  app.get('/api/drive-proxy', async (req, res) => {
+    const { id, isVideo } = req.query;
+    if (!id || typeof id !== 'string') {
+      return res.status(400).send('File ID is required');
+    }
+
+    try {
+      // Use the direct media link
+      const driveUrl = isVideo === 'true' 
+        ? `https://drive.google.com/uc?export=media&id=${id}&confirm=t`
+        : `https://drive.google.com/uc?export=download&id=${id}`;
+
+      const response = await fetch(driveUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+      });
+
+      if (!response.ok) {
+        return res.status(response.status).send('Failed to fetch from Google Drive');
+      }
+
+      // Copy headers for caching and content type
+      const contentType = response.headers.get('content-type');
+      if (contentType) res.setHeader('Content-Type', contentType);
+      
+      const contentLength = response.headers.get('content-length');
+      if (contentLength) res.setHeader('Content-Length', contentLength);
+
+      // Best for images: tell the browser it can cache this 
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+
+      // Stream the response body directly to Express res
+      if (response.body) {
+        // @ts-ignore - Readable.fromWeb exists in Node 18+
+        Readable.fromWeb(response.body).pipe(res);
+      } else {
+        res.status(500).send('No response body from Drive');
+      }
+    } catch (error: any) {
+      console.error('Drive proxy error:', error);
+      res.status(500).send('Error proxying Google Drive file');
     }
   });
 

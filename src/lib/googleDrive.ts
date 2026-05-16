@@ -50,14 +50,9 @@ export function getDriveDirectLink(urlOrId: string | null | undefined, isVideo: 
   const id = getDriveId(urlOrId);
   if (!id) return urlOrId; // Return as is if we can't extract an ID
 
-  // Video links work best with the 'media' export parameter to avoid HTML 'virus check' pages
-  if (isVideo) {
-    return `https://drive.google.com/uc?export=media&id=${id}&confirm=t`;
-  }
-
-  // For images, we use the thumbnail server which is more reliable for public access without cookies
-  // sz=w1200 provides a high-quality version
-  return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+  // Use the server-side proxy to bypass all browser-side authentication/referer issues
+  const proxyUrl = `/api/drive-proxy?id=${id}`;
+  return isVideo ? `${proxyUrl}&isVideo=true` : proxyUrl;
 }
 
 /**
