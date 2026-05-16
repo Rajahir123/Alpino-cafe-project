@@ -46,7 +46,7 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined, isVideo:
     const idMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
     if (idMatch && idMatch[1]) {
       return isVideo 
-        ? `https://docs.google.com/uc?export=download&id=${idMatch[1]}`
+        ? `https://drive.google.com/uc?export=media&id=${idMatch[1]}`
         : `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
     }
     return url;
@@ -56,7 +56,7 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined, isVideo:
   const driveMatch = url.match(/\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
   if (driveMatch && driveMatch[1]) {
     return isVideo 
-      ? `https://docs.google.com/uc?id=${driveMatch[1]}`
+      ? `https://drive.google.com/uc?export=media&id=${driveMatch[1]}`
       : `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
   }
 

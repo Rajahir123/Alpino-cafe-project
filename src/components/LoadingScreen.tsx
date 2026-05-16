@@ -101,16 +101,23 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     const useVideo = !!videoUrl;
 
     if (useVideo) {
-      // Safety timeout: If nothing happens within 10 seconds, move on
+      // Safety timeout: If nothing happens within 4 seconds for Drive videos, try fallback 
+      // Drive direct links often hang or return HTML virus warnings for large files
+      const timeoutDuration = isDriveVideo ? 4000 : 8000;
+      
       timeoutId = window.setTimeout(() => {
         if (!videoLoaded && !videoError) {
-          console.warn("Video loading timed out, moving to fallback.");
-          // Try to show whatever we have before moving on
-          setVideoLoaded(true);
-          setIsBuffering(false);
-          setTimeout(() => handleFinish(), 2000);
+          if (isDriveVideo) {
+            console.warn("Drive video tag taking too long, switching to iframe fallback.");
+            setVideoError(true);
+          } else {
+            console.warn("Video loading timed out, moving to finish.");
+            setVideoLoaded(true);
+            setIsBuffering(false);
+            setTimeout(() => handleFinish(), 1500);
+          }
         }
-      }, 10000);
+      }, timeoutDuration);
     } else {
       // Photo case or no video case - stay for 3 seconds for branding impact
       timeoutId = window.setTimeout(() => {
@@ -324,7 +331,8 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     playsInline
                     loop
                     preload="auto"
-                    src={directVideoUrl || (driveId ? `https://docs.google.com/uc?id=${driveId}` : undefined)}
+                    crossOrigin="anonymous"
+                    src={directVideoUrl || (driveId ? `https://drive.google.com/uc?export=media&id=${driveId}` : undefined)}
                     onCanPlay={() => {
                       console.log("Video: onCanPlay reached");
                       setVideoLoaded(true);
