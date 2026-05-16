@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Utensils, Milk, Zap, Target, Mountain } from 'lucide-react';
 import { getGoogleDriveDirectUrl } from '../lib/assets';
+import { getDriveId, getDriveEmbedLink, getDriveDirectLink } from '../lib/googleDrive';
 
 interface LoadingScreenProps {
   customUrl?: string;
@@ -19,17 +20,12 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const getDriveId = (url: string) => {
-    const match = url?.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url?.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-    return match ? match[1] : null;
-  };
-
   const driveId = videoUrl ? getDriveId(videoUrl) : null;
   const isDriveVideo = !!driveId;
-  const embedUrl = driveId ? `https://drive.google.com/file/d/${driveId}/preview?autoplay=1&mute=1` : null;
-  const directVideoUrl = getGoogleDriveDirectUrl(videoUrl, true);
-  const directPhotoUrl = getGoogleDriveDirectUrl(customUrl);
-  const directLogoUrl = getGoogleDriveDirectUrl(logoUrl);
+  const embedUrl = getDriveEmbedLink(videoUrl);
+  const directVideoUrl = getDriveDirectLink(videoUrl, true);
+  const directPhotoUrl = getDriveDirectLink(customUrl);
+  const directLogoUrl = getDriveDirectLink(logoUrl);
 
   useEffect(() => {
     console.log("LoadingScreen: Init", { videoUrl, directVideoUrl, isDriveVideo });

@@ -5,6 +5,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { motion } from 'motion/react';
 import { Upload, Trash2, Image as ImageIcon, Settings, Check, X, RefreshCw, Link as LinkIcon, ExternalLink, Info, CloudCheck } from 'lucide-react';
 import { getGoogleDriveDirectUrl } from '../lib/assets';
+import { getDriveDirectLink } from '../lib/googleDrive';
 import { usePersistedState } from '../hooks/usePersistedState';
 
 interface Asset {
@@ -153,7 +154,7 @@ export default function ImageManagement() {
     else setLoadingPageLoading(true);
 
     try {
-      const finalUrl = getGoogleDriveDirectUrl(driveUrl);
+      const finalUrl = getDriveDirectLink(driveUrl, isVideo);
       const settingsRef = doc(db, 'settings', 'global');
       await setDoc(settingsRef, {
         [field]: finalUrl,

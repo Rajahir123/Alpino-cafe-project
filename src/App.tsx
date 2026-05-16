@@ -15,6 +15,7 @@ import AdminQuickNav from './components/AdminQuickNav';
 import { Package2, User as UserIcon, LayoutDashboard, Utensils, ShieldCheck } from 'lucide-react';
 import { doc, getDocFromServer } from 'firebase/firestore';
 import { db } from './lib/firebase';
+import { DEFAULT_LOADING_VIDEO_URL } from './lib/googleDrive';
 
 function App() {
   const { user, profile, loading: authLoading } = useAuth();
@@ -22,15 +23,17 @@ function App() {
   const [loadingDone, setLoadingDone] = useState(false);
   const [cloudConnected, setCloudConnected] = useState<boolean | null>(null);
 
+  const effectiveLoadingVideoUrl = settings?.loadingVideoUrl || DEFAULT_LOADING_VIDEO_URL;
+
   useEffect(() => {
-    // If there's no loading video, we still want to show the splash for at least 3 seconds
-    if (!settingsLoading && !settings?.loadingVideoUrl) {
+    // If there's no loading video (checked using effective url), we still want to show the splash for at least 3 seconds
+    if (!settingsLoading && !effectiveLoadingVideoUrl) {
       const timer = setTimeout(() => {
         setLoadingDone(true);
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [settingsLoading, settings?.loadingVideoUrl]);
+  }, [settingsLoading, effectiveLoadingVideoUrl]);
 
   useEffect(() => {
     // Mandated Firestore connection test
@@ -56,7 +59,7 @@ function App() {
     return (
       <LoadingScreen 
         customUrl={settings?.loadingUrl} 
-        videoUrl={settings?.loadingVideoUrl} 
+        videoUrl={effectiveLoadingVideoUrl} 
         logoUrl={settings?.logoUrl}
         onFinished={() => setLoadingDone(true)}
       />

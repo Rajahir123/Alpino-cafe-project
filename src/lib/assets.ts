@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { getDriveDirectLink } from './googleDrive';
 
 export function useAsset(name: string) {
   const [url, setUrl] = useState<string | null>(null);
@@ -38,27 +39,5 @@ export function useAsset(name: string) {
 }
 
 export function getGoogleDriveDirectUrl(url: string | null | undefined, isVideo: boolean = false): string {
-  if (!url) return '';
-  
-  // Handle already converted or non-drive URLs
-  if (url.includes('googleusercontent.com/d/')) return url;
-  if (url.includes('docs.google.com/uc')) {
-    const idMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
-    if (idMatch && idMatch[1]) {
-      return isVideo 
-        ? `https://drive.google.com/uc?export=media&id=${idMatch[1]}`
-        : `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
-    }
-    return url;
-  }
-
-  // Handle drive.google.com/file/d/ID/view...
-  const driveMatch = url.match(/\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
-  if (driveMatch && driveMatch[1]) {
-    return isVideo 
-      ? `https://drive.google.com/uc?export=media&id=${driveMatch[1]}`
-      : `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
-  }
-
-  return url;
+  return getDriveDirectLink(url, isVideo);
 }
