@@ -97,16 +97,16 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     const useVideo = !!videoUrl;
 
     if (useVideo) {
-      // Safety timeout: If nothing happens within 3.5 seconds for Drive videos, try fallback 
+      // Safety timeout: If nothing happens within 3 seconds for Drive videos, try fallback 
       // Drive direct links often hang or return HTML virus warnings for large files
-      const timeoutDuration = isDriveVideo ? 3500 : 7000;
+      // Production sites like Vercel benefit from faster failover to stay responsive
+      const timeoutDuration = isDriveVideo ? 3000 : 8000;
       
       timeoutId = window.setTimeout(() => {
         if (!videoLoaded && !videoError) {
           if (isDriveVideo) {
-            console.warn("Drive video tag taking too long, switching to iframe fallback.");
+            console.warn("Drive video tag taking too long or blocked by CORS/Virus Check on Vercel. Switching to iframe fallback.");
             setVideoError(true);
-            setIsBuffering(false);
           } else {
             console.warn("Video loading timed out, moving to finish.");
             setVideoLoaded(true);
@@ -203,7 +203,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   }, [videoUrl, videoLoaded, videoError, onFinished]);
 
   return (
-    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-[100] overflow-hidden cursor-pointer" onClick={() => {
+    <div className="fixed inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center z-[100] overflow-hidden cursor-pointer" onClick={() => {
       // Allow user to click anywhere to "jumpstart" the video if blocked
       if (videoRef.current) {
         videoRef.current.muted = false; // Try unmuting on click too
@@ -238,7 +238,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         initial={{ opacity: 1 }}
         animate={{ opacity: (!videoLoaded || isBuffering || !minLogoTimePassed) ? 1 : 0 }}
         transition={{ duration: 1.2, ease: [0.45, 0, 0.55, 1] }}
-        className={`absolute inset-0 z-[110] bg-black flex items-center justify-center pointer-events-none transition-all duration-1000 ${(!videoLoaded || isBuffering || !minLogoTimePassed) ? 'scale-100' : 'scale-125'}`}
+        className={`absolute inset-0 z-[110] bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)] flex items-center justify-center pointer-events-none transition-all duration-1000 ${(!videoLoaded || isBuffering || !minLogoTimePassed) ? 'scale-100' : 'scale-125'}`}
         onAnimationComplete={() => {
           // Additional logic could go here if we wanted to trigger something strictly after fade
         }}
@@ -361,13 +361,11 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
               ) : isDriveVideo && embedUrl ? (
                 <div className="absolute inset-0 overflow-hidden bg-black flex items-center justify-center">
                   <iframe 
-                    src={embedUrl}
+                    src={`${embedUrl}&vq=hd720&hd=1&modestbranding=1&rel=0&fs=0&controls=0&disablekb=1&showinfo=0&iv_load_policy=3`}
                     className="w-full h-[calc(110%+160px)] -mt-[10%] border-none pointer-events-none transition-opacity duration-1000 will-change-transform scale-[1.05]"
                     onLoad={() => {
                       setVideoLoaded(true);
-                      setIsBuffering(false);
-                      // Since we can't tell if the iframe video ended, we finish after 8s
-                      setTimeout(() => handleFinish(), 8000); 
+                      setTimeout(() => handleFinish(), 10000); // 10s for high-def impact
                     }}
                     allow="autoplay; fullscreen"
                     style={{ opacity: videoLoaded ? 1.0 : 0 }}
@@ -378,7 +376,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                   <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent z-10" />
                 </div>
               ) : (
-                <div className="w-full h-full bg-black" />
+                <div className="w-full h-full bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)]" />
               )}
              
              {/* Cinematic Overlays - Optimized for 1080p 60fps Visual Fidelity */}
@@ -387,7 +385,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
              <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`} />
            </div>
         ) : (
-          <div className="w-full h-full relative bg-black" />
+          <div className="w-full h-full relative bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)]" />
         )}
       </motion.div>
 

@@ -15,7 +15,7 @@ import AdminQuickNav from './components/AdminQuickNav';
 import { Package2, User as UserIcon, LayoutDashboard, Utensils, ShieldCheck } from 'lucide-react';
 import { doc, getDocFromServer } from 'firebase/firestore';
 import { db } from './lib/firebase';
-import { DEFAULT_LOADING_VIDEO_URL } from './lib/googleDrive';
+import { DEFAULT_LOADING_VIDEO_URL, VERCEL_BLOB_LOADING_VIDEO_URL } from './lib/googleDrive';
 
 function App() {
   const { user, profile, loading: authLoading } = useAuth();
@@ -23,7 +23,7 @@ function App() {
   const [loadingDone, setLoadingDone] = useState(false);
   const [cloudConnected, setCloudConnected] = useState<boolean | null>(null);
 
-  const effectiveLoadingVideoUrl = settings?.loadingVideoUrl || DEFAULT_LOADING_VIDEO_URL;
+  const effectiveLoadingVideoUrl = settings?.loadingVideoUrl || VERCEL_BLOB_LOADING_VIDEO_URL || DEFAULT_LOADING_VIDEO_URL;
 
   useEffect(() => {
     // If there's no loading video (checked using effective url), we still want to show the splash for at least 3 seconds
