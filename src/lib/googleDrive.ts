@@ -11,18 +11,18 @@ export const DEFAULT_LOADING_VIDEO_URL = "https://drive.google.com/file/d/1xJmDA
 export function getDriveId(url: string | null | undefined): string | null {
   if (!url) return null;
   
-  // Pattern 1: https://drive.google.com/file/d/ID/view
-  // Pattern 2: https://docs.google.com/open?id=ID
-  // Pattern 3: https://docs.google.com/uc?id=ID
-  // Pattern 4: https://drive.google.com/uc?export=download&id=ID
-  const driveMatch = url.match(/\/(?:file\/d\/|open\?id=|uc\?id=|uc\?export=[a-z]+&id=)([a-zA-Z0-9_-]+)/);
-  if (driveMatch && driveMatch[1]) {
-    return driveMatch[1];
-  }
+  // Patterns
+  const patterns = [
+    /\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /[?&]id=([a-zA-Z0-9_-]+)/,
+    /\/uc\?id=([a-zA-Z0-9_-]+)/,
+    /\/open\?id=([a-zA-Z0-9_-]+)/
+  ];
 
-  // Fallback for simple ID-only strings or query params anywhere in the string
-  const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (idMatch && idMatch[1]) return idMatch[1];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) return match[1];
+  }
 
   // If it's a raw 28-33 char ID (standard drive ID length)
   if (/^[a-zA-Z0-9_-]{28,40}$/.test(url)) {

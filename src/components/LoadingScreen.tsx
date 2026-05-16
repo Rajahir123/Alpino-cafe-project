@@ -97,15 +97,16 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     const useVideo = !!videoUrl;
 
     if (useVideo) {
-      // Safety timeout: If nothing happens within 4 seconds for Drive videos, try fallback 
+      // Safety timeout: If nothing happens within 3.5 seconds for Drive videos, try fallback 
       // Drive direct links often hang or return HTML virus warnings for large files
-      const timeoutDuration = isDriveVideo ? 4000 : 8000;
+      const timeoutDuration = isDriveVideo ? 3500 : 7000;
       
       timeoutId = window.setTimeout(() => {
         if (!videoLoaded && !videoError) {
           if (isDriveVideo) {
             console.warn("Drive video tag taking too long, switching to iframe fallback.");
             setVideoError(true);
+            setIsBuffering(false);
           } else {
             console.warn("Video loading timed out, moving to finish.");
             setVideoLoaded(true);
@@ -327,7 +328,6 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     playsInline
                     loop
                     preload="auto"
-                    crossOrigin="anonymous"
                     src={directVideoUrl || (driveId ? `https://drive.google.com/uc?export=media&id=${driveId}` : undefined)}
                     onCanPlay={() => {
                       console.log("Video: onCanPlay reached");
@@ -361,11 +361,13 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
               ) : isDriveVideo && embedUrl ? (
                 <div className="absolute inset-0 overflow-hidden bg-black flex items-center justify-center">
                   <iframe 
-                    src={`${embedUrl}&vq=hd720&hd=1&modestbranding=1&rel=0&fs=0&controls=0&disablekb=1&showinfo=0&iv_load_policy=3`}
+                    src={embedUrl}
                     className="w-full h-[calc(110%+160px)] -mt-[10%] border-none pointer-events-none transition-opacity duration-1000 will-change-transform scale-[1.05]"
                     onLoad={() => {
                       setVideoLoaded(true);
-                      setTimeout(() => handleFinish(), 10000); // 10s for high-def impact
+                      setIsBuffering(false);
+                      // Since we can't tell if the iframe video ended, we finish after 8s
+                      setTimeout(() => handleFinish(), 8000); 
                     }}
                     allow="autoplay; fullscreen"
                     style={{ opacity: videoLoaded ? 1.0 : 0 }}
