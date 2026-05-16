@@ -56,7 +56,7 @@ export function getGoogleDriveDirectUrl(url: string | null | undefined, isVideo:
   const driveMatch = url.match(/\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
   if (driveMatch && driveMatch[1]) {
     return isVideo 
-      ? `https://docs.google.com/uc?export=download&id=${driveMatch[1]}`
+      ? `https://docs.google.com/uc?id=${driveMatch[1]}`
       : `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
   }
 

@@ -12,6 +12,7 @@ interface LoadingScreenProps {
 
 export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: LoadingScreenProps) {
   const [videoError, setVideoError] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
   const [minLogoTimePassed, setMinLogoTimePassed] = useState(false);
@@ -31,6 +32,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   const directLogoUrl = getGoogleDriveDirectUrl(logoUrl);
 
   useEffect(() => {
+    console.log("LoadingScreen: Init", { videoUrl, directVideoUrl, isDriveVideo });
     setVideoLoaded(false);
     setVideoError(false);
     setIsBuffering(true);
@@ -268,6 +270,12 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     alt="Intro Logo" 
                     className="h-48 w-auto object-contain drop-shadow-[0_0_40px_rgba(255,255,255,0.15)]"
                     referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      console.warn("Logo image failed to load, switching to icon.");
+                      (e.currentTarget as HTMLImageElement).style.display = 'none';
+                      // Force local state to show fallback if we had one, but here we'll just let the next div show
+                      setVideoError(true); // repurpose this or use a new state? Actually let's just use CSS
+                    }}
                   />
                 ) : (
                   <Mountain size={120} className="text-white fill-white" />
@@ -310,18 +318,21 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                 <div className="absolute inset-0 z-10">
                   <video 
                     ref={videoRef}
+                    key={videoUrl}
                     autoPlay
                     muted
                     playsInline
                     loop
                     preload="auto"
-                    key={videoUrl}
+                    src={directVideoUrl || (driveId ? `https://docs.google.com/uc?id=${driveId}` : undefined)}
                     onCanPlay={() => {
+                      console.log("Video: onCanPlay reached");
                       setVideoLoaded(true);
                       setIsBuffering(false);
                       setVideoError(false);
                     }}
                     onPlay={() => {
+                      console.log("Video: onPlay reached");
                       setVideoLoaded(true);
                       setIsBuffering(false);
                     }}
@@ -338,8 +349,6 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     onPlaying={() => setIsBuffering(false)}
                     className={`relative z-10 w-full h-full object-cover transition-opacity duration-1000 will-change-transform ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
                   >
-                    {directVideoUrl && <source src={directVideoUrl} type="video/mp4" />}
-                    {driveId && <source src={`https://docs.google.com/uc?id=${driveId}`} type="video/mp4" />}
                   </video>
                   {/* High Fidelity Sharpening Overlay - Faded in smoothly to avoid perceived drop */}
                   <div className={`absolute inset-0 z-20 pointer-events-none bg-black/5 contrast-[1.15] saturate-[1.1] mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-40' : 'opacity-0'}`} />
@@ -395,7 +404,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
               className="flex justify-center"
             >
-              {directLogoUrl ? (
+              {directLogoUrl && !logoError ? (
                 <div className="relative group">
                   <div className="absolute inset-[-15px] bg-[#C90000]/20 blur-2xl rounded-full animate-pulse" />
                   <img 
@@ -403,6 +412,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     alt="Logo" 
                     className="h-40 w-auto object-contain relative z-10 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                     referrerPolicy="no-referrer"
+                    onError={() => setLogoError(true)}
                   />
                 </div>
               ) : (
