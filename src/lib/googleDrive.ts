@@ -19,7 +19,9 @@ export function getDriveId(url: string | null | undefined): string | null {
   // Pattern 2: https://docs.google.com/open?id=ID
   // Pattern 3: https://docs.google.com/uc?id=ID
   // Pattern 4: https://drive.google.com/uc?export=download&id=ID
-  const driveMatch = url.match(/\/(?:file\/d\/|open\?id=|uc\?id=|uc\?export=[a-z]+&id=)([a-zA-Z0-9_-]+)/);
+  // Pattern 5: https://drive.google.com/drive/u/0/folders/ID (though this is for folders, sometimes people paste it)
+  // Pattern 6: https://drive.google.com/file/u/0/d/ID/view
+  const driveMatch = url.match(/(?:\/d\/|id=|folders\/|file\/u\/\d+\/d\/)([a-zA-Z0-9_-]{25,50})/);
   if (driveMatch && driveMatch[1]) {
     return driveMatch[1];
   }
@@ -50,11 +52,12 @@ export function getDriveDirectLink(urlOrId: string | null | undefined, isVideo: 
 
   // Video links work best with the 'media' export parameter to avoid HTML 'virus check' pages
   if (isVideo) {
-    return `https://drive.google.com/uc?export=media&id=${id}`;
+    return `https://drive.google.com/uc?export=media&id=${id}&confirm=t`;
   }
 
-  // Images work best with the thumbnail/content server
-  return `https://lh3.googleusercontent.com/d/${id}`;
+  // For images, we use the thumbnail server which is more reliable for public access without cookies
+  // sz=w1200 provides a high-quality version
+  return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
 }
 
 /**

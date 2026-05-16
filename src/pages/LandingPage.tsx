@@ -53,11 +53,16 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="bg-black text-white">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1.5, ease: "easeInOut" }}
+      className="bg-black text-white"
+    >
       {/* Navbar */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${
-        scrolled ? 'bg-black/80 backdrop-blur-xl py-3 border-b border-white/10 shadow-2xl' : 'bg-transparent py-8 md:py-12 border-transparent'
-      } px-6 md:px-12 flex justify-between items-center`}>
+        scrolled ? 'bg-black/80 backdrop-blur-xl py-3 border-b border-white/10 shadow-2xl' : 'bg-transparent py-4 md:py-12 border-transparent'
+      } px-4 md:px-12 flex justify-between items-center`}>
         <Link to="/" className="hover:opacity-90 transition-all duration-500 flex-shrink-0 flex items-center relative h-10 md:h-12">
           {!scrolled ? (
             <motion.div
@@ -86,7 +91,7 @@ export default function LandingPage() {
             </motion.div>
           )}
         </Link>
-        <div className="flex gap-4 md:gap-10 items-center">
+        <div className="flex gap-2 md:gap-10 items-center">
           <a href="#menu" className="hidden lg:block text-xs font-black hover:text-red-500 transition-colors uppercase tracking-[0.3em]">Menu</a>
           <a href="#plans" className="hidden lg:block text-xs font-black hover:text-red-500 transition-colors uppercase tracking-[0.3em]">Plans</a>
           <Link to="/login" className={`hidden md:block bg-transparent hover:bg-white/10 text-white rounded-xl text-[10px] md:text-sm font-black uppercase tracking-[0.2em] transition-all border border-white/20 hover:border-white/50 ${
@@ -94,8 +99,8 @@ export default function LandingPage() {
           }`}>
             Admin Login
           </Link>
-          <Link to="/login" className={`bg-red-600 hover:bg-red-700 text-white rounded-xl text-[10px] md:text-sm font-black uppercase tracking-[0.2em] transition-all shadow-[0_4px_25px_rgba(220,38,38,0.4)] hover:scale-105 active:scale-95 ${
-            scrolled ? 'px-4 md:px-8 py-2 md:py-3' : 'px-6 md:px-10 py-3 md:py-4'
+          <Link to="/login" className={`bg-red-600 hover:bg-red-700 text-white rounded-xl text-[8px] md:text-sm font-black uppercase tracking-[0.2em] transition-all shadow-[0_4px_25px_rgba(220,38,38,0.4)] hover:scale-105 active:scale-95 ${
+            scrolled ? 'px-3 md:px-8 py-2 md:py-3' : 'px-4 md:px-10 py-2.5 md:py-4'
           }`}>
             Join Now
           </Link>
@@ -103,7 +108,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] md:h-screen flex items-center justify-center pt-24 md:pt-20 overflow-hidden">
+      <section className="relative min-h-[85vh] md:h-screen flex items-center justify-center pt-28 md:pt-20 overflow-hidden">
         <motion.div 
           className="absolute inset-0 z-0 opacity-20 bg-[radial-gradient(circle_at_center,rgba(220,38,38,0.4),transparent_70%)]"
           animate={{ scale: [1, 1.1, 1], opacity: [0.15, 0.25, 0.15] }}
@@ -176,7 +181,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="flex flex-wrap items-center justify-center gap-x-4 md:gap-x-6 gap-y-2 md:gap-y-3 text-[8px] md:text-xs font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mb-10 py-4 border-y border-white/5"
+            className="flex flex-wrap items-center justify-center gap-x-3 md:gap-x-6 gap-y-2 md:gap-y-3 text-[7px] md:text-xs font-black uppercase tracking-[0.1em] md:tracking-[0.3em] mb-8 py-4 border-y border-white/5"
           >
             <span className="text-red-600 shadow-[0_0_10px_rgba(220,38,38,0.2)]">No Maida</span>
             <div className="w-1 md:w-1.5 h-1 md:h-1.5 bg-white/20 rotate-45" />
@@ -191,7 +196,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="text-lg md:text-3xl text-white/50 max-w-2xl mx-auto mb-12 font-medium leading-relaxed px-4 md:px-0"
+            className="text-sm md:text-3xl text-white/50 max-w-2xl mx-auto mb-10 font-medium leading-relaxed px-4 md:px-0"
           >
             Just <span className="text-white font-black italic underline decoration-red-600 underline-offset-8">Pure Performance Fuel</span> for your body.
           </motion.p>
@@ -200,12 +205,12 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="flex flex-col md:flex-row gap-4 justify-center px-6 md:px-0"
+            className="flex flex-col md:flex-row gap-3 justify-center px-10 md:px-0"
           >
-            <Link to="/login" className="bg-red-600 hover:bg-red-700 text-white px-8 md:px-10 py-4 rounded-xl text-sm md:text-lg font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group shadow-[0_4px_20px_rgba(220,38,38,0.4)]">
-              Start Your Plan <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            <Link to="/login" className="bg-red-600 hover:bg-red-700 text-white px-6 md:px-10 py-3.5 md:py-4 rounded-xl text-xs md:text-lg font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group shadow-[0_4px_20px_rgba(220,38,38,0.4)]">
+              Start Your Plan <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a href="#menu" className="border-2 border-white/20 hover:border-red-600 hover:bg-red-600/10 px-8 md:px-10 py-3 md:py-4 rounded-xl text-sm md:text-lg font-black uppercase tracking-widest transition-all">
+            <a href="#menu" className="border-2 border-white/20 hover:border-red-600 hover:bg-red-600/10 px-6 md:px-10 py-3 md:py-4 rounded-xl text-xs md:text-lg font-black uppercase tracking-widest transition-all">
               View Menu
             </a>
           </motion.div>
@@ -224,23 +229,23 @@ export default function LandingPage() {
           className="flex whitespace-nowrap gap-16 items-center"
         >
           {[...Array(10)].map((_, i) => (
-            <div key={i} className="flex items-center gap-16">
-              <div className="flex items-center gap-12">
-                <span className="text-5xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-4">
+            <div key={i} className="flex items-center gap-8 md:gap-16">
+              <div className="flex items-center gap-8 md:gap-12">
+                <span className="text-3xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-2 md:gap-4">
                   Eat <span className="text-white">.</span>
                 </span>
-                <span className="text-5xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-4">
+                <span className="text-3xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-2 md:gap-4">
                   Train <span className="text-white">.</span>
                 </span>
-                <span className="text-5xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-4">
+                <span className="text-3xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-2 md:gap-4">
                   Repeat <span className="text-white">.</span>
                 </span>
               </div>
-              <div className="flex items-center gap-4 bg-black px-8 py-2 transform -skew-x-12">
-                <span className="text-3xl md:text-6xl font-black italic uppercase tracking-tighter text-red-600">
+              <div className="flex items-center gap-3 md:gap-4 bg-black px-4 md:px-8 py-1 md:py-2 transform -skew-x-12">
+                <span className="text-xl md:text-6xl font-black italic uppercase tracking-tighter text-red-600">
                   With Alpino Protein Cafe
                 </span>
-                <Zap className="text-white fill-current" size={40} />
+                <Zap className="text-white fill-current" size={24} />
               </div>
             </div>
           ))}
@@ -325,13 +330,13 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 mb-12 md:mb-16 relative">
           <div className="absolute -top-24 -left-24 w-96 h-96 bg-red-600/10 blur-[120px] rounded-full" />
           <div className="relative z-10">
-            <h2 className="text-4xl md:text-8xl font-black italic uppercase tracking-tighter mb-4 leading-none text-white/10 absolute -top-8 md:-top-12 left-0 select-none">
+            <h2 className="text-4xl md:text-8xl font-black italic uppercase tracking-tighter mb-4 leading-none text-white/5 absolute -top-4 md:-top-12 left-0 select-none">
               Performance
             </h2>
-            <h2 className="text-3xl md:text-7xl font-black italic uppercase tracking-tighter mb-4 relative">
+            <h2 className="text-2xl md:text-7xl font-black italic uppercase tracking-tighter mb-4 relative">
               The <span className="text-red-600">Alpino</span> Menu
             </h2>
-            <p className="text-white/40 text-sm md:text-lg uppercase tracking-[0.2em] md:tracking-[0.4em] font-bold max-w-xl">
+            <p className="text-white/40 text-xs md:text-lg uppercase tracking-[0.1em] md:tracking-[0.4em] font-bold max-w-xl">
               Scientifically formulated fuel.
               <span className="text-red-600 ml-2">Clean Ingredients Only.</span>
             </p>
@@ -340,7 +345,7 @@ export default function LandingPage() {
 
         <div className="container mx-auto px-6">
           {/* Category Filter */}
-          <div className="flex flex-wrap gap-4 mb-16 relative z-40">
+          <div className="flex flex-wrap gap-2 md:gap-4 mb-16 relative z-40">
             {['All', 'Bowl', 'Smoothie', 'Shake', 'Wrap', 'Sub', 'Oats']
               .filter(cat => {
                 if (cat === 'All') return true;
@@ -354,7 +359,7 @@ export default function LandingPage() {
                   console.log('Category changed to:', cat);
                   setSelectedCategory(cat);
                 }}
-                className={`relative px-10 py-5 rounded-2xl text-[10px] md:text-sm font-black uppercase tracking-[0.4em] transition-all duration-300 cursor-pointer active:scale-95 group ${
+                className={`relative px-5 md:px-10 py-3 md:py-5 rounded-xl md:rounded-2xl text-[9px] md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.4em] transition-all duration-300 cursor-pointer active:scale-95 group ${
                   selectedCategory === cat 
                   ? 'text-white' 
                   : 'text-white/40 hover:text-white'
@@ -364,16 +369,16 @@ export default function LandingPage() {
                 {selectedCategory === cat && (
                   <motion.div 
                     layoutId="active-cat-bg"
-                    className="absolute inset-0 bg-red-600 rounded-2xl -z-10 shadow-[0_15px_40px_rgba(220,38,38,0.4)]"
+                    className="absolute inset-0 bg-red-600 rounded-xl md:rounded-2xl -z-10 shadow-[0_15px_40px_rgba(220,38,38,0.4)]"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
                 <span className="relative z-10 transition-transform duration-300 group-hover:translate-y-[-1px]">
-                  {cat === 'All' ? 'Alls' : `${cat}s`}
+                  {cat === 'All' ? 'All' : `${cat}s`}
                 </span>
                 
                 {/* Invisible stroke for hover stability */}
-                <div className={`absolute inset-0 border-2 rounded-2xl transition-colors duration-300 ${
+                <div className={`absolute inset-0 border-2 rounded-xl md:rounded-2xl transition-colors duration-300 ${
                   selectedCategory === cat ? 'border-red-600' : 'border-white/10 group-hover:border-white/20'
                 }`} />
               </button>
@@ -465,7 +470,7 @@ export default function LandingPage() {
                                 <img 
                                   src={spinningUrl} 
                                   alt={item.name} 
-                                  className={`w-full h-full transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'object-contain p-2 scale-100' : 'object-cover scale-[2]'}`}
+                                  className={`w-full h-full object-cover transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'scale-105' : 'scale-125'}`}
                                   referrerPolicy="no-referrer"
                                 />
                               ) : (
@@ -473,7 +478,7 @@ export default function LandingPage() {
                                   assetName={item.name}
                                   fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`}
                                   alt={item.name}
-                                  className={`w-full h-full transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'object-contain p-2 scale-100' : 'object-cover scale-[2]'}`}
+                                  className={`w-full h-full object-cover transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'scale-105' : 'scale-125'}`}
                                 />
                               )}
                             </motion.div>
@@ -654,6 +659,6 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
+    </motion.div>
   );
 }

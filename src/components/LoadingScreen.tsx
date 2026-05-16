@@ -34,13 +34,14 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     setIsBuffering(true);
     setMinLogoTimePassed(false);
     
-    // Ensure logo stays for at least 4 seconds for brand impact
+    // Ensure logo stays for brand impact
+    const logoTimer = isMobile ? 4000 : 500; 
     const timer = window.setTimeout(() => {
       setMinLogoTimePassed(true);
-    }, 4000);
+    }, logoTimer);
     
     return () => clearTimeout(timer);
-  }, [videoUrl]);
+  }, [videoUrl, isMobile]);
 
   useEffect(() => {
     if (directVideoUrl && !isDriveVideo) {
@@ -79,22 +80,21 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   }, [isMobile]);
 
   const [isExiting, setIsExiting] = useState(false);
+  const useVideo = isMobile && !!videoUrl;
 
   const handleFinish = () => {
     if (isExiting) return;
     setIsExiting(true);
-    // Give time for exit animation
+    // Give time for exit animation (duration 0.8s) + a small safety buffer (0.2s)
     setTimeout(() => {
       onFinished?.();
-    }, 800);
+    }, 1000);
   };
 
   useEffect(() => {
     let timeoutId: number;
     let finishTimer: number;
     let playCheckInterval: number;
-
-    const useVideo = !!videoUrl;
 
     if (useVideo) {
       // Safety timeout: If nothing happens within 3 seconds for Drive videos, try fallback 
@@ -116,10 +116,12 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         }
       }, timeoutDuration);
     } else {
-      // Photo case or no video case - stay for 3 seconds for branding impact
+      // Photo case or no video case (Desktop) - stay for 12 seconds total for branding impact
+      if (!videoLoaded) setVideoLoaded(true);
+      if (isBuffering) setIsBuffering(false);
       timeoutId = window.setTimeout(() => {
         handleFinish();
-      }, 3000);
+      }, 12000);
     }
 
     if (videoLoaded && !videoError && useVideo) {
@@ -201,39 +203,20 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
       if (timeoutId) clearTimeout(timeoutId);
       if (finishTimer) clearTimeout(finishTimer);
     };
-  }, [videoUrl, videoLoaded, videoError, onFinished]);
+  }, [videoUrl, videoLoaded, videoError, onFinished, isMobile]);
 
   return (
     <div className="fixed inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center z-[100] overflow-hidden cursor-pointer" onClick={() => {
+      if (!isMobile) {
+        handleFinish();
+        return;
+      }
       // Allow user to click anywhere to "jumpstart" the video if blocked
       if (videoRef.current) {
         videoRef.current.muted = false; // Try unmuting on click too
         videoRef.current.play().catch(e => console.error("Manual play failed:", e instanceof Error ? e.message : String(e)));
       }
     }}>
-      {/* Exit Transition Wipe */}
-      <motion.div
-        initial={{ x: "-100%" }}
-        animate={{ x: isExiting ? "0%" : "-100%" }}
-        transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1] }}
-        className="absolute inset-0 z-[200] bg-[#C90000] flex items-center justify-center"
-      >
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-           <Mountain size={100} className="text-white fill-white" />
-        </motion.div>
-      </motion.div>
-
-      {/* 0. Transition Flash Effect - Triggers when loading completes */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: (videoLoaded && !isBuffering && minLogoTimePassed) ? [0, 1, 0] : 0 }}
-        transition={{ duration: 0.8, times: [0, 0.2, 1] }}
-        className="absolute inset-0 z-[120] bg-white pointer-events-none"
-      />
-
       {/* 1. Initial Logo Pre-loader - Prominent visibility during background loading */}
       <motion.div
         initial={{ opacity: 1 }}
@@ -267,7 +250,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                  y: [0, -10, 0],
                }}
                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-               className="relative z-10"
+               className="relative z-10 opacity-0"
              >
                 {directLogoUrl ? (
                   <img 
@@ -311,13 +294,17 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         </div>
       </motion.div>
 
-      {/* Dynamic Background Layer */}
+      {/* Dynamic Background Layer with Smooth Exit */}
       <motion.div
-         initial={{ opacity: 1 }}
-         animate={{ opacity: 1 }}
+         initial={{ opacity: 1, scale: 1 }}
+         animate={{ 
+           opacity: isExiting ? 0 : 1,
+           scale: isExiting ? 1.05 : 1
+         }}
+         transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
          className="absolute inset-0 z-0 bg-black"
       >
-        {videoUrl ? (
+        {useVideo ? (
            <div className="w-full h-full relative flex items-center justify-center bg-black">
               {!videoError ? (
                 <div className="absolute inset-0 z-10">
@@ -386,77 +373,85 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
              <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`} />
            </div>
         ) : (
-          <div className="w-full h-full relative bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)]" />
+          <div className="w-full h-full relative">
+            {customUrl ? (
+              <img 
+                src={directPhotoUrl || customUrl} 
+                alt="Background" 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="w-full h-full bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)]" />
+            )}
+          </div>
         )}
       </motion.div>
 
-      {/* Foreground Branding & Status (Floating over video) */}
+      {/* Floating UI Elements Fade Out early on exit */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: (videoLoaded && !isBuffering && minLogoTimePassed) ? 1 : 0, scale: (videoLoaded && !isBuffering && minLogoTimePassed) ? 1 : 0.95 }}
-        transition={{ delay: 0.2, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+        animate={{ 
+          opacity: 0, 
+          scale: 0.95 
+        }}
+        transition={{ duration: 0.5 }}
         className="relative z-30 flex flex-col items-center max-w-md w-full px-6"
       >
         <div className="text-center space-y-12">
           {/* Main Logo Mark with improved animation */}
-          {!isMobile && (
-            <motion.div
-              animate={{ 
-                y: [0, -15, 0],
-                scale: [1, 1.02, 1],
-                filter: ["drop-shadow(0 0 0px rgba(220,38,38,0))", "drop-shadow(0 0 40px rgba(220,38,38,0.5))", "drop-shadow(0 0 0px rgba(220,38,38,0))"]
-              }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="flex justify-center"
-            >
-              {directLogoUrl && !logoError ? (
-                <div className="relative group">
-                  <div className="absolute inset-[-15px] bg-[#C90000]/20 blur-2xl rounded-full animate-pulse" />
-                  <img 
-                    src={directLogoUrl} 
-                    alt="Logo" 
-                    className="h-40 w-auto object-contain relative z-10 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                    referrerPolicy="no-referrer"
-                    onError={() => setLogoError(true)}
-                  />
-                </div>
-              ) : (
-                <div className="bg-[#C90000] p-10 rounded-[3rem] transform -rotate-2 shadow-[0_25px_60px_rgba(201,0,0,0.4)] border border-white/20 relative">
-                  <Mountain size={100} className="text-white fill-white" />
-                  {/* Spinning Accent */}
-                  <div className="absolute inset-[-10px] border-2 border-dashed border-[#C90000]/30 rounded-full animate-[spin_10s_linear_infinite]" />
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {!isMobile && (
-            <>
-              <div className="space-y-6">
-                <h2 className="text-8xl font-black italic uppercase tracking-tighter text-white drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] mb-1">
-                  Alpino <span className="text-[#C90000]">Premium</span>
-                </h2>
-                <div className="flex items-center justify-center gap-6">
-                  <span className="h-[2px] w-12 bg-white/30" />
-                  <p className="text-white/80 text-sm font-black uppercase tracking-[1.2em] translate-x-[0.6em] whitespace-nowrap">
-                    Evolution of Taste
-                  </p>
-                  <span className="h-[2px] w-12 bg-white/30" />
-                </div>
+          <motion.div
+            animate={{ 
+              y: [0, -15, 0],
+              scale: [1, 1.02, 1],
+              filter: ["drop-shadow(0 0 0px rgba(220,38,38,0))", "drop-shadow(0 0 40px rgba(220,38,38,0.5))", "drop-shadow(0 0 0px rgba(220,38,38,0))"]
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="flex justify-center"
+          >
+            {directLogoUrl && !logoError ? (
+              <div className="relative group">
+                <div className="absolute inset-[-15px] bg-[#C90000]/20 blur-2xl rounded-full animate-pulse" />
+                <img 
+                  src={directLogoUrl} 
+                  alt="Logo" 
+                  className="h-40 w-auto object-contain relative z-10 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                  referrerPolicy="no-referrer"
+                  onError={() => setLogoError(true)}
+                />
               </div>
-
-              <div className="space-y-6">
-                <div className="flex flex-col items-center gap-2">
-                  <p className="text-[#C90000]/90 text-xs font-black uppercase tracking-[0.5em] animate-pulse">
-                    Analyzing Ingredients
-                  </p>
-                  <p className="text-white/20 text-[10px] font-mono tracking-widest">
-                    VERIFYING CALIBRATION...
-                  </p>
-                </div>
+            ) : (
+              <div className="bg-[#C90000] p-10 rounded-[3rem] transform -rotate-2 shadow-[0_25px_60px_rgba(201,0,0,0.4)] border border-white/20 relative">
+                <Mountain size={100} className="text-white fill-white" />
+                {/* Spinning Accent */}
+                <div className="absolute inset-[-10px] border-2 border-dashed border-[#C90000]/30 rounded-full animate-[spin_10s_linear_infinite]" />
               </div>
-            </>
-          )}
+            )}
+          </motion.div>
+
+          <div className="space-y-6">
+            <h2 className="text-8xl font-black italic uppercase tracking-tighter text-white drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] mb-1">
+              Alpino <span className="text-[#C90000]">Premium</span>
+            </h2>
+            <div className="flex items-center justify-center gap-6">
+              <span className="h-[2px] w-12 bg-white/30" />
+              <p className="text-white/80 text-sm font-black uppercase tracking-[1.2em] translate-x-[0.6em] whitespace-nowrap">
+                Evolution of Taste
+              </p>
+              <span className="h-[2px] w-12 bg-white/30" />
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-[#C90000]/90 text-xs font-black uppercase tracking-[0.5em] animate-pulse">
+                Analyzing Ingredients
+              </p>
+              <p className="text-white/20 text-[10px] font-mono tracking-widest">
+                VERIFYING CALIBRATION...
+              </p>
+            </div>
+          </div>
         </div>
       </motion.div>
 
@@ -474,32 +469,40 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
 
       {videoLoaded && !isBuffering && minLogoTimePassed && (
         <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ 
+            opacity: isExiting ? 0 : 1, 
+            scale: isExiting ? 0.9 : 1,
+            y: isExiting ? 20 : [0, -10, 0] 
+          }}
+          transition={{ 
+            opacity: { duration: 0.5 },
+            scale: { duration: 0.5 },
+            y: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+          }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           onClick={(e) => {
             e.stopPropagation();
             handleFinish();
           }}
-          className="absolute bottom-16 z-[60] px-10 py-4 bg-white text-black font-black uppercase tracking-[0.3em] italic rounded-full shadow-[0_20px_50px_rgba(255,255,255,0.2)] hover:shadow-[0_25px_60px_rgba(255,255,255,0.4)] transition-all duration-300 flex items-center gap-3 overflow-hidden group"
+          className="absolute bottom-16 z-[60] px-12 py-5 bg-[#C90000] text-white font-black uppercase tracking-[0.4em] italic rounded-full shadow-[0_20px_50px_rgba(201,0,0,0.4)] hover:shadow-[0_25px_60px_rgba(201,0,0,0.6)] hover:bg-[#A80000] transition-all duration-300 flex items-center gap-4 overflow-hidden group"
         >
-          <span className="relative z-10 font-black">Let's Go</span>
-          <Zap size={18} className="relative z-10 fill-current group-hover:animate-pulse" />
+          <span className="relative z-10 text-lg">Let's Go</span>
+          <Zap size={22} className="relative z-10 fill-current animate-pulse group-hover:scale-125 transition-transform" />
+          
+          {/* Animated Glow layer */}
           <motion.div 
-            className="absolute inset-0 bg-[#C90000] origin-left"
-            initial={{ scaleX: 0 }}
-            whileHover={{ scaleX: 1 }}
-            transition={{ duration: 0.3 }}
+            className="absolute inset-0 bg-white/20"
+            animate={{ x: ["-100%", "100%"] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           />
+
+          {/* Border Pulse */}
           <motion.div 
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
-            style={{ 
-              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-              left: '-100%'
-            }}
-            animate={videoLoaded ? { left: '100%' } : {}}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
+            className="absolute inset-0 border-2 border-white/30 rounded-full"
+            animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.6, 0.3] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
           />
         </motion.button>
       )}
@@ -514,7 +517,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         </motion.div>
       )}
 
-      {!hideUI && videoLoaded && !isBuffering && minLogoTimePassed && (
+      {false && isMobile && !hideUI && videoLoaded && !isBuffering && minLogoTimePassed && (
         <>
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
@@ -558,40 +561,6 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         </>
       )}
 
-      {/* Red Top Panel - Symmetric with footer */}
-      <motion.div
-        initial={{ y: "-100%" }}
-        animate={{ y: (videoLoaded && !isBuffering && minLogoTimePassed) ? 0 : "-100%" }}
-        transition={{ delay: 0.4, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute top-0 inset-x-0 h-[6%] bg-[#C90000] z-50 shadow-[0_15px_50px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center overflow-hidden border-b border-white/10"
-      >
-        {/* Animated Accent line in panel */}
-        <motion.div 
-          animate={{ x: ["100%", "-100%"] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-        />
-        
-        {/* Gloss overlay for panel */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent pointer-events-none" />
-      </motion.div>
-
-      <motion.div
-        initial={{ y: "100%" }}
-        animate={{ y: (videoLoaded && !isBuffering && minLogoTimePassed) ? 0 : "100%" }}
-        transition={{ delay: 0.4, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute bottom-0 inset-x-0 h-[6%] bg-[#C90000] z-50 shadow-[0_-15px_50px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center overflow-hidden border-t border-white/10"
-      >
-        {/* Animated Accent line in panel */}
-        <motion.div 
-          animate={{ x: ["-100%", "100%"] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-        />
-        
-        {/* Gloss overlay for panel */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
-      </motion.div>
     </div>
   );
 }
