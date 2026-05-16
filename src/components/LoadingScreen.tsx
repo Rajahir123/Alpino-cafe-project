@@ -34,10 +34,10 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     setIsBuffering(true);
     setMinLogoTimePassed(false);
     
-    // Ensure logo stays for at least 3.5 seconds for brand impact
+    // Ensure logo stays for at least 4 seconds for brand impact
     const timer = window.setTimeout(() => {
       setMinLogoTimePassed(true);
-    }, 3500);
+    }, 4000);
     
     return () => clearTimeout(timer);
   }, [videoUrl]);
@@ -124,16 +124,17 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
 
     if (videoLoaded && !videoError && useVideo) {
       // Intelligent Hide: Once high-quality video starts playing, wait for impact, then finish
+      // We increased this to 12 seconds to ensure the full cinematic experience plays out
       finishTimer = window.setTimeout(() => {
         handleFinish();
-      }, 4000); // 4 seconds of smooth 720p 60fps playback for maximum brand impact
+      }, 12000); 
     }
 
     const video = videoRef.current;
     if (useVideo && video && !videoError) {
       video.muted = true;
       video.playsInline = true;
-      video.playbackRate = 1.5; 
+      video.playbackRate = 1.0; 
       video.setAttribute('preload', 'auto');
       
       // Force immediate header fetch
