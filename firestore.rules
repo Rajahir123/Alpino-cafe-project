@@ -81,17 +81,18 @@ service cloud.firestore {
     function isValidMenuItem(data) {
       return data.keys().hasAll(['name', 'category', 'protein']) &&
              data.name is string && data.name.size() <= 256 &&
-             data.category in ['Bowl', 'Smoothie', 'Shake', 'Wrap', 'Sub', 'Oats'] &&
+             data.category in ['Bowl', 'Smoothie', 'Smoothies', 'Shake', 'Wrap', 'Wraps', 'Sub', 'Oats'] &&
              data.protein is number &&
              (data.get('calories', null) == null || data.calories is number) &&
              (data.get('price', null) == null || data.price is number) &&
              (data.get('description', null) == null || data.description is string) &&
              (data.get('bgImage', null) == null || data.bgImage is string) &&
-             (data.get('spinningImage', null) == null || data.spinningImage is string);
+             (data.get('spinningImage', null) == null || data.spinningImage is string) &&
+             (data.get('published', null) == null || data.published is bool);
     }
 
     match /menu/{itemId} {
-      allow read: if true;
+      allow get, list: if true;
       allow create, update: if isAdmin() && isValidMenuItem(incoming());
       allow delete: if isAdmin();
     }

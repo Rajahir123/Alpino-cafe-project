@@ -19,7 +19,7 @@ export default function MenuPage() {
       const menuData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      } as MenuItem)).filter(item => item.published); // Only live products
+      } as MenuItem)).filter(item => item.published !== false); // Default to true if not explicitly false
       setItems(menuData);
       setLoading(false);
     }, (error) => {
@@ -30,7 +30,7 @@ export default function MenuPage() {
     return () => unsubscribe();
   }, []);
 
-  const categories = ['All', ...new Set(items.map(item => item.category))];
+  const categories = ['All', 'Bowl', 'Smoothies', 'Shake', 'Wrap'];
   
   const filteredItems = activeCategory === 'All' 
     ? items 

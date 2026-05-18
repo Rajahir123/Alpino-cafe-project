@@ -33,7 +33,7 @@ export default function AdminDashboard() {
     description: '',
     bgImage: '',
     spinningImage: '',
-    published: false
+    published: true
   });
   const [newNote, setNewNote] = usePersistedState('admin_new_note', '');
 
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
         ...newItem,
         bgImage: newItem.bgImage || '',
         spinningImage: newItem.spinningImage || '',
-        published: newItem.published || false,
+        published: newItem.published !== undefined ? newItem.published : true,
         id,
         updatedAt: Timestamp.now()
       });
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
         description: '',
         bgImage: '',
         spinningImage: '',
-        published: false
+        published: true
       });
       fetchData();
     } catch (error) {
@@ -288,8 +288,6 @@ export default function AdminDashboard() {
                       <option value="Smoothies">Smoothies</option>
                       <option value="Shake">Shake</option>
                       <option value="Wrap">Wrap</option>
-                      <option value="Sub">Sub</option>
-                      <option value="Oats">Oats</option>
                     </select>
                   </div>
 

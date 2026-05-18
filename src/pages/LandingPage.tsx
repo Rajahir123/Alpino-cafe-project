@@ -19,23 +19,22 @@ export default function LandingPage() {
     const q = query(collection(db, 'menu'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setFirestoreItems(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenuItem)));
+    }, (error) => {
+      console.error("Public Menu Fetch Error:", error);
     });
     return () => unsubscribe();
   }, []);
 
   const allMenuItems = useMemo(() => {
-    // Only show items that exist in Firestore and are published.
-    // This ensures that if the admin deletes everything, the landing page reflects that.
-    return firestoreItems.filter(item => item.published);
+    // Show items that are published. Default to true if the field is missing.
+    return firestoreItems.filter(item => item.published !== false);
   }, [firestoreItems]);
 
   const landingPageItems = useMemo(() => {
-    // Filter the items that should appear in the landing page sections
-    return allMenuItems.filter(item => 
-      LANDING_PAGE_ITEM_NAMES.includes(item.name) || 
-      firestoreItems.some(fi => fi.id === item.id)
-    );
-  }, [allMenuItems, firestoreItems]);
+    // The items shown on landing page are now strictly the ones published in Firestore.
+    // We no longer rely on a hardcoded list of names to ensure the Admin Panel has full control.
+    return allMenuItems;
+  }, [allMenuItems]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -339,7 +338,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-6">
           {/* Category Filter */}
           <div className="flex flex-wrap gap-2 md:gap-4 mb-16 relative z-40">
-            {['All', 'Bowl', 'Smoothie', 'Shake', 'Wrap', 'Sub', 'Oats']
+            {['All', 'Bowl', 'Smoothies', 'Shake', 'Wrap']
               .filter(cat => {
                 if (cat === 'All') return true;
                 return landingPageItems.some(item => item.category === cat);
@@ -367,7 +366,7 @@ export default function LandingPage() {
                   />
                 )}
                 <span className="relative z-10 transition-transform duration-300 group-hover:translate-y-[-1px]">
-                  {cat === 'All' ? 'All' : `${cat}s`}
+                  {cat === 'All' ? 'All' : (cat.endsWith('s') ? cat : `${cat}s`)}
                 </span>
                 
                 {/* Invisible stroke for hover stability */}

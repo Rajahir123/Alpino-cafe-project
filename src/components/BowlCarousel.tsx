@@ -15,14 +15,15 @@ export default function BowlCarousel() {
     const q = query(collection(db, 'menu'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setFirestoreItems(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenuItem)));
+    }, (error) => {
+      console.error("Carousel Menu Fetch Error:", error);
     });
     return () => unsubscribe();
   }, []);
 
   const bowls = useMemo(() => {
     return firestoreItems
-      .filter(item => item.published)
-      .filter(item => LANDING_PAGE_ITEM_NAMES.includes(item.name))
+      .filter(item => item.published !== false)
       .filter(item => item.category === 'Bowl');
   }, [firestoreItems]);
 
