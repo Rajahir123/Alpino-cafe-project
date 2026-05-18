@@ -146,7 +146,7 @@ export const MENU_ITEMS = [
     calories: 299, 
     price: 249, 
     isTrialFixed: true,
-    image: 'https://images.unsplash.com/photo-1543644574-19750f5194b5?auto=format&fit=crop&q=80&w=800',
+    image: 'https://images.unsplash.com/photo-1589135398305-587b7a11ad2d?auto=format&fit=crop&q=80&w=800',
     description: 'Creamy Yogurt-based Strawberry Smoothie with Oats and Nuts.'
   },
   { 
@@ -190,17 +190,17 @@ export const MENU_ITEMS = [
     calories: 299, 
     price: 249, 
     isTrialFixed: true, 
-    image: 'https://images.unsplash.com/photo-1572286258217-48887a05442b?auto=format&fit=crop&q=80&w=800',
+    image: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?auto=format&fit=crop&q=80&w=800',
     description: 'Coffee & Protein For A Smooth Energy Boost.' 
   },
 
   // Shakes
   { id: 'sh1', name: 'Chocolate Shake', category: 'Shake', protein: 30, calories: 310, price: 169, isTrialFixed: true, image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&q=80&w=800', description: 'Premium chocolate protein blend for muscle recovery.' },
   { id: 'sh2', name: 'Mango Shake', category: 'Shake', protein: 30, calories: 310, price: 169, isTrialFixed: true, image: 'https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&q=80&w=800', description: 'Tropical mango twist with elite whey protein.' },
-  { id: 'sh3', name: 'Coffee Shake', category: 'Shake', protein: 20, calories: 280, price: 169, isTrialFixed: true, image: 'https://images.unsplash.com/photo-1541167760496-162955ed8a9f?auto=format&fit=crop&q=80&w=800', description: 'Energy boost with double shot espresso and protein.' },
+  { id: 'sh3', name: 'Coffee Shake', category: 'Shake', protein: 20, calories: 280, price: 169, isTrialFixed: true, image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=800', description: 'Energy boost with double shot espresso and protein.' },
 
   // Wraps
-  { id: 'w1', name: "Athlete's Shawarma Wrap", category: 'Wrap', protein: 25, calories: 683, price: 239, isTrialFixed: false, image: 'https://images.unsplash.com/photo-1662116765994-4e321adec670?auto=format&fit=crop&q=80&w=800', description: 'Tandoori Paneer, Shatta Sauce, Pickled Onions & Garlic Mayo in a Soft Wrap.' },
+  { id: 'w1', name: "Athlete's Shawarma Wrap", category: 'Wrap', protein: 25, calories: 683, price: 239, isTrialFixed: false, image: 'https://images.unsplash.com/photo-1561651823-34feb02250e4?auto=format&fit=crop&q=80&w=800', description: 'Tandoori Paneer, Shatta Sauce, Pickled Onions & Garlic Mayo in a Soft Wrap.' },
   { id: 'w2', name: 'Mexican Burrito Wrap', category: 'Wrap', protein: 23, calories: 635, price: 239, isTrialFixed: false, image: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&q=80&w=800', description: 'Spiced Paneer, Brown Rice, Corn, Rajma & Chipotle Sauce in a Tortilla.' },
 
   // Subs

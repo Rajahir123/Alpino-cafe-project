@@ -12,12 +12,12 @@ interface AssetImageProps {
 }
 
 export default function AssetImage({ assetName, src, fallbackUrl, alt, className = "" }: AssetImageProps) {
-  const [url, setUrl] = useState<string>(src || fallbackUrl);
+  const [url, setUrl] = useState<string>(getGoogleDriveDirectUrl(src || fallbackUrl));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (src) {
-      setUrl(src);
+      setUrl(getGoogleDriveDirectUrl(src));
       setLoading(false);
       return;
     }
@@ -34,16 +34,20 @@ export default function AssetImage({ assetName, src, fallbackUrl, alt, className
         if (assetDoc.exists()) {
           const rawUrl = assetDoc.data().url;
           setUrl(getGoogleDriveDirectUrl(rawUrl));
+        } else {
+          // If no asset override, ensure fallback is direct
+          setUrl(getGoogleDriveDirectUrl(fallbackUrl));
         }
       } catch (error) {
         console.error("Asset resolution failed:", error);
+        setUrl(getGoogleDriveDirectUrl(fallbackUrl));
       } finally {
         setLoading(false);
       }
     }
     
     resolveAsset();
-  }, [assetName, fallbackUrl]);
+  }, [assetName, fallbackUrl, src]);
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
@@ -57,8 +61,13 @@ export default function AssetImage({ assetName, src, fallbackUrl, alt, className
         alt={alt} 
         onLoad={() => setLoading(false)}
         onError={(e) => {
-          if (url !== fallbackUrl) {
-            setUrl(fallbackUrl);
+          console.error("Asset failed to load:", url);
+          // If the transformed URL failed, try the raw fallback if it's different and not a Drive link
+          // But actually, the best fallback is a reliable Unsplash image
+          const defaultFallback = `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`;
+          
+          if (url !== defaultFallback) {
+             setUrl(defaultFallback);
           }
           setLoading(false);
         }}
