@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { getDriveDirectLink } from './googleDrive';
 
 export function useAsset(name: string) {
   const [url, setUrl] = useState<string | null>(null);
@@ -36,8 +35,4 @@ export function useAsset(name: string) {
   }, [name]);
 
   return { url, loading };
-}
-
-export function getGoogleDriveDirectUrl(url: string | null | undefined, isVideo: boolean = false): string {
-  return getDriveDirectLink(url, isVideo);
 }

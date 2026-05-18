@@ -9,7 +9,6 @@ import { MenuItem } from '../types';
 import DynamicLogo from '../components/DynamicLogo';
 import AssetImage from '../components/AssetImage';
 import BowlCarousel from '../components/BowlCarousel';
-import { getGoogleDriveDirectUrl } from '../lib/assets';
 
 export default function LandingPage() {
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -92,7 +91,7 @@ export default function LandingPage() {
           )}
         </Link>
         <div className="flex gap-2 md:gap-10 items-center">
-          <a href="#menu" className="hidden lg:block text-xs font-black hover:text-red-500 transition-colors uppercase tracking-[0.3em]">Menu</a>
+          <Link to="/menu" className="hidden lg:block text-xs font-black hover:text-red-500 transition-colors uppercase tracking-[0.3em]">Menu</Link>
           <a href="#plans" className="hidden lg:block text-xs font-black hover:text-red-500 transition-colors uppercase tracking-[0.3em]">Plans</a>
           <Link to="/login" className={`hidden md:block bg-transparent hover:bg-white/10 text-white rounded-xl text-[10px] md:text-sm font-black uppercase tracking-[0.2em] transition-all border border-white/20 hover:border-white/50 ${
             scrolled ? 'px-4 py-2' : 'px-6 py-3'
@@ -210,9 +209,9 @@ export default function LandingPage() {
             <Link to="/login" className="bg-red-600 hover:bg-red-700 text-white px-6 md:px-10 py-3.5 md:py-4 rounded-xl text-xs md:text-lg font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group shadow-[0_4px_20px_rgba(220,38,38,0.4)]">
               Start Your Plan <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a href="#menu" className="border-2 border-white/20 hover:border-red-600 hover:bg-red-600/10 px-6 md:px-10 py-3 md:py-4 rounded-xl text-xs md:text-lg font-black uppercase tracking-widest transition-all">
+            <Link to="/menu" className="border-2 border-white/20 hover:border-red-600 hover:bg-red-600/10 px-6 md:px-10 py-3 md:py-4 rounded-xl text-xs md:text-lg font-black uppercase tracking-widest transition-all">
               View Menu
-            </a>
+            </Link>
           </motion.div>
         </div>
       </section>
@@ -398,8 +397,8 @@ export default function LandingPage() {
                 {landingPageItems
                   .filter(item => selectedCategory === 'All' || item.category === selectedCategory)
                   .map((item, idx) => {
-                    const bgUrl = item.bgImage ? getGoogleDriveDirectUrl(item.bgImage) : null;
-                    const spinningUrl = item.spinningImage ? getGoogleDriveDirectUrl(item.spinningImage) : null;
+                    const bgUrl = item.bgImage || null;
+                    const spinningUrl = item.spinningImage || null;
 
                     return (
                       <motion.div 
@@ -424,13 +423,21 @@ export default function LandingPage() {
                           <div className="relative aspect-square mb-6 rounded-3xl bg-neutral-900 border border-white/5 group-hover:border-red-600/30 transition-all duration-500 shadow-2xl flex items-center justify-center overflow-hidden">
                             {/* Static Background Image layer - High Visibility */}
                             <div className="absolute inset-0 z-0">
-                              <AssetImage 
-                                src={bgUrl}
-                                assetName={item.name}
-                                fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`}
-                                alt=""
-                                className="w-full h-full object-cover transition-all duration-700 opacity-90 group-hover:opacity-100"
-                              />
+                              {bgUrl ? (
+                                <img 
+                                  src={bgUrl} 
+                                  alt="" 
+                                  className="w-full h-full object-cover transition-all duration-700 opacity-90 group-hover:opacity-100" 
+                                  referrerPolicy="no-referrer"
+                                />
+                              ) : (
+                                <AssetImage 
+                                  assetName={item.name}
+                                  fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`}
+                                  alt=""
+                                  className="w-full h-full object-cover transition-all duration-700 opacity-90 group-hover:opacity-100"
+                                />
+                              )}
                             </div>
 
                             {/* Subtle Glow on hover */}
@@ -458,13 +465,21 @@ export default function LandingPage() {
                                 }
                               }}
                             >
-                              <AssetImage 
-                                src={spinningUrl}
-                                assetName={item.name}
-                                fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`}
-                                alt={item.name}
-                                className={`w-full h-full object-cover transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'scale-105' : 'scale-125'}`}
-                              />
+                              {spinningUrl ? (
+                                <img 
+                                  src={spinningUrl} 
+                                  alt={item.name} 
+                                  className={`w-full h-full object-cover transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'scale-105' : 'scale-125'}`}
+                                  referrerPolicy="no-referrer"
+                                />
+                              ) : (
+                                <AssetImage 
+                                  assetName={item.name}
+                                  fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`}
+                                  alt={item.name}
+                                  className={`w-full h-full object-cover transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'scale-105' : 'scale-125'}`}
+                                />
+                              )}
                             </motion.div>
                         
                         {/* Minimal Shadow Overlay for text depth */}

@@ -1,27 +1,19 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { getGoogleDriveDirectUrl } from '../lib/assets';
 
 interface AssetImageProps {
-  assetName?: string;
-  src?: string | null;
+  assetName: string;
   fallbackUrl: string;
   alt: string;
   className?: string;
 }
 
-export default function AssetImage({ assetName, src, fallbackUrl, alt, className = "" }: AssetImageProps) {
-  const [url, setUrl] = useState<string>(getGoogleDriveDirectUrl(src || fallbackUrl));
+export default function AssetImage({ assetName, fallbackUrl, alt, className = "" }: AssetImageProps) {
+  const [url, setUrl] = useState<string>(fallbackUrl);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (src) {
-      setUrl(getGoogleDriveDirectUrl(src));
-      setLoading(false);
-      return;
-    }
-
     async function resolveAsset() {
       if (!assetName) {
         setLoading(false);
@@ -32,22 +24,17 @@ export default function AssetImage({ assetName, src, fallbackUrl, alt, className
         const assetId = assetName.replace(/\s+/g, '_').toLowerCase();
         const assetDoc = await getDoc(doc(db, 'assets', assetId));
         if (assetDoc.exists()) {
-          const rawUrl = assetDoc.data().url;
-          setUrl(getGoogleDriveDirectUrl(rawUrl));
-        } else {
-          // If no asset override, ensure fallback is direct
-          setUrl(getGoogleDriveDirectUrl(fallbackUrl));
+          setUrl(assetDoc.data().url);
         }
       } catch (error) {
         console.error("Asset resolution failed:", error);
-        setUrl(getGoogleDriveDirectUrl(fallbackUrl));
       } finally {
         setLoading(false);
       }
     }
     
     resolveAsset();
-  }, [assetName, fallbackUrl, src]);
+  }, [assetName, fallbackUrl]);
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
@@ -61,13 +48,8 @@ export default function AssetImage({ assetName, src, fallbackUrl, alt, className
         alt={alt} 
         onLoad={() => setLoading(false)}
         onError={(e) => {
-          console.error("Asset failed to load:", url);
-          // If the transformed URL failed, try the raw fallback if it's different and not a Drive link
-          // But actually, the best fallback is a reliable Unsplash image
-          const defaultFallback = `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`;
-          
-          if (url !== defaultFallback) {
-             setUrl(defaultFallback);
+          if (url !== fallbackUrl) {
+            setUrl(fallbackUrl);
           }
           setLoading(false);
         }}

@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Utensils, Milk, Zap, Target, Mountain } from 'lucide-react';
-import { getGoogleDriveDirectUrl } from '../lib/assets';
-import { getDriveId, getDriveEmbedLink, getDriveDirectLink } from '../lib/googleDrive';
 
 interface LoadingScreenProps {
   customUrl?: string;
@@ -20,15 +18,10 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const driveId = videoUrl ? getDriveId(videoUrl) : null;
-  const isDriveVideo = !!driveId;
-  const embedUrl = getDriveEmbedLink(videoUrl);
-  const directVideoUrl = getDriveDirectLink(videoUrl, true);
-  const directPhotoUrl = getDriveDirectLink(customUrl);
-  const directLogoUrl = getDriveDirectLink(logoUrl);
+  const [isExiting, setIsExiting] = useState(false);
+  const useVideo = !!videoUrl;
 
   useEffect(() => {
-    console.log("LoadingScreen: Init", { videoUrl, directVideoUrl, isDriveVideo });
     setVideoLoaded(false);
     setVideoError(false);
     setIsBuffering(true);
@@ -44,43 +37,15 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
   }, [videoUrl, isMobile]);
 
   useEffect(() => {
-    if (directVideoUrl && !isDriveVideo) {
-      const link = document.createElement('link');
-      link.rel = 'prefetch';
-      link.as = 'video';
-      link.href = directVideoUrl;
-      document.head.appendChild(link);
-      return () => {
-        try {
-          document.head.removeChild(link);
-        } catch (e) {}
-      };
-    }
-  }, [directVideoUrl, isDriveVideo]);
-
-  useEffect(() => {
     const checkScreen = () => {
-      // Consider it mobile if width is small OR it's a touch device
       const isSmallScreen = window.innerWidth < 1024;
       const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
       setIsMobile(isSmallScreen || isTouchDevice);
-      console.log(`LoadingScreen: Mobile detected? ${isSmallScreen || isTouchDevice} (Width: ${window.innerWidth})`);
     };
     checkScreen();
     window.addEventListener('resize', checkScreen);
     return () => window.removeEventListener('resize', checkScreen);
   }, []);
-
-  const [hideUI, setHideUI] = useState(false);
-
-  useEffect(() => {
-    if (isMobile) {
-      setHideUI(true);
-    }
-  }, [isMobile]);
-
-  const [isExiting, setIsExiting] = useState(false);
-  const useVideo = isMobile && !!videoUrl;
 
   const handleFinish = () => {
     if (isExiting) return;
@@ -97,22 +62,14 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
     let playCheckInterval: number;
 
     if (useVideo) {
-      // Safety timeout: If nothing happens within 3 seconds for Drive videos, try fallback 
-      // Drive direct links often hang or return HTML virus warnings for large files
-      // Production sites like Vercel benefit from faster failover to stay responsive
-      const timeoutDuration = isDriveVideo ? 3000 : 8000;
+      const timeoutDuration = 8000;
       
       timeoutId = window.setTimeout(() => {
         if (!videoLoaded && !videoError) {
-          if (isDriveVideo) {
-            console.warn("Drive video tag taking too long or blocked by CORS/Virus Check on Vercel. Switching to iframe fallback.");
-            setVideoError(true);
-          } else {
-            console.warn("Video loading timed out, moving to finish.");
-            setVideoLoaded(true);
-            setIsBuffering(false);
-            setTimeout(() => handleFinish(), 1500);
-          }
+          console.warn("Video loading timed out, moving to finish.");
+          setVideoLoaded(true);
+          setIsBuffering(false);
+          setTimeout(() => handleFinish(), 1500);
         }
       }, timeoutDuration);
     } else {
@@ -252,17 +209,16 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                className="relative z-10 opacity-0"
              >
-                {directLogoUrl ? (
+                {logoUrl ? (
                   <img 
-                    src={directLogoUrl} 
+                    src={logoUrl} 
                     alt="Intro Logo" 
                     className="h-48 w-auto object-contain drop-shadow-[0_0_40px_rgba(255,255,255,0.15)]"
                     referrerPolicy="no-referrer"
                     onError={(e) => {
                       console.warn("Logo image failed to load, switching to icon.");
                       (e.currentTarget as HTMLImageElement).style.display = 'none';
-                      // Force local state to show fallback if we had one, but here we'll just let the next div show
-                      setVideoError(true); // repurpose this or use a new state? Actually let's just use CSS
+                      setVideoError(true);
                     }}
                   />
                 ) : (
@@ -316,7 +272,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     playsInline
                     loop
                     preload="auto"
-                    src={directVideoUrl || (driveId ? `https://drive.google.com/uc?export=media&id=${driveId}` : undefined)}
+                    src={videoUrl}
                     onCanPlay={() => {
                       console.log("Video: onCanPlay reached");
                       setVideoLoaded(true);
@@ -346,23 +302,6 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                   <div className={`absolute inset-0 z-20 pointer-events-none bg-black/5 contrast-[1.15] saturate-[1.1] mix-blend-overlay transition-opacity duration-1000 ${videoLoaded ? 'opacity-40' : 'opacity-0'}`} />
                   <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent z-10" />
                 </div>
-              ) : isDriveVideo && embedUrl ? (
-                <div className="absolute inset-0 overflow-hidden bg-black flex items-center justify-center">
-                  <iframe 
-                    src={`${embedUrl}&vq=hd720&hd=1&modestbranding=1&rel=0&fs=0&controls=0&disablekb=1&showinfo=0&iv_load_policy=3`}
-                    className="w-full h-[calc(110%+160px)] -mt-[10%] border-none pointer-events-none transition-opacity duration-1000 will-change-transform scale-[1.05]"
-                    onLoad={() => {
-                      setVideoLoaded(true);
-                      setTimeout(() => handleFinish(), 10000); // 10s for high-def impact
-                    }}
-                    allow="autoplay; fullscreen"
-                    style={{ opacity: videoLoaded ? 1.0 : 0 }}
-                  />
-                  {/* Cinematic overlays and sharpening */}
-                  <div className={`absolute inset-0 z-20 pointer-events-none border-[10vw] border-black/20 blur-[60px] mix-blend-multiply transition-opacity duration-700 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`} />
-                  <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 to-transparent z-10" />
-                  <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent z-10" />
-                </div>
               ) : (
                 <div className="w-full h-full bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)]" />
               )}
@@ -376,7 +315,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
           <div className="w-full h-full relative">
             {customUrl ? (
               <img 
-                src={directPhotoUrl || customUrl} 
+                src={customUrl} 
                 alt="Background" 
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
@@ -409,11 +348,11 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             className="flex justify-center"
           >
-            {directLogoUrl && !logoError ? (
+            {logoUrl && !logoError ? (
               <div className="relative group">
                 <div className="absolute inset-[-15px] bg-[#C90000]/20 blur-2xl rounded-full animate-pulse" />
                 <img 
-                  src={directLogoUrl} 
+                  src={logoUrl} 
                   alt="Logo" 
                   className="h-40 w-auto object-contain relative z-10 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                   referrerPolicy="no-referrer"
@@ -507,7 +446,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         </motion.button>
       )}
 
-      {videoLoaded && videoRef.current?.paused && !videoError && !hideUI && minLogoTimePassed && (
+      {videoLoaded && videoRef.current?.paused && !videoError && minLogoTimePassed && (
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -517,7 +456,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         </motion.div>
       )}
 
-      {false && isMobile && !hideUI && videoLoaded && !isBuffering && minLogoTimePassed && (
+      {false && isMobile && videoLoaded && !isBuffering && minLogoTimePassed && (
         <>
           <motion.div 
             initial={{ opacity: 0, x: -20 }}

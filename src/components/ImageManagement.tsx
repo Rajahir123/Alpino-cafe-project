@@ -4,8 +4,6 @@ import { collection, query, getDocs, doc, setDoc, Timestamp, deleteDoc, getDoc }
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { motion } from 'motion/react';
 import { Upload, Trash2, Image as ImageIcon, Settings, Check, X, RefreshCw, Link as LinkIcon, ExternalLink, Info, CloudCheck } from 'lucide-react';
-import { getGoogleDriveDirectUrl } from '../lib/assets';
-import { getDriveDirectLink } from '../lib/googleDrive';
 import { usePersistedState } from '../hooks/usePersistedState';
 
 interface Asset {
@@ -28,17 +26,12 @@ export default function ImageManagement() {
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [assetName, setAssetName] = usePersistedState('asset_name', '');
-  const [driveUrl, setDriveUrl] = usePersistedState('asset_drive_url', '');
-  const [logoDriveUrl, setLogoDriveUrl] = usePersistedState('logo_drive_url', '');
-  const [loadingDriveUrl, setLoadingDriveUrl] = usePersistedState('loading_drive_url', '');
-  const [loadingVideoDriveUrl, setLoadingVideoDriveUrl] = usePersistedState('loading_video_drive_url', '');
+  const [logoMode, setLogoMode] = usePersistedState<'upload' | 'blob'>('logo_mode', 'blob');
+  const [loadingMode, setLoadingMode] = usePersistedState<'upload' | 'blob'>('loading_mode', 'blob');
+  const [loadingVideoMode, setLoadingVideoMode] = usePersistedState<'upload' | 'blob'>('loading_video_mode', 'blob');
+  const [assetMode, setAssetMode] = usePersistedState<'upload' | 'blob'>('asset_mode', 'blob');
 
-  const [logoMode, setLogoMode] = usePersistedState<'upload' | 'drive' | 'blob'>('logo_mode', 'upload');
-  const [loadingMode, setLoadingMode] = usePersistedState<'upload' | 'drive' | 'blob'>('loading_mode', 'upload');
-  const [loadingVideoMode, setLoadingVideoMode] = usePersistedState<'upload' | 'drive' | 'blob'>('loading_video_mode', 'drive');
-  const [assetMode, setAssetMode] = usePersistedState<'upload' | 'drive' | 'blob'>('asset_mode', 'upload');
-
-  const uploadToBlob = async (file: File) => {
+  const uploadToBlob = async (file: File, isMenu: boolean = false) => {
     // Convert file to base64 for server transport
     const base64 = await new Promise<string>((resolve) => {
       const reader = new FileReader();
@@ -49,11 +42,12 @@ export default function ImageManagement() {
       reader.readAsDataURL(file);
     });
 
+    const prefix = isMenu ? 'menu/' : '';
     const response = await fetch('/api/upload-blob', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        filename: `${Date.now()}_${file.name}`,
+        filename: `${prefix}${Date.now()}_${file.name}`,
         contentType: file.type,
         data: base64
       })
@@ -92,31 +86,6 @@ export default function ImageManagement() {
   }, []);
 
   const handleUpload = async () => {
-    if (assetMode === 'drive') {
-      if (!driveUrl || !assetName) return;
-      setUploading(true);
-      try {
-        const finalUrl = getGoogleDriveDirectUrl(driveUrl);
-        const assetId = assetName.replace(/\s+/g, '_').toLowerCase();
-        
-        await setDoc(doc(db, 'assets', assetId), {
-          name: assetName,
-          url: finalUrl,
-          type: 'image/external',
-          updatedAt: Timestamp.now()
-        });
-
-        setDriveUrl('');
-        setAssetName('');
-        fetchData();
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, 'assets drive link');
-      } finally {
-        setUploading(false);
-      }
-      return;
-    }
-
     if (!selectedFile || !assetName) return;
     setUploading(true);
     try {
@@ -124,7 +93,7 @@ export default function ImageManagement() {
       let type = selectedFile.type;
 
       if (assetMode === 'blob') {
-        const blob = await uploadToBlob(selectedFile);
+        const blob = await uploadToBlob(selectedFile, true);
         url = blob.url;
       } else {
         const storageRef = ref(storage, `assets/${Date.now()}_${selectedFile.name}`);
@@ -183,43 +152,6 @@ export default function ImageManagement() {
     } catch (error: any) {
       alert(error.message || 'Upload failed');
       handleFirestoreError(error, OperationType.WRITE, `${field} ${mode} upload`);
-    } finally {
-      if (isLogo) setLogoLoading(false);
-      else if (isVideo) setLoadingVideoLoading(false);
-      else setLoadingPageLoading(false);
-    }
-  };
-
-  const handleSettingDriveSubmit = async (driveUrl: string, field: 'logoUrl' | 'loadingUrl' | 'loadingVideoUrl') => {
-    if (!driveUrl) return;
-    const isLogo = field === 'logoUrl';
-    const isVideo = field === 'loadingVideoUrl';
-
-    if (isLogo) setLogoLoading(true);
-    else if (isVideo) setLoadingVideoLoading(true);
-    else setLoadingPageLoading(true);
-
-    try {
-      const finalUrl = getDriveDirectLink(driveUrl, isVideo);
-      const settingsRef = doc(db, 'settings', 'global');
-      await setDoc(settingsRef, {
-        [field]: finalUrl,
-        updatedAt: Timestamp.now()
-      }, { merge: true });
-
-      if (isLogo) {
-        setLogoUrl(finalUrl);
-        setLogoDriveUrl('');
-      } else if (isVideo) {
-        setLoadingVideoUrl(finalUrl);
-        setLoadingVideoDriveUrl('');
-      } else {
-        setLoadingUrl(finalUrl);
-        setLoadingDriveUrl('');
-      }
-      alert(`${isLogo ? 'Logo' : isVideo ? 'Loading video' : 'Loading interface'} updated via Google Drive!`);
-    } catch (error: any) {
-      handleFirestoreError(error, OperationType.WRITE, `${field} drive link`);
     } finally {
       if (isLogo) setLogoLoading(false);
       else if (isVideo) setLoadingVideoLoading(false);
@@ -288,39 +220,14 @@ export default function ImageManagement() {
                   >
                     Vercel Blob
                   </button>
-                  <button 
-                    onClick={() => setLogoMode('drive')}
-                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${logoMode === 'drive' ? 'bg-red-600 text-white' : 'bg-white/5 text-white/40 hover:text-white'}`}
-                  >
-                    Direct / Drive
-                  </button>
                 </div>
               </div>
 
-              {logoMode !== 'drive' ? (
-                <label className={`inline-flex items-center gap-3 ${logoMode === 'blob' ? 'bg-blue-600' : 'bg-white'} ${logoMode === 'blob' ? 'text-white' : 'text-black'} hover:opacity-80 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all cursor-pointer shadow-lg active:scale-95 group`}>
-                  <Upload size={20} />
-                  Upload to {logoMode === 'blob' ? 'Vercel' : 'Firebase'}
-                  <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleSettingUpload(e.target.files[0], 'logoUrl', logoMode)} />
-                </label>
-              ) : (
-                <div className="flex flex-col md:flex-row gap-3 max-w-xl">
-                  <input 
-                    type="text" 
-                    placeholder="Paste Direct Link or Google Drive URL for Logo..."
-                    className="flex-grow bg-black border border-white/10 rounded-xl py-4 px-4 font-bold text-xs tracking-widest focus:outline-none focus:border-red-600 transition-all text-white"
-                    value={logoDriveUrl}
-                    onChange={(e) => setLogoDriveUrl(e.target.value)}
-                  />
-                  <button 
-                    onClick={() => handleSettingDriveSubmit(logoDriveUrl, 'logoUrl')}
-                    disabled={!logoDriveUrl || logoLoading}
-                    className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 whitespace-nowrap"
-                  >
-                    Set Logo
-                  </button>
-                </div>
-              )}
+              <label className={`inline-flex items-center gap-3 ${logoMode === 'blob' ? 'bg-blue-600' : 'bg-white'} ${logoMode === 'blob' ? 'text-white' : 'text-black'} hover:opacity-80 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all cursor-pointer shadow-lg active:scale-95 group`}>
+                <Upload size={20} />
+                Upload to {logoMode === 'blob' ? 'Vercel' : 'Firebase'}
+                <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleSettingUpload(e.target.files[0], 'logoUrl', logoMode)} />
+              </label>
            </div>
         </div>
 
@@ -354,39 +261,14 @@ export default function ImageManagement() {
                   >
                     Vercel Blob
                   </button>
-                  <button 
-                    onClick={() => setLoadingMode('drive')}
-                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${loadingMode === 'drive' ? 'bg-red-600 text-white' : 'bg-white/5 text-white/40 hover:text-white'}`}
-                  >
-                    Direct / Drive
-                  </button>
                 </div>
               </div>
 
-              {loadingMode !== 'drive' ? (
-                <label className={`inline-flex items-center gap-3 ${loadingMode === 'blob' ? 'bg-blue-600' : 'bg-white'} ${loadingMode === 'blob' ? 'text-white' : 'text-black'} hover:opacity-80 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all cursor-pointer shadow-lg active:scale-95 group`}>
-                  <Upload size={20} />
-                  Upload to {loadingMode === 'blob' ? 'Vercel' : 'Firebase'}
-                  <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleSettingUpload(e.target.files[0], 'loadingUrl', loadingMode)} />
-                </label>
-              ) : (
-                <div className="flex flex-col md:flex-row gap-3 max-w-xl">
-                  <input 
-                    type="text" 
-                    placeholder="Paste Direct Link or Google Drive URL for Loading Image..."
-                    className="flex-grow bg-black border border-white/10 rounded-xl py-4 px-4 font-bold text-xs tracking-widest focus:outline-none focus:border-red-600 transition-all text-white"
-                    value={loadingDriveUrl}
-                    onChange={(e) => setLoadingDriveUrl(e.target.value)}
-                  />
-                  <button 
-                    onClick={() => handleSettingDriveSubmit(loadingDriveUrl, 'loadingUrl')}
-                    disabled={!loadingDriveUrl || loadingPageLoading}
-                    className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 whitespace-nowrap"
-                  >
-                    Set Interface
-                  </button>
-                </div>
-              )}
+              <label className={`inline-flex items-center gap-3 ${loadingMode === 'blob' ? 'bg-blue-600' : 'bg-white'} ${loadingMode === 'blob' ? 'text-white' : 'text-black'} hover:opacity-80 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all cursor-pointer shadow-lg active:scale-95 group`}>
+                <Upload size={20} />
+                Upload to {loadingMode === 'blob' ? 'Vercel' : 'Firebase'}
+                <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleSettingUpload(e.target.files[0], 'loadingUrl', loadingMode)} />
+              </label>
            </div>
         </div>
 
@@ -422,39 +304,15 @@ export default function ImageManagement() {
                   >
                     Vercel Blob
                   </button>
-                  <button 
-                    onClick={() => setLoadingVideoMode('drive')}
-                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${loadingVideoMode === 'drive' ? 'bg-red-600 text-white' : 'bg-white/5 text-white/40 hover:text-white'}`}
-                  >
-                    Direct / Drive
-                  </button>
                 </div>
               </div>
 
-              {loadingVideoMode !== 'drive' ? (
-                <label className={`inline-flex items-center gap-3 ${loadingVideoMode === 'blob' ? 'bg-blue-600' : 'bg-white'} ${loadingVideoMode === 'blob' ? 'text-white' : 'text-black'} hover:opacity-80 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all cursor-pointer shadow-lg active:scale-95 group`}>
-                  <Upload size={20} />
-                  Upload to {loadingVideoMode === 'blob' ? 'Vercel' : 'Firebase'}
-                  <input type="file" className="hidden" accept="video/*" onChange={(e) => e.target.files?.[0] && handleSettingUpload(e.target.files[0], 'loadingVideoUrl', loadingVideoMode)} />
-                </label>
-              ) : (
-                <div className="flex flex-col md:flex-row gap-3 max-w-xl">
-                  <input 
-                    type="text" 
-                    placeholder="Paste Direct Link or Google Drive URL for Background Video..."
-                    className="flex-grow bg-black border border-white/10 rounded-xl py-4 px-4 font-bold text-xs tracking-widest focus:outline-none focus:border-red-600 transition-all text-white"
-                    value={loadingVideoDriveUrl}
-                    onChange={(e) => setLoadingVideoDriveUrl(e.target.value)}
-                  />
-                  <button 
-                    onClick={() => handleSettingDriveSubmit(loadingVideoDriveUrl, 'loadingVideoUrl')}
-                    disabled={!loadingVideoDriveUrl || loadingVideoLoading}
-                    className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 whitespace-nowrap"
-                  >
-                    Set Video
-                  </button>
-                </div>
-              )}
+              <label className={`inline-flex items-center gap-3 ${loadingVideoMode === 'blob' ? 'bg-blue-600' : 'bg-white'} ${loadingVideoMode === 'blob' ? 'text-white' : 'text-black'} hover:opacity-80 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all cursor-pointer shadow-lg active:scale-95 group`}>
+                <Upload size={20} />
+                Upload to {loadingVideoMode === 'blob' ? 'Vercel' : 'Firebase'}
+                <input type="file" className="hidden" accept="video/*" onChange={(e) => e.target.files?.[0] && handleSettingUpload(e.target.files[0], 'loadingVideoUrl', loadingVideoMode)} />
+              </label>
+
               {loadingVideoUrl && (
                 <p className="text-[10px] font-black uppercase text-green-500 flex items-center gap-2">
                    <Check size={12} /> Video background is active
@@ -477,7 +335,7 @@ export default function ImageManagement() {
           <div className="flex bg-neutral-900 border border-white/5 p-1 rounded-xl">
             <div className="flex items-center gap-2 px-3 py-1 bg-red-600/10 border border-red-600/20 rounded-lg mr-4">
               <Info size={12} className="text-red-500" />
-              <span className="text-[8px] font-black uppercase text-red-500 tracking-widest whitespace-nowrap">Ensure Drive files are shared publicly</span>
+              <span className="text-[8px] font-black uppercase text-red-500 tracking-widest whitespace-nowrap">Vercel Blob storage: active</span>
             </div>
             <button 
               onClick={() => setAssetMode('upload')}
@@ -490,12 +348,6 @@ export default function ImageManagement() {
               className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${assetMode === 'blob' ? 'bg-blue-600 text-white' : 'text-white/40'}`}
             >
               <Upload size={14} /> Vercel Blob
-            </button>
-            <button 
-              onClick={() => setAssetMode('drive')}
-              className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${assetMode === 'drive' ? 'bg-red-600 text-white' : 'text-white/40'}`}
-            >
-              <LinkIcon size={14} /> Direct / Drive
             </button>
           </div>
         </div>
@@ -515,38 +367,22 @@ export default function ImageManagement() {
                     />
                  </div>
                  
-                 {assetMode === 'drive' ? (
-                   <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Direct Link or Google Drive URL</label>
-                      <div className="relative">
-                        <LinkIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
-                        <input 
-                          type="text" 
-                          placeholder="Paste Link..."
-                          className="w-full bg-black border border-white/10 rounded-2xl py-5 pl-14 pr-6 font-bold text-xs tracking-widest focus:outline-none focus:border-red-600 transition-all text-white"
-                          value={driveUrl}
-                          onChange={(e) => setDriveUrl(e.target.value)}
-                        />
-                      </div>
-                   </div>
-                 ) : (
-                   <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Select PNG/JPG Source for {assetMode === 'blob' ? 'Vercel' : 'Firebase'}</label>
-                      <label className={`w-full h-[62px] border-2 border-dashed ${assetMode === 'blob' ? 'border-blue-600/30 hover:border-blue-600' : 'border-white/10 hover:border-red-600/50'} rounded-2xl px-6 flex items-center gap-4 cursor-pointer transition-all hover:bg-white/5 bg-black`}>
-                         <div className="bg-white/5 p-2 rounded-lg">
-                           <ImageIcon size={20} className={selectedFile ? 'text-green-500' : 'text-white/20'} />
-                         </div>
-                         <span className="text-[10px] font-black uppercase tracking-[0.2em]">{selectedFile ? selectedFile.name : `Choose Asset for ${assetMode === 'blob' ? 'Vercel' : 'Industrial'} Storage`}</span>
-                         <input type="file" className="hidden" accept="image/*" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} />
-                      </label>
-                   </div>
-                 )}
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Select PNG/JPG Source for {assetMode === 'blob' ? 'Vercel' : 'Firebase'}</label>
+                    <label className={`w-full h-[62px] border-2 border-dashed ${assetMode === 'blob' ? 'border-blue-600/30 hover:border-blue-600' : 'border-white/10 hover:border-red-600/50'} rounded-2xl px-6 flex items-center gap-4 cursor-pointer transition-all hover:bg-white/5 bg-black`}>
+                       <div className="bg-white/5 p-2 rounded-lg">
+                         <ImageIcon size={20} className={selectedFile ? 'text-green-500' : 'text-white/20'} />
+                       </div>
+                       <span className="text-[10px] font-black uppercase tracking-[0.2em]">{selectedFile ? selectedFile.name : `Choose Asset for ${assetMode === 'blob' ? 'Vercel' : 'Industrial'} Storage`}</span>
+                       <input type="file" className="hidden" accept="image/*" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} />
+                    </label>
+                 </div>
               </div>
 
               <div className="flex flex-col gap-4">
                  <button 
                    onClick={handleUpload}
-                   disabled={uploading || !assetName || (assetMode === 'drive' ? !driveUrl : !selectedFile)}
+                   disabled={uploading || !assetName || !selectedFile}
                    className={`w-full h-[62px] ${assetMode === 'blob' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-red-600 hover:bg-red-700'} disabled:opacity-50 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl ${assetMode === 'blob' ? 'shadow-blue-600/20' : 'shadow-red-600/20'} flex items-center justify-center gap-3 text-lg`}
                  >
                    {uploading ? <RefreshCw className="animate-spin" size={24} /> : <Check size={24} />}

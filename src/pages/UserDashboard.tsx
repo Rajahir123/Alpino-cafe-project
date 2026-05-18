@@ -18,7 +18,6 @@ export default function UserDashboard() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [orders, setOrders] = useState<Order[]>([]);
-  const [firestoreMenu, setFirestoreMenu] = useState<MenuItem[]>([]);
 
   useEffect(() => {
     const tomorrow = new Date();
@@ -39,29 +38,8 @@ export default function UserDashboard() {
       }
     };
 
-    // Fetch menu
-    const fetchMenu = async () => {
-      try {
-        const snap = await getDocs(collection(db, 'menu'));
-        setFirestoreMenu(snap.docs.map(d => ({ id: d.id, ...d.data() } as MenuItem)));
-      } catch (error) {
-        console.error("Error fetching menu:", error);
-      }
-    }
-
     fetchOrders();
-    fetchMenu();
   }, [profile]);
-
-  const allMenuItems = (() => {
-    const combined = [...MENU_ITEMS];
-    firestoreMenu.forEach(fi => {
-      const idx = combined.findIndex(ci => ci.id === fi.id);
-      if (idx >= 0) combined[idx] = { ...combined[idx], ...fi };
-      else combined.push(fi);
-    });
-    return combined;
-  })();
 
   const handleSaveToKitchen = async () => {
     if (!profile || !selectedItem) return;
@@ -100,7 +78,7 @@ export default function UserDashboard() {
 
   const plan = PLANS.find(p => p.id === profile?.planId);
   const isTrial = plan?.type === 'trial';
-  const availableMenu = isTrial ? allMenuItems.filter(i => i.isTrialFixed) : allMenuItems;
+  const availableMenu = isTrial ? MENU_ITEMS.filter(i => i.isTrialFixed) : MENU_ITEMS;
 
   return (
     <div className="min-h-screen bg-black pt-24 pb-20 px-6 font-sans">

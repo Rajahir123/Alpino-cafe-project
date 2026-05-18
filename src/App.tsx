@@ -4,6 +4,7 @@ import { useAuth } from './hooks/useAuth';
 import { useSettings } from './hooks/useSettings';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import MenuPage from './pages/MenuPage';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import KitchenDashboard from './pages/KitchenDashboard';
@@ -15,7 +16,7 @@ import AdminQuickNav from './components/AdminQuickNav';
 import { Package2, User as UserIcon, LayoutDashboard, Utensils, ShieldCheck } from 'lucide-react';
 import { doc, getDocFromServer } from 'firebase/firestore';
 import { db } from './lib/firebase';
-import { DEFAULT_LOADING_VIDEO_URL, VERCEL_BLOB_LOADING_VIDEO_URL } from './lib/googleDrive';
+import { DEFAULT_LOADING_VIDEO_URL, VERCEL_BLOB_LOADING_VIDEO_URL } from './constants';
 
 function App() {
   const { user, profile, loading: authLoading } = useAuth();
@@ -71,6 +72,7 @@ function App() {
       <div className="min-h-screen bg-black text-white font-sans selection:bg-red-600 selection:text-white">
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/menu" element={<MenuPage />} />
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
           
           {/* Protected Routes */}

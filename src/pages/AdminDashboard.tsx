@@ -7,7 +7,6 @@ import { motion } from 'motion/react';
 import { Check, X, ShieldCheck, Users, CreditCard, LayoutDashboard, Search, Image as ImageIcon, Utensils, Plus, Trash2, Save, History, FileText } from 'lucide-react';
 import ImageManagement from '../components/ImageManagement';
 import { usePersistedState } from '../hooks/usePersistedState';
-import { getGoogleDriveDirectUrl } from '../lib/assets';
 
 export default function AdminDashboard() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
@@ -98,8 +97,8 @@ export default function AdminDashboard() {
       const id = newItem.name.replace(/\s+/g, '-').toLowerCase();
       await setDoc(doc(db, 'menu', id), {
         ...newItem,
-        bgImage: getGoogleDriveDirectUrl(newItem.bgImage),
-        spinningImage: getGoogleDriveDirectUrl(newItem.spinningImage),
+        bgImage: newItem.bgImage || '',
+        spinningImage: newItem.spinningImage || '',
         id,
         updatedAt: Timestamp.now()
       });
@@ -293,10 +292,10 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="lg:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Background Image (G-Drive Link)</label>
+                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Background Image (URL)</label>
                     <input 
                       type="text" 
-                      placeholder="PASTE LINK HERE..."
+                      placeholder="PASTE URL FROM ASSETS TAB..."
                       className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
                       value={newItem.bgImage || ''}
                       onChange={e => setNewItem({...newItem, bgImage: e.target.value})}
@@ -304,10 +303,10 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="lg:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Spinning Cut-out PNG (G-Drive Link)</label>
+                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Spinning Cut-out PNG (URL)</label>
                     <input 
                       type="text" 
-                      placeholder="PASTE LINK HERE..."
+                      placeholder="PASTE URL FROM ASSETS TAB..."
                       className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
                       value={newItem.spinningImage || ''}
                       onChange={e => setNewItem({...newItem, spinningImage: e.target.value})}
@@ -340,7 +339,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center overflow-hidden border border-white/5">
                            {(item.spinningImage || item.image) ? (
-                             <img src={getGoogleDriveDirectUrl(item.spinningImage || item.image)} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                             <img src={item.spinningImage || item.image || ''} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                            ) : (
                              <Utensils className="text-white/10" size={24} />
                            )}
