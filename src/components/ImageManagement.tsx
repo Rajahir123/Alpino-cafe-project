@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, storage, auth, handleFirestoreError, OperationType } from '../lib/firebase';
-import { collection, query, getDocs, doc, setDoc, Timestamp, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, query, getDocs, doc, setDoc, Timestamp, deleteDoc, getDoc, writeBatch } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { motion } from 'motion/react';
 import { Upload, Trash2, Image as ImageIcon, Settings, Check, X, RefreshCw, Link as LinkIcon, ExternalLink, Info, CloudCheck } from 'lucide-react';
@@ -24,13 +24,15 @@ export default function ImageManagement() {
   const [loadingPageLoading, setLoadingPageLoading] = useState(false);
   const [loadingVideoLoading, setLoadingVideoLoading] = useState(false);
   
+  const [selectedAssetIds, setSelectedAssetIds] = useState<Set<string>>(new Set());
+  const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [assetName, setAssetName] = usePersistedState('asset_name', '');
   const [logoMode, setLogoMode] = usePersistedState<'upload' | 'blob'>('logo_mode', 'blob');
   const [loadingMode, setLoadingMode] = usePersistedState<'upload' | 'blob'>('loading_mode', 'blob');
   const [loadingVideoMode, setLoadingVideoMode] = usePersistedState<'upload' | 'blob'>('loading_video_mode', 'blob');
   const [assetMode, setAssetMode] = usePersistedState<'upload' | 'blob'>('asset_mode', 'blob');
-
+  
   const uploadToBlob = async (file: File, isMenu: boolean = false) => {
     // Convert file to base64 for server transport
     const base64 = await new Promise<string>((resolve) => {
@@ -160,12 +162,41 @@ export default function ImageManagement() {
   };
 
   const handleDelete = async (asset: Asset) => {
-    if (!confirm('Are you sure you want to delete this asset?')) return;
     try {
       await deleteDoc(doc(db, 'assets', asset.id));
       fetchData();
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, `assets/${asset.id}`);
+    }
+  };
+
+  const toggleAssetSelection = (id: string) => {
+    const newSelected = new Set(selectedAssetIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedAssetIds(newSelected);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedAssetIds.size === 0) return;
+    const batch = writeBatch(db);
+    selectedAssetIds.forEach(id => {
+      batch.delete(doc(db, 'assets', id));
+    });
+    
+    try {
+      setLoading(true);
+      await batch.commit();
+      setSelectedAssetIds(new Set());
+      setIsSelectMode(false);
+      fetchData();
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, 'bulk assets');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -332,23 +363,47 @@ export default function ImageManagement() {
             <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Populate the menu items with industrial precision</p>
           </div>
           
-          <div className="flex bg-neutral-900 border border-white/5 p-1 rounded-xl">
-            <div className="flex items-center gap-2 px-3 py-1 bg-red-600/10 border border-red-600/20 rounded-lg mr-4">
-              <Info size={12} className="text-red-500" />
-              <span className="text-[8px] font-black uppercase text-red-500 tracking-widest whitespace-nowrap">Vercel Blob storage: active</span>
+          <div className="flex items-center gap-4">
+            {assets.length > 0 && (
+              <div className="flex bg-neutral-900 border border-white/5 p-1 rounded-xl">
+                <button 
+                  onClick={() => {
+                    setIsSelectMode(!isSelectMode);
+                    setSelectedAssetIds(new Set());
+                  }}
+                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isSelectMode ? 'bg-red-600 text-white' : 'text-white/40 hover:text-white'}`}
+                >
+                  {isSelectMode ? 'Cancel Selection' : 'Multi-Select'}
+                </button>
+                {isSelectMode && selectedAssetIds.size > 0 && (
+                  <button 
+                    onClick={handleBulkDelete}
+                    className="px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest bg-red-600 text-white animate-pulse"
+                  >
+                    Delete ({selectedAssetIds.size})
+                  </button>
+                )}
+              </div>
+            )}
+
+            <div className="flex bg-neutral-900 border border-white/5 p-1 rounded-xl">
+              <div className="flex items-center gap-2 px-3 py-1 bg-red-600/10 border border-red-600/20 rounded-lg mr-4">
+                <Info size={12} className="text-red-500" />
+                <span className="text-[8px] font-black uppercase text-red-500 tracking-widest whitespace-nowrap">Vercel Blob storage: active</span>
+              </div>
+              <button 
+                onClick={() => setAssetMode('upload')}
+                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${assetMode === 'upload' ? 'bg-white text-black' : 'text-white/40'}`}
+              >
+                <Upload size={14} /> Firebase
+              </button>
+              <button 
+                onClick={() => setAssetMode('blob')}
+                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${assetMode === 'blob' ? 'bg-blue-600 text-white' : 'text-white/40'}`}
+              >
+                <Upload size={14} /> Vercel Blob
+              </button>
             </div>
-            <button 
-              onClick={() => setAssetMode('upload')}
-              className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${assetMode === 'upload' ? 'bg-white text-black' : 'text-white/40'}`}
-            >
-              <Upload size={14} /> Firebase
-            </button>
-            <button 
-              onClick={() => setAssetMode('blob')}
-              className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${assetMode === 'blob' ? 'bg-blue-600 text-white' : 'text-white/40'}`}
-            >
-              <Upload size={14} /> Vercel Blob
-            </button>
           </div>
         </div>
 
@@ -400,7 +455,8 @@ export default function ImageManagement() {
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
                key={asset.id} 
-               className="bg-neutral-900 border border-white/5 rounded-3xl overflow-hidden group relative hover:border-red-600/50 transition-all shadow-xl"
+               onClick={() => isSelectMode && toggleAssetSelection(asset.id)}
+               className={`bg-neutral-900 border border-white/5 rounded-3xl overflow-hidden group relative hover:border-red-600/50 transition-all shadow-xl cursor-pointer ${isSelectMode && selectedAssetIds.has(asset.id) ? 'ring-2 ring-red-600 border-red-600' : ''}`}
              >
                 <div className="aspect-square bg-black p-4 relative group-hover:scale-105 transition-transform duration-700">
                    <img src={asset.url} alt={asset.name} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
@@ -409,23 +465,34 @@ export default function ImageManagement() {
                         <LinkIcon size={12} className="text-white" />
                      </div>
                    )}
+                   {isSelectMode && (
+                     <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${selectedAssetIds.has(asset.id) ? 'opacity-100' : 'opacity-0 hover:opacity-40'}`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${selectedAssetIds.has(asset.id) ? 'bg-red-600 text-white' : 'border-2 border-white text-white'}`}>
+                           <Check size={24} className={selectedAssetIds.has(asset.id) ? 'opacity-100' : 'opacity-0'} />
+                        </div>
+                     </div>
+                   )}
                 </div>
                 <div className="p-6 bg-black/40 backdrop-blur-md">
                    <div className="font-black italic uppercase tracking-tighter truncate text-sm mb-1">{asset.name}</div>
                    <div className="flex items-center justify-between">
                     <div className="text-[8px] font-bold uppercase text-white/20 tracking-tighter truncate">ID: {asset.id}</div>
-                    <button 
-                      onClick={() => handleDelete(asset)}
-                      className="bg-white/5 hover:bg-red-600 text-white/20 hover:text-white p-2 rounded-lg transition-all"
-                    >
-                      <Trash2 size={12} />
-                    </button>
+                    {!isSelectMode && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDelete(asset); }}
+                        className="bg-white/5 hover:bg-red-600 text-white/20 hover:text-white p-2 rounded-lg transition-all"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    )}
                    </div>
                 </div>
                 
-                <a href={asset.url} target="_blank" rel="noreferrer" className="absolute top-4 right-4 bg-black/80 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-white/50 hover:text-white">
-                  <ExternalLink size={14} />
-                </a>
+                {!isSelectMode && (
+                  <a href={asset.url} target="_blank" rel="noreferrer" className="absolute top-4 right-4 bg-black/80 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-white/50 hover:text-white">
+                    <ExternalLink size={14} />
+                  </a>
+                )}
              </motion.div>
            ))}
 

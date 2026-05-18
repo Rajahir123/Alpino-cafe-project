@@ -31,6 +31,7 @@ export interface MenuItem {
   bgImage?: string;
   spinningImage?: string;
   description?: string;
+  published?: boolean;
 }
 
 export interface Plan {

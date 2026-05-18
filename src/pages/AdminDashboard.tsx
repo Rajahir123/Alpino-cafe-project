@@ -4,7 +4,7 @@ import { collection, query, getDocs, doc, updateDoc, Timestamp, where, writeBatc
 import { PaymentRecord, UserProfile, MenuItem } from '../types';
 import { PLANS } from '../constants';
 import { motion } from 'motion/react';
-import { Check, X, ShieldCheck, Users, CreditCard, LayoutDashboard, Search, Image as ImageIcon, Utensils, Plus, Trash2, Save, History, FileText } from 'lucide-react';
+import { Check, X, ShieldCheck, Users, CreditCard, LayoutDashboard, Search, Image as ImageIcon, Utensils, Plus, Trash2, Save, History, FileText, Zap } from 'lucide-react';
 import ImageManagement from '../components/ImageManagement';
 import { usePersistedState } from '../hooks/usePersistedState';
 
@@ -19,6 +19,9 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = usePersistedState('admin_search', '');
   const [activeTab, setActiveTab] = usePersistedState<'payments' | 'images' | 'menu' | 'notes'>('admin_tab', 'payments');
   
+  const [selectedMenuItemIds, setSelectedMenuItemIds] = useState<Set<string>>(new Set());
+  const [isMenuSelectMode, setIsMenuSelectMode] = useState(false);
+  
   // Menu Item Form State
   const [newItem, setNewItem] = usePersistedState<Partial<MenuItem>>('admin_new_item', { 
     category: 'Bowl', 
@@ -28,7 +31,8 @@ export default function AdminDashboard() {
     isTrialFixed: false,
     description: '',
     bgImage: '',
-    spinningImage: ''
+    spinningImage: '',
+    published: false
   });
   const [newNote, setNewNote] = usePersistedState('admin_new_note', '');
 
@@ -99,6 +103,7 @@ export default function AdminDashboard() {
         ...newItem,
         bgImage: newItem.bgImage || '',
         spinningImage: newItem.spinningImage || '',
+        published: newItem.published || false,
         id,
         updatedAt: Timestamp.now()
       });
@@ -110,7 +115,8 @@ export default function AdminDashboard() {
         isTrialFixed: false,
         description: '',
         bgImage: '',
-        spinningImage: '' 
+        spinningImage: '',
+        published: false
       });
       fetchData();
     } catch (error) {
@@ -124,6 +130,48 @@ export default function AdminDashboard() {
       fetchData();
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, `menu/${id}`);
+    }
+  };
+
+  const toggleMenuItemSelection = (id: string) => {
+    const newSelected = new Set(selectedMenuItemIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedMenuItemIds(newSelected);
+  };
+
+  const handleBulkDeleteMenuItems = async () => {
+    if (selectedMenuItemIds.size === 0) return;
+    const batch = writeBatch(db);
+    selectedMenuItemIds.forEach(id => {
+      batch.delete(doc(db, 'menu', id));
+    });
+    
+    try {
+      setLoading(true);
+      await batch.commit();
+      setSelectedMenuItemIds(new Set());
+      setIsMenuSelectMode(false);
+      fetchData();
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, 'bulk menu items');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTogglePublish = async (item: MenuItem) => {
+    try {
+      await updateDoc(doc(db, 'menu', item.id), {
+        published: !item.published,
+        updatedAt: Timestamp.now()
+      });
+      fetchData();
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `menu/${item.id}`);
     }
   };
 
@@ -326,7 +374,30 @@ export default function AdminDashboard() {
 
             <section className="space-y-6">
               <div className="flex items-center justify-between px-4">
-                 <h3 className="text-xl font-black italic uppercase tracking-tighter">Active <span className="text-red-600">Showcase</span></h3>
+                 <div className="flex items-center gap-6">
+                   <h3 className="text-xl font-black italic uppercase tracking-tighter">Active <span className="text-red-600">Showcase</span></h3>
+                   {menuItems.length > 0 && (
+                     <div className="flex bg-neutral-900 border border-white/5 p-1 rounded-xl">
+                       <button 
+                         onClick={() => {
+                           setIsMenuSelectMode(!isMenuSelectMode);
+                           setSelectedMenuItemIds(new Set());
+                         }}
+                         className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isMenuSelectMode ? 'bg-red-600 text-white' : 'text-white/40 hover:text-white'}`}
+                       >
+                         {isMenuSelectMode ? 'Cancel' : 'Multi-Select'}
+                       </button>
+                       {isMenuSelectMode && selectedMenuItemIds.size > 0 && (
+                         <button 
+                           onClick={handleBulkDeleteMenuItems}
+                           className="px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest bg-red-600 text-white animate-pulse"
+                         >
+                           Delete ({selectedMenuItemIds.size})
+                         </button>
+                       )}
+                     </div>
+                   )}
+                 </div>
                  <span className="text-[10px] font-black uppercase text-white/20">{menuItems.length} ITEMS SYNCED</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -334,28 +405,57 @@ export default function AdminDashboard() {
                    <motion.div 
                     layout
                     key={item.id} 
-                    className="bg-neutral-900 border border-white/5 p-6 rounded-[2.5rem] flex justify-between items-center group hover:border-red-600/30 transition-all shadow-xl"
+                    onClick={() => isMenuSelectMode && toggleMenuItemSelection(item.id)}
+                    className={`bg-neutral-900 border ${item.published ? 'border-red-600/30 shadow-[0_0_20px_rgba(220,38,38,0.1)]' : 'border-white/5'} p-6 rounded-[2.5rem] flex justify-between items-center group transition-all cursor-pointer ${isMenuSelectMode && selectedMenuItemIds.has(item.id) ? 'ring-2 ring-red-600 border-red-600' : ''}`}
                    >
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center overflow-hidden border border-white/5">
+                        <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center overflow-hidden border border-white/5 relative">
                            {(item.spinningImage || item.image) ? (
                              <img src={item.spinningImage || item.image || ''} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                            ) : (
                              <Utensils className="text-white/10" size={24} />
                            )}
+                           {!item.published && (
+                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                               <X size={12} className="text-white/40" />
+                             </div>
+                           )}
+                           {isMenuSelectMode && (
+                             <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${selectedMenuItemIds.has(item.id) ? 'opacity-100' : 'opacity-0'}`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedMenuItemIds.has(item.id) ? 'bg-red-600 text-white' : 'border-2 border-white text-white'}`}>
+                                   <Check size={16} className={selectedMenuItemIds.has(item.id) ? 'opacity-100' : 'opacity-0'} />
+                                </div>
+                             </div>
+                           )}
                         </div>
                         <div>
-                          <div className="text-[10px] font-black uppercase text-red-600 mb-0.5 tracking-widest">{item.category}</div>
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <div className="text-[10px] font-black uppercase text-red-600 tracking-widest">{item.category}</div>
+                            {!item.published && (
+                              <span className="bg-white/5 text-[8px] font-black uppercase tracking-widest text-white/20 px-1.5 py-0.5 rounded border border-white/5">Draft</span>
+                            )}
+                          </div>
                           <div className="font-black italic uppercase text-lg leading-tight tracking-tighter">{item.name}</div>
                           <div className="text-[10px] text-white/30 font-black uppercase mt-1">₹{item.price} • {item.protein}g Protein</div>
                         </div>
                       </div>
-                      <button 
-                        onClick={() => handleDeleteMenuItem(item.id)}
-                        className="p-4 rounded-2xl bg-white/5 text-white/20 hover:bg-red-600 hover:text-white transition-all opacity-0 group-hover:opacity-100 shadow-lg"
-                      >
-                        <Trash2 size={20} />
-                      </button>
+                      {!isMenuSelectMode && (
+                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleTogglePublish(item); }}
+                            className={`p-4 rounded-2xl ${item.published ? 'bg-green-600/10 text-green-500 hover:bg-green-600 hover:text-white' : 'bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white'} transition-all shadow-lg`}
+                            title={item.published ? "Take Offline" : "Go Live"}
+                          >
+                            {item.published ? <Check size={20} /> : <Zap size={20} />}
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleDeleteMenuItem(item.id); }}
+                            className="p-4 rounded-2xl bg-white/5 text-white/20 hover:bg-red-600 hover:text-white transition-all shadow-lg"
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
+                      )}
                    </motion.div>
                  ))}
               </div>

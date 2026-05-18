@@ -33,7 +33,14 @@ export default function LandingPage() {
          combined.push(fi);
        }
     });
-    return combined;
+    // Filter out unpublished items from firestore
+    return combined.filter(item => {
+      const fromFirestore = firestoreItems.find(fi => fi.id === item.id);
+      if (fromFirestore) {
+        return fromFirestore.published;
+      }
+      return true; // Keep static items published by default
+    });
   }, [firestoreItems]);
 
   const landingPageItems = useMemo(() => {

@@ -1,24 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { MENU_ITEMS, LANDING_PAGE_ITEM_NAMES } from '../constants';
+import { db } from '../lib/firebase';
+import { collection, onSnapshot, query } from 'firebase/firestore';
+import { MenuItem } from '../types';
 import AssetImage from './AssetImage';
 
 export default function BowlCarousel() {
-  const bowls = MENU_ITEMS
-    .filter(item => LANDING_PAGE_ITEM_NAMES.includes(item.name))
-    .filter(item => item.category === 'Bowl');
+  const [firestoreItems, setFirestoreItems] = useState<MenuItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    const q = query(collection(db, 'menu'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setFirestoreItems(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenuItem)));
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const bowls = useMemo(() => {
+    const combined = [...MENU_ITEMS];
+    firestoreItems.forEach(fi => {
+       const index = combined.findIndex(ci => ci.id === fi.id);
+       if (index >= 0) {
+         combined[index] = { ...combined[index], ...fi };
+       } else {
+         combined.push(fi);
+       }
+    });
+
+    return combined
+      .filter(item => {
+        const fromFirestore = firestoreItems.find(fi => fi.id === item.id);
+        if (fromFirestore) return fromFirestore.published;
+        return true;
+      })
+      .filter(item => LANDING_PAGE_ITEM_NAMES.includes(item.name))
+      .filter(item => item.category === 'Bowl');
+  }, [firestoreItems]);
+
+  useEffect(() => {
+    if (bowls.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % bowls.length);
     }, 5000);
     return () => clearInterval(timer);
   }, [bowls.length]);
 
-  const next = () => setCurrentIndex((prev) => (prev + 1) % bowls.length);
-  const prev = () => setCurrentIndex((prev) => (prev - 1 + bowls.length) % bowls.length);
+  const next = () => bowls.length > 1 && setCurrentIndex((prev) => (prev + 1) % bowls.length);
+  const prev = () => bowls.length > 1 && setCurrentIndex((prev) => (prev - 1 + bowls.length) % bowls.length);
+
+  if (bowls.length === 0) return null;
 
   const currentItem = bowls[currentIndex];
 

@@ -9,13 +9,41 @@ import { Utensils, Zap, Salad, Coffee, Info, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function MenuPage() {
+  const [items, setItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('All');
   
-  const categories = ['All', ...new Set(MENU_ITEMS.map(item => item.category))];
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'menu'));
+        const menuData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as MenuItem)).filter(item => item.published); // Only live products
+        setItems(menuData);
+      } catch (error) {
+        console.error("Error fetching menu:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMenu();
+  }, []);
+
+  const categories = ['All', ...new Set(items.map(item => item.category))];
   
   const filteredItems = activeCategory === 'All' 
-    ? MENU_ITEMS 
-    : MENU_ITEMS.filter(item => item.category === activeCategory);
+    ? items 
+    : items.filter(item => item.category === activeCategory);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-red-600 font-black italic uppercase animate-pulse tracking-widest">Igniting Fuel Log...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-red-600 selection:text-white">
