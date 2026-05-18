@@ -18,15 +18,17 @@ export function getDriveId(url: string | null | undefined): string | null {
   // Pattern 1: https://drive.google.com/file/d/ID/view
   // Pattern 2: https://docs.google.com/open?id=ID
   // Pattern 3: https://docs.google.com/uc?id=ID
-  // Pattern 4: https://drive.google.com/uc?export=download&id=ID
-  const driveMatch = url.match(/\/(?:file\/d\/|open\?id=|uc\?id=|uc\?export=[a-z]+&id=)([a-zA-Z0-9_-]+)/);
+  // Pattern 4: https://drive.google.com/thumbnail?id=ID
+  // Pattern 5: https://drive.google.com/uc?export=download&id=ID
+  const driveMatch = url.match(/\/(?:file\/d\/|open\?id=|uc\?id=|thumbnail\?id=|uc\?export=[a-z]+&id=)([a-zA-Z0-9_-]{28,40})/);
   if (driveMatch && driveMatch[1]) {
     return driveMatch[1];
   }
 
   // Fallback for simple ID-only strings or query params anywhere in the string
-  const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (idMatch && idMatch[1]) return idMatch[1];
+  const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+  const idParam = urlObj.searchParams.get('id') || urlObj.searchParams.get('docid');
+  if (idParam && /^[a-zA-Z0-9_-]{28,40}$/.test(idParam)) return idParam;
 
   // If it's a raw 28-33 char ID (standard drive ID length)
   if (/^[a-zA-Z0-9_-]{28,40}$/.test(url)) {
@@ -54,7 +56,8 @@ export function getDriveDirectLink(urlOrId: string | null | undefined, isVideo: 
   }
 
   // Images work best with the thumbnail/content server
-  return `https://lh3.googleusercontent.com/d/${id}`;
+  // This endpoint is generally more robust for public display
+  return `https://drive.google.com/thumbnail?id=${id}&sz=w1600`;
 }
 
 /**

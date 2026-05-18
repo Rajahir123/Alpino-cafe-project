@@ -4,17 +4,24 @@ import { doc, getDoc } from 'firebase/firestore';
 import { getGoogleDriveDirectUrl } from '../lib/assets';
 
 interface AssetImageProps {
-  assetName: string;
+  assetName?: string;
+  src?: string | null;
   fallbackUrl: string;
   alt: string;
   className?: string;
 }
 
-export default function AssetImage({ assetName, fallbackUrl, alt, className = "" }: AssetImageProps) {
-  const [url, setUrl] = useState<string>(fallbackUrl);
+export default function AssetImage({ assetName, src, fallbackUrl, alt, className = "" }: AssetImageProps) {
+  const [url, setUrl] = useState<string>(src || fallbackUrl);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (src) {
+      setUrl(src);
+      setLoading(false);
+      return;
+    }
+
     async function resolveAsset() {
       if (!assetName) {
         setLoading(false);

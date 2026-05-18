@@ -424,21 +424,13 @@ export default function LandingPage() {
                           <div className="relative aspect-square mb-6 rounded-3xl bg-neutral-900 border border-white/5 group-hover:border-red-600/30 transition-all duration-500 shadow-2xl flex items-center justify-center overflow-hidden">
                             {/* Static Background Image layer - High Visibility */}
                             <div className="absolute inset-0 z-0">
-                              {bgUrl ? (
-                                <img 
-                                  src={bgUrl} 
-                                  alt="" 
-                                  className="w-full h-full object-cover transition-all duration-700 opacity-90 group-hover:opacity-100" 
-                                  referrerPolicy="no-referrer"
-                                />
-                              ) : (
-                                <AssetImage 
-                                  assetName={item.name}
-                                  fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`}
-                                  alt=""
-                                  className="w-full h-full object-cover transition-all duration-700 opacity-90 group-hover:opacity-100"
-                                />
-                              )}
+                              <AssetImage 
+                                src={bgUrl}
+                                assetName={item.name}
+                                fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`}
+                                alt=""
+                                className="w-full h-full object-cover transition-all duration-700 opacity-90 group-hover:opacity-100"
+                              />
                             </div>
 
                             {/* Subtle Glow on hover */}
@@ -466,21 +458,13 @@ export default function LandingPage() {
                                 }
                               }}
                             >
-                              {spinningUrl ? (
-                                <img 
-                                  src={spinningUrl} 
-                                  alt={item.name} 
-                                  className={`w-full h-full object-cover transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'scale-105' : 'scale-125'}`}
-                                  referrerPolicy="no-referrer"
-                                />
-                              ) : (
-                                <AssetImage 
-                                  assetName={item.name}
-                                  fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`}
-                                  alt={item.name}
-                                  className={`w-full h-full object-cover transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'scale-105' : 'scale-125'}`}
-                                />
-                              )}
+                              <AssetImage 
+                                src={spinningUrl}
+                                assetName={item.name}
+                                fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`}
+                                alt={item.name}
+                                className={`w-full h-full object-cover transform ${(item.category === 'Shake' || item.category === 'Smoothie') ? 'scale-105' : 'scale-125'}`}
+                              />
                             </motion.div>
                         
                         {/* Minimal Shadow Overlay for text depth */}

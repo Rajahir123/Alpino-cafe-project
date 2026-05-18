@@ -23,6 +23,7 @@ export default function DynamicLogo({
   layoutId
 }: DynamicLogoProps) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     async function fetchLogo() {
@@ -50,8 +51,14 @@ export default function DynamicLogo({
           whileTap={{ scale: 0.95 }}
         >
           <div style={{ width: size * 1.6, height: size * 1.6 }} className="flex items-center justify-center overflow-hidden relative">
-            {logoUrl ? (
-              <img src={logoUrl} alt="Alpino" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+            {logoUrl && !logoError ? (
+              <img 
+                src={logoUrl} 
+                alt="Alpino" 
+                className="w-full h-full object-contain" 
+                referrerPolicy="no-referrer" 
+                onError={() => setLogoError(true)}
+              />
             ) : (
               <motion.div 
                 className="bg-red-600 rounded-xl w-full h-full flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.4)] relative overflow-hidden"
