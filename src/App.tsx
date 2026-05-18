@@ -13,6 +13,7 @@ import PaymentPage from './pages/PaymentPage';
 import ProfileSetup from './pages/ProfileSetup';
 import { LoadingScreen } from './components/LoadingScreen';
 import AdminQuickNav from './components/AdminQuickNav';
+import AdminPasscodeGate from './components/AdminPasscodeGate';
 import { Package2, User as UserIcon, LayoutDashboard, Utensils, ShieldCheck } from 'lucide-react';
 import { doc, getDocFromServer } from 'firebase/firestore';
 import { db } from './lib/firebase';
@@ -94,10 +95,10 @@ function App() {
           <Route path="/payment" element={user ? <PaymentPage /> : <Navigate to="/login" />} />
           <Route path="/setup" element={user ? <ProfileSetup /> : <Navigate to="/login" />} />
           <Route path="/kitchen" element={profile?.role === 'admin' || profile?.role === 'kitchen' ? <KitchenDashboard /> : <Navigate to="/" />} />
-          <Route path="/admin" element={profile?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/" />} />
+          <Route path="/admin" element={<AdminPasscodeGate><AdminDashboard /></AdminPasscodeGate>} />
           <Route path="/user-view" element={profile?.role === 'admin' ? <UserDashboard /> : <Navigate to="/" />} />
         </Routes>
-        {profile?.role === 'admin' && <AdminQuickNav />}
+        {(profile?.role === 'admin' || localStorage.getItem('alpino_admin_authorized') === 'true') && <AdminQuickNav />}
       </div>
     </BrowserRouter>
   );

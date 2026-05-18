@@ -5,12 +5,29 @@ import { PaymentRecord, UserProfile, MenuItem } from '../types';
 import { PLANS } from '../constants';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
-import { Check, X, ShieldCheck, Users, CreditCard, LayoutDashboard, Search, Image as ImageIcon, Utensils, Plus, Trash2, Save, History, FileText, Zap, ExternalLink } from 'lucide-react';
+import { Check, X, ShieldCheck, ShieldAlert, Users, CreditCard, LayoutDashboard, Search, Image as ImageIcon, Utensils, Plus, Trash2, Save, History, FileText, Zap, ExternalLink, Lock, LogIn } from 'lucide-react';
 import ImageManagement from '../components/ImageManagement';
 import { usePersistedState } from '../hooks/usePersistedState';
+import { useAuth } from '../hooks/useAuth';
+import { signInWithPopup } from 'firebase/auth';
+import { auth as firebaseAuth, googleProvider } from '../lib/firebase';
 
 export default function AdminDashboard() {
+  const { profile, user } = useAuth();
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
+
+  const handleSystemLock = () => {
+    localStorage.removeItem('alpino_admin_authorized');
+    window.location.reload();
+  };
+
+  const handleAdminLogin = async () => {
+    try {
+      await signInWithPopup(firebaseAuth, googleProvider);
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [notes, setNotes] = useState<{id: string, text: string, createdAt: any}[]>([]);
@@ -49,8 +66,9 @@ export default function AdminDashboard() {
       setUsers(userSnap.docs.map(d => ({ ...d.data() } as UserProfile)));
       setMenuItems(menuSnap.docs.map(d => ({ id: d.id, ...d.data() } as MenuItem)));
       setNotes(notesSnap.docs.map(d => ({ id: d.id, ...d.data() } as any)).sort((a,b) => b.createdAt?.seconds - a.createdAt?.seconds));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.LIST, 'Admin Dashboard Initial Data');
+    } catch (error: any) {
+      console.error("Data fetch failed:", error);
+      // We don't throw here to avoid crashing the UI
     } finally {
       setLoading(false);
     }
@@ -208,6 +226,30 @@ export default function AdminDashboard() {
           </div>
           
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-end w-full md:w-auto">
+            {!user && (
+              <button 
+                onClick={handleAdminLogin}
+                className="flex items-center gap-2 px-6 py-2 bg-red-600 hover:bg-red-700 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-red-600/20"
+              >
+                <LogIn size={14} /> Full Access Login
+              </button>
+            )}
+            <button 
+              onClick={handleSystemLock}
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-red-600/20 hover:text-red-500 rounded-xl border border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/40"
+              title="Lock Admin Panel"
+            >
+              <Lock size={14} /> Lock System
+            </button>
+            {profile?.role !== 'admin' && user && (
+              <div className="bg-red-600/10 border border-red-600/20 p-4 rounded-2xl flex items-center gap-3 animate-pulse">
+                <ShieldAlert className="text-red-600" size={20} />
+                <div className="text-[10px] font-black uppercase tracking-widest text-red-100">
+                  Write Access Restricted <br/>
+                  <span className="opacity-60">Login as Primary Admin required to save changes.</span>
+                </div>
+              </div>
+            )}
             <Link to="/" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white">
               <ExternalLink size={14} className="text-red-600" /> View Live Site
             </Link>
