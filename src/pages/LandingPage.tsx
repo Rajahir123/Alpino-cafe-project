@@ -24,26 +24,13 @@ export default function LandingPage() {
   }, []);
 
   const allMenuItems = useMemo(() => {
-    const combined = [...MENU_ITEMS];
-    firestoreItems.forEach(fi => {
-       const index = combined.findIndex(ci => ci.id === fi.id);
-       if (index >= 0) {
-         combined[index] = { ...combined[index], ...fi };
-       } else {
-         combined.push(fi);
-       }
-    });
-    // Filter out unpublished items from firestore
-    return combined.filter(item => {
-      const fromFirestore = firestoreItems.find(fi => fi.id === item.id);
-      if (fromFirestore) {
-        return fromFirestore.published;
-      }
-      return true; // Keep static items published by default
-    });
+    // Only show items that exist in Firestore and are published.
+    // This ensures that if the admin deletes everything, the landing page reflects that.
+    return firestoreItems.filter(item => item.published);
   }, [firestoreItems]);
 
   const landingPageItems = useMemo(() => {
+    // Filter the items that should appear in the landing page sections
     return allMenuItems.filter(item => 
       LANDING_PAGE_ITEM_NAMES.includes(item.name) || 
       firestoreItems.some(fi => fi.id === item.id)

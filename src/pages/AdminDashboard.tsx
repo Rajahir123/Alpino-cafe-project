@@ -4,7 +4,8 @@ import { collection, query, getDocs, doc, updateDoc, Timestamp, where, writeBatc
 import { PaymentRecord, UserProfile, MenuItem } from '../types';
 import { PLANS } from '../constants';
 import { motion } from 'motion/react';
-import { Check, X, ShieldCheck, Users, CreditCard, LayoutDashboard, Search, Image as ImageIcon, Utensils, Plus, Trash2, Save, History, FileText, Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Check, X, ShieldCheck, Users, CreditCard, LayoutDashboard, Search, Image as ImageIcon, Utensils, Plus, Trash2, Save, History, FileText, Zap, ExternalLink } from 'lucide-react';
 import ImageManagement from '../components/ImageManagement';
 import { usePersistedState } from '../hooks/usePersistedState';
 
@@ -207,6 +208,9 @@ export default function AdminDashboard() {
           </div>
           
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-end w-full md:w-auto">
+            <Link to="/" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white">
+              <ExternalLink size={14} className="text-red-600" /> View Live Site
+            </Link>
             <div className="flex w-full md:w-auto bg-neutral-900 p-1 rounded-xl border border-white/5 overflow-x-auto no-scrollbar">
               <button 
                 onClick={() => setActiveTab('payments')}
@@ -281,7 +285,7 @@ export default function AdminDashboard() {
                       onChange={e => setNewItem({...newItem, category: e.target.value as any})}
                     >
                       <option value="Bowl">Bowl</option>
-                      <option value="Smoothie">Smoothie</option>
+                      <option value="Smoothies">Smoothies</option>
                       <option value="Shake">Shake</option>
                       <option value="Wrap">Wrap</option>
                       <option value="Sub">Sub</option>

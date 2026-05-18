@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 import { MENU_ITEMS } from '../constants';
 import { MenuItem } from '../types';
 import AssetImage from '../components/AssetImage';
@@ -14,21 +14,20 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   
   useEffect(() => {
-    const fetchMenu = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'menu'));
-        const menuData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as MenuItem)).filter(item => item.published); // Only live products
-        setItems(menuData);
-      } catch (error) {
-        console.error("Error fetching menu:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMenu();
+    const q = query(collection(db, 'menu'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const menuData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as MenuItem)).filter(item => item.published); // Only live products
+      setItems(menuData);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching menu:", error);
+      setLoading(false);
+    });
+    
+    return () => unsubscribe();
   }, []);
 
   const categories = ['All', ...new Set(items.map(item => item.category))];

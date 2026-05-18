@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 interface AssetImageProps {
   assetName: string;
@@ -14,26 +14,26 @@ export default function AssetImage({ assetName, fallbackUrl, alt, className = ""
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function resolveAsset() {
-      if (!assetName) {
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        const assetId = assetName.replace(/\s+/g, '_').toLowerCase();
-        const assetDoc = await getDoc(doc(db, 'assets', assetId));
-        if (assetDoc.exists()) {
-          setUrl(assetDoc.data().url);
-        }
-      } catch (error) {
-        console.error("Asset resolution failed:", error);
-      } finally {
-        setLoading(false);
-      }
+    if (!assetName) {
+      setLoading(false);
+      return;
     }
     
-    resolveAsset();
+    const assetId = assetName.replace(/\s+/g, '_').toLowerCase();
+    const unsubscribe = onSnapshot(doc(db, 'assets', assetId), (docSnap) => {
+      if (docSnap.exists()) {
+        setUrl(docSnap.data().url);
+      } else {
+        setUrl(fallbackUrl);
+      }
+      setLoading(false);
+    }, (error) => {
+      console.error("Asset resolution failed:", error);
+      setUrl(fallbackUrl);
+      setLoading(false);
+    });
+    
+    return () => unsubscribe();
   }, [assetName, fallbackUrl]);
 
   return (

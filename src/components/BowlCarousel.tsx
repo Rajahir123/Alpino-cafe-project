@@ -20,22 +20,8 @@ export default function BowlCarousel() {
   }, []);
 
   const bowls = useMemo(() => {
-    const combined = [...MENU_ITEMS];
-    firestoreItems.forEach(fi => {
-       const index = combined.findIndex(ci => ci.id === fi.id);
-       if (index >= 0) {
-         combined[index] = { ...combined[index], ...fi };
-       } else {
-         combined.push(fi);
-       }
-    });
-
-    return combined
-      .filter(item => {
-        const fromFirestore = firestoreItems.find(fi => fi.id === item.id);
-        if (fromFirestore) return fromFirestore.published;
-        return true;
-      })
+    return firestoreItems
+      .filter(item => item.published)
       .filter(item => LANDING_PAGE_ITEM_NAMES.includes(item.name))
       .filter(item => item.category === 'Bowl');
   }, [firestoreItems]);
