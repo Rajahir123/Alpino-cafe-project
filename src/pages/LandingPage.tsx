@@ -173,15 +173,28 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="flex flex-wrap items-center justify-center gap-x-3 md:gap-x-6 gap-y-2 md:gap-y-3 text-[7px] md:text-xs font-black uppercase tracking-[0.1em] md:tracking-[0.3em] mb-8 py-4 border-y border-white/5"
+            className="mb-12"
           >
-            <span className="text-red-600 shadow-[0_0_10px_rgba(220,38,38,0.2)]">No Maida</span>
-            <div className="w-1 md:w-1.5 h-1 md:h-1.5 bg-white/20 rotate-45" />
-            <span className="text-red-600 shadow-[0_0_10px_rgba(220,38,38,0.2)]">No Palm Oil</span>
-            <div className="w-1 md:w-1.5 h-1 md:h-1.5 bg-white/20 rotate-45" />
-            <span className="text-red-600 shadow-[0_0_10px_rgba(220,38,38,0.2)]">No Artificial</span>
-            <div className="w-1 md:w-1.5 h-1 md:h-1.5 bg-white/20 rotate-45" />
-            <span className="text-red-600 shadow-[0_0_10px_rgba(220,38,38,0.2)]">No Sugar</span>
+            <div className="flex flex-wrap justify-center gap-1 md:gap-4 px-2">
+              {[
+                { label: "Maida", status: "NULL" },
+                { label: "Palm Oil", status: "NULL" },
+                { label: "Artificial", status: "NULL" },
+                { label: "Sugar", status: "NULL" }
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col items-center group">
+                  <div className="flex items-center gap-2 bg-neutral-900 border border-white/5 px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl group-hover:border-red-600/50 transition-all duration-300">
+                    <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{item.label}</span>
+                    <div className="w-px h-3 bg-white/10" />
+                    <span className="text-[10px] md:text-sm font-black text-red-600 italic tracking-tighter group-hover:animate-pulse">{item.status}</span>
+                  </div>
+                  <div className="h-2 w-[1px] bg-red-600/20 group-last:hidden" />
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 text-[9px] font-black uppercase tracking-[0.5em] text-red-600/40 text-center animate-pulse">
+              [ PURITY MANIFEST PROTOCOL ACTIVE ]
+            </div>
           </motion.div>
           
           <motion.p 

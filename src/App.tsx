@@ -8,6 +8,7 @@ import MenuPage from './pages/MenuPage';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import KitchenDashboard from './pages/KitchenDashboard';
+import ListingPage from './pages/ListingPage';
 import PlanSelection from './pages/PlanSelection';
 import PaymentPage from './pages/PaymentPage';
 import ProfileSetup from './pages/ProfileSetup';
@@ -74,7 +75,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/menu" element={<MenuPage />} />
-          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
+          <Route path="/login" element={<LoginPage />} />
           
           {/* Protected Routes */}
           <Route 
@@ -96,6 +97,7 @@ function App() {
           <Route path="/setup" element={user ? <ProfileSetup /> : <Navigate to="/login" />} />
           <Route path="/kitchen" element={profile?.role === 'admin' || profile?.role === 'kitchen' ? <KitchenDashboard /> : <Navigate to="/" />} />
           <Route path="/admin" element={<AdminPasscodeGate><AdminDashboard /></AdminPasscodeGate>} />
+          <Route path="/hub" element={<AdminPasscodeGate><ListingPage /></AdminPasscodeGate>} />
           <Route path="/user-view" element={profile?.role === 'admin' ? <UserDashboard /> : <Navigate to="/" />} />
         </Routes>
         {(profile?.role === 'admin' || localStorage.getItem('alpino_admin_authorized') === 'true') && <AdminQuickNav />}

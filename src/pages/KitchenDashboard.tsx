@@ -3,7 +3,8 @@ import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, query, where, onSnapshot, doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { Order } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { Utensils, Clock, CheckCircle2, Truck, AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Utensils, Clock, CheckCircle2, Truck, AlertTriangle, Zap } from 'lucide-react';
 
 export default function KitchenDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -55,9 +56,14 @@ export default function KitchenDashboard() {
             </div>
             <h1 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter">Live <span className="text-red-600">Service</span></h1>
           </div>
-          <div className="h-10 md:h-12 flex items-center gap-4 bg-neutral-900 border border-white/5 px-4 md:px-6 rounded-full">
-            <div className="w-2 h-2 bg-red-600 rounded-full animate-ping shrink-0" />
-            <span className="text-[10px] font-black uppercase tracking-widest italic">{activeOrders.length} LIVE TICKETS</span>
+          <div className="flex items-center gap-4">
+            <Link to="/hub" className="flex items-center gap-2 px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
+              <Zap size={14} /> Hub
+            </Link>
+            <div className="h-10 md:h-12 flex items-center gap-4 bg-neutral-900 border border-white/5 px-4 md:px-6 rounded-full">
+              <div className="w-2 h-2 bg-red-600 rounded-full animate-ping shrink-0" />
+              <span className="text-[10px] font-black uppercase tracking-widest italic">{activeOrders.length} LIVE TICKETS</span>
+            </div>
           </div>
         </header>
 

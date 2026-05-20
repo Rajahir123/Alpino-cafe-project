@@ -70,9 +70,9 @@ service cloud.firestore {
         (incoming().role == 'admin' && request.auth.token.email == 'denyteny123@gmail.com')
       );
       allow update: if (isOwner(userId) || isAdmin()) && (
-        // Action: Update Profile (User)
-        (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'address', 'proteinGoal', 'planId', 'planStatus', 'updatedAt', 'avgProtein', 'daysRemaining'])) ||
-        // Action: Admin adjustments
+        // Action: Update Profile (User) - Restricted to non-sensitive fields
+        (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'address', 'proteinGoal', 'planId', 'updatedAt', 'avgProtein', 'drafts'])) ||
+        // Action: Admin adjustments - Admin can change anything
         (isAdmin())
       );
     }

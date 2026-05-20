@@ -31,6 +31,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [notes, setNotes] = useState<{id: string, text: string, createdAt: any}[]>([]);
+  const [paymentBarcode, setPaymentBarcode] = useState('');
   const [loading, setLoading] = useState(true);
   
   // Persisted variables
@@ -61,6 +62,12 @@ export default function AdminDashboard() {
       const userSnap = await getDocs(collection(db, 'users'));
       const menuSnap = await getDocs(collection(db, 'menu'));
       const notesSnap = await getDocs(query(collection(db, 'notes')));
+      const settingsSnap = await getDocs(collection(db, 'settings'));
+      
+      const barcodeDoc = settingsSnap.docs.find(d => d.id === 'payment_barcode');
+      if (barcodeDoc) {
+        setPaymentBarcode(barcodeDoc.data().url || '');
+      }
       
       setPayments(paySnap.docs.map(d => ({ id: d.id, ...d.data() } as PaymentRecord)));
       setUsers(userSnap.docs.map(d => ({ ...d.data() } as UserProfile)));
@@ -208,6 +215,18 @@ export default function AdminDashboard() {
     }
   };
 
+  const updateBarcode = async (url: string) => {
+    try {
+      await setDoc(doc(db, 'settings', 'payment_barcode'), {
+        url,
+        updatedAt: Timestamp.now()
+      });
+      setPaymentBarcode(url);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'settings/payment_barcode');
+    }
+  };
+
   const pendingPayments = payments.filter(p => p.status === 'pending');
   const filteredUsers = users.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -241,7 +260,7 @@ export default function AdminDashboard() {
             >
               <Lock size={14} /> Lock System
             </button>
-            {profile?.role !== 'admin' && user && (
+            {(profile?.role !== 'admin') && (
               <div className="bg-red-600/10 border border-red-600/20 p-4 rounded-2xl flex items-center gap-3 animate-pulse">
                 <ShieldAlert className="text-red-600" size={20} />
                 <div className="text-[10px] font-black uppercase tracking-widest text-red-100">
@@ -250,34 +269,59 @@ export default function AdminDashboard() {
                 </div>
               </div>
             )}
+            <Link to="/hub" className="flex items-center gap-2 px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
+              <Zap size={14} /> Systems Hub
+            </Link>
             <Link to="/" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white">
               <ExternalLink size={14} className="text-red-600" /> View Live Site
             </Link>
-            <div className="flex w-full md:w-auto bg-neutral-900 p-1 rounded-xl border border-white/5 overflow-x-auto no-scrollbar">
-              <button 
-                onClick={() => setActiveTab('payments')}
-                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'payments' ? 'bg-red-600 text-white' : 'text-white/40 hover:text-white'}`}
-              >
-                Governance
-              </button>
-              <button 
-                onClick={() => setActiveTab('images')}
-                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'images' ? 'bg-red-600 text-white' : 'text-white/40 hover:text-white'}`}
-              >
-                Assets
-              </button>
-              <button 
-                onClick={() => setActiveTab('menu')}
-                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'menu' ? 'bg-red-600 text-white' : 'text-white/40 hover:text-white'}`}
-              >
-                Menu
-              </button>
-              <button 
-                onClick={() => setActiveTab('notes')}
-                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'notes' ? 'bg-red-600 text-white' : 'text-white/40 hover:text-white'}`}
-              >
-                Records
-              </button>
+            <div className="flex flex-col gap-4 w-full md:w-auto">
+              <div className="flex bg-neutral-900 p-1 rounded-xl border border-white/5 overflow-x-auto no-scrollbar shadow-inner">
+                <button 
+                  onClick={() => setActiveTab('payments')}
+                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'payments' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                >
+                  Governance
+                </button>
+                <button 
+                  onClick={() => setActiveTab('images')}
+                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'images' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                >
+                  Assets
+                </button>
+                <button 
+                  onClick={() => setActiveTab('menu')}
+                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'menu' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                >
+                  Menu
+                </button>
+                <button 
+                  onClick={() => setActiveTab('notes')}
+                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'notes' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                >
+                  Records
+                </button>
+              </div>
+              
+              <div className="flex gap-2">
+                <div className="relative group flex-grow">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-red-600 transition-colors" size={14} />
+                  <input 
+                    type="text"
+                    placeholder="LOCATE RECORDS OR USERS..."
+                    className="w-full bg-neutral-900/50 border border-white/5 rounded-2xl pl-12 pr-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] focus:border-red-600 focus:bg-black transition-all outline-none placeholder:text-white/10"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <button 
+                  onClick={() => fetchData()}
+                  className="flex items-center justify-center p-3.5 bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white rounded-2xl transition-all border border-red-600/20 shadow-lg group"
+                  title="Sync Intelligence"
+                >
+                  <Zap size={16} className={loading ? "animate-pulse" : "group-hover:scale-125 transition-transform"} />
+                </button>
+              </div>
             </div>
             <div className="flex gap-4 w-full md:w-auto self-end">
               <div className="flex-1 md:min-w-[100px] bg-neutral-900 border border-white/5 p-4 rounded-2xl text-center">
@@ -294,7 +338,173 @@ export default function AdminDashboard() {
 
         {activeTab === 'payments' ? (
           <main className="grid lg:grid-cols-3 gap-12">
-            {/* ... payments section ... */}
+            <div className="lg:col-span-2 space-y-8">
+               <div className="flex items-center justify-between">
+                 <h2 className="text-3xl font-black italic uppercase flex items-center gap-3">
+                   <CreditCard className="text-red-600" /> Payment <span className="text-red-600">Verification</span>
+                 </h2>
+                 <span className="text-[10px] font-black uppercase text-white/20 tracking-widest">{pendingPayments.length} PENDING REQUESTS</span>
+               </div>
+
+               {pendingPayments.length === 0 ? (
+                 <div className="bg-neutral-900/50 border border-white/5 p-12 rounded-[3rem] text-center">
+                    <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Check className="text-white/20" />
+                    </div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">All accounts are currently synchronized.</p>
+                 </div>
+               ) : (
+                 <div className="space-y-4">
+                    {pendingPayments.map(payment => (
+                      <motion.div 
+                        layout
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        key={payment.id} 
+                        className="bg-neutral-900 border border-white/5 p-6 md:p-8 rounded-[2.5rem] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group hover:border-red-600/30 transition-all"
+                      >
+                         <div className="flex gap-4">
+                            <div className="w-12 h-12 bg-red-600/10 rounded-xl flex items-center justify-center text-red-600 shrink-0">
+                               <CreditCard size={20} />
+                            </div>
+                            <div>
+                               <div className="text-[10px] font-black uppercase text-red-600 mb-1 tracking-widest">{payment.planName} Request</div>
+                               <h3 className="font-black italic uppercase text-lg leading-tight tracking-tighter">{payment.userName}</h3>
+                               <p className="text-[10px] text-white/30 font-black uppercase tracking-wider">{payment.userEmail}</p>
+                            </div>
+                         </div>
+                         
+                         <div className="flex items-center gap-4 w-full md:w-auto">
+                            <div className="text-right flex-grow md:flex-grow-0 hidden md:block">
+                               <div className="text-[10px] font-black uppercase text-white/20 tracking-widest">Amount</div>
+                               <div className="text-xl font-black tracking-tighter italic">₹{payment.amount}</div>
+                            </div>
+                            <div className="flex gap-2 w-full md:w-auto">
+                               <button 
+                                 onClick={() => handleApprove(payment)}
+                                 className="flex-1 md:flex-none bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all"
+                               >
+                                 Approve
+                               </button>
+                               <button 
+                                 onClick={() => handleReject(payment.id)}
+                                 className="flex-1 md:flex-none border border-white/10 hover:bg-red-600 hover:border-red-600 transition-all text-white px-6 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest"
+                               >
+                                 Reject
+                               </button>
+                            </div>
+                         </div>
+                      </motion.div>
+                    ))}
+                 </div>
+               )}
+
+               <div className="space-y-6">
+                 <h2 className="text-2xl font-black italic uppercase flex items-center gap-3">
+                   <Users className="text-red-600" /> User <span className="text-red-600">Database</span>
+                 </h2>
+                 <div className="bg-neutral-900 border border-white/5 rounded-[3rem] overflow-hidden">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-white/5">
+                          <th className="p-6 text-[10px] font-black uppercase text-white/30 tracking-widest">Identity</th>
+                          <th className="p-6 text-[10px] font-black uppercase text-white/30 tracking-widest">Plan Status</th>
+                          <th className="p-6 text-[10px] font-black uppercase text-white/30 tracking-widest text-right">Integrity</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {filteredUsers.map(u => (
+                          <tr key={u.uid} className="hover:bg-white/5 transition-colors">
+                            <td className="p-6">
+                               <div className="font-black italic uppercase text-sm tracking-tighter">{u.name}</div>
+                               <div className="text-[10px] text-white/30 font-black uppercase">{u.email}</div>
+                            </td>
+                            <td className="p-6">
+                               <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md border ${u.planStatus === 'active' ? 'bg-green-600/10 text-green-500 border-green-600/20' : 'bg-red-600/10 text-red-600 border-red-600/20'}`}>
+                                 {u.planStatus === 'active' ? `${u.planId} (${u.daysRemaining}d)` : 'Unmonitored'}
+                               </span>
+                            </td>
+                            <td className="p-6 text-right">
+                               <div className="text-[10px] font-black uppercase text-white/20">Prot: {u.proteinGoal}g</div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                 </div>
+               </div>
+            </div>
+
+            <div className="space-y-8">
+               <div className="bg-neutral-900 border border-white/5 p-8 rounded-[3rem] relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                    <ImageIcon size={100} />
+                  </div>
+                  <h3 className="text-xl font-black italic uppercase mb-6 flex items-center gap-2">
+                    <ImageIcon className="text-red-600" size={20} /> Payment <span className="text-red-600">Barcode</span>
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/30">Select an image from the Assets tab to use as your payment QR code.</p>
+                    
+                    <div className="aspect-square bg-black border border-white/10 rounded-2xl flex items-center justify-center overflow-hidden relative group">
+                      {paymentBarcode ? (
+                        <>
+                          <img src={paymentBarcode} alt="Payment Barcode" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+                            <button 
+                              onClick={() => updateBarcode('')}
+                              className="bg-red-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                            >
+                              Remove Barcode
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-center p-8">
+                           <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mx-auto mb-4">
+                             <Plus className="text-white/20" />
+                           </div>
+                           <p className="text-[10px] font-black uppercase tracking-widest text-white/20">No Barcode Assigned</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Barcode URL</label>
+                       <div className="flex gap-2">
+                         <input 
+                           type="text" 
+                           placeholder="PASTE IMAGE URL HERE..."
+                           className="flex-grow bg-black border border-white/10 rounded-xl p-4 text-[10px] font-bold uppercase tracking-widest focus:border-red-600 outline-none"
+                           value={paymentBarcode}
+                           onChange={e => setPaymentBarcode(e.target.value)}
+                         />
+                         <button 
+                           onClick={() => updateBarcode(paymentBarcode)}
+                           className="bg-red-600 hover:bg-neutral-100 hover:text-red-600 px-6 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all"
+                         >
+                           Save
+                         </button>
+                       </div>
+                    </div>
+                  </div>
+               </div>
+
+               <div className="bg-red-600/5 border border-red-600/10 p-8 rounded-[3rem]">
+                  <h3 className="text-sm font-black italic uppercase mb-4 text-red-600">Quick Intelligence</h3>
+                  <div className="space-y-4">
+                     <div className="flex justify-between items-center bg-black/40 p-4 rounded-2xl border border-white/5">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Revenue Target</span>
+                        <span className="text-sm font-black italic uppercase tracking-tighter text-red-600 italic">Calculated</span>
+                     </div>
+                     <div className="flex justify-between items-center bg-black/40 p-4 rounded-2xl border border-white/5">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Sync Health</span>
+                        <span className="text-sm font-black italic uppercase tracking-tighter text-green-500">Optimal</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
           </main>
         ) : activeTab === 'menu' ? (
           <main className="space-y-12">

@@ -1,17 +1,40 @@
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { motion } from 'motion/react';
-import { Mountain, LogIn } from 'lucide-react';
+import { Mountain, ShieldCheck, Zap } from 'lucide-react';
+import { useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export default function LoginPage() {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const from = location.state?.from?.pathname || "/dashboard";
+
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
+      // useAuth will catch the change and profile will load
+      // Redirect happens in the effect or render below
     } catch (error) {
       console.error("Login failed:", error);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-red-600 font-black italic uppercase animate-pulse flex items-center gap-2">
+          <Zap size={20} /> INITIALIZING...
+        </div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to={from} replace />;
+  }
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">

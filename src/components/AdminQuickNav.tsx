@@ -6,10 +6,11 @@ export default function AdminQuickNav() {
   const location = useLocation();
   
   const navItems = [
-    { label: 'Landing', icon: <Home size={18} />, path: '/' },
-    { label: 'User', icon: <LayoutDashboard size={18} />, path: '/user-view' },
+    { label: 'Hub', icon: <Zap size={18} />, path: '/hub' },
     { label: 'Admin', icon: <ShieldCheck size={18} />, path: '/admin' },
+    { label: 'User', icon: <LayoutDashboard size={18} />, path: '/user-view' },
     { label: 'Kitchen', icon: <Utensils size={18} />, path: '/kitchen' },
+    { label: 'Public', icon: <Home size={18} />, path: '/' },
   ];
 
   return (

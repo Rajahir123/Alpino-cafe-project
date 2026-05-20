@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShieldCheck, Lock, Terminal, Zap, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, Lock, Terminal, Zap, ShieldAlert, LogOut } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { Navigate, useLocation } from 'react-router-dom';
+import { auth } from '../lib/firebase';
+import { signOut } from 'firebase/auth';
 
 interface AdminPasscodeGateProps {
   children: React.ReactNode;
@@ -9,6 +13,8 @@ interface AdminPasscodeGateProps {
 const PASSCODE = '1522';
 
 export default function AdminPasscodeGate({ children }: AdminPasscodeGateProps) {
+  const { user, profile, loading } = useAuth();
+  const location = useLocation();
   const [passcode, setPasscode] = useState('');
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [error, setError] = useState(false);
@@ -16,10 +22,10 @@ export default function AdminPasscodeGate({ children }: AdminPasscodeGateProps) 
 
   useEffect(() => {
     const saved = localStorage.getItem('alpino_admin_authorized');
-    if (saved === 'true') {
+    if (saved === 'true' && user && profile?.role === 'admin') {
       setIsAuthorized(true);
     }
-  }, []);
+  }, [user, profile]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +42,32 @@ export default function AdminPasscodeGate({ children }: AdminPasscodeGateProps) 
     }
   };
 
+  const handleLogout = () => {
+    signOut(auth);
+    localStorage.removeItem('alpino_admin_authorized');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-red-600 font-black italic uppercase animate-pulse flex items-center gap-2">
+          <Zap size={20} /> Verifying Credentials...
+        </div>
+      </div>
+    );
+  }
+
+  // Phase 1: Google Auth Check
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Phase 2: Role Check
+  if (profile?.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+
+  // Phase 3: Passcode Check
   if (isAuthorized) {
     return <>{children}</>;
   }
@@ -55,8 +87,12 @@ export default function AdminPasscodeGate({ children }: AdminPasscodeGateProps) 
           <div className="w-20 h-20 bg-red-600/10 rounded-3xl flex items-center justify-center mb-6 border border-red-600/20">
             <ShieldCheck className="text-red-600" size={40} />
           </div>
-          <h1 className="text-3xl font-black italic uppercase tracking-tighter mb-2">CAFE <span className="text-red-600">COMMAND</span></h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">Authorization Required</p>
+          <h1 className="text-3xl font-black italic uppercase tracking-tighter mb-2 text-white">CAFE <span className="text-red-600">COMMAND</span></h1>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">L2 Authorization Required</p>
+          <div className="mt-4 flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+             <div className="w-2 h-2 bg-green-500 rounded-full" />
+             <span className="text-[9px] font-black uppercase text-white/40 tracking-widest">{user.email}</span>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -69,7 +105,7 @@ export default function AdminPasscodeGate({ children }: AdminPasscodeGateProps) 
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value.replace(/\D/g, ''))}
                 placeholder="ENTER 4-DIGIT KEY"
-                className={`w-full bg-black border ${error ? 'border-red-600' : 'border-white/10'} rounded-2xl p-6 text-center text-2xl font-black tracking-[1em] focus:border-red-600 outline-none transition-all placeholder:text-[10px] placeholder:tracking-[0.5em] placeholder:text-white/10`}
+                className={`w-full bg-black text-white border ${error ? 'border-red-600' : 'border-white/10'} rounded-2xl p-6 text-center text-2xl font-black tracking-[1em] focus:border-red-600 outline-none transition-all placeholder:text-[10px] placeholder:tracking-[0.5em] placeholder:text-white/10`}
                 autoFocus
               />
               <div className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10 pointer-events-none">
@@ -93,13 +129,20 @@ export default function AdminPasscodeGate({ children }: AdminPasscodeGateProps) 
 
           <button
             type="submit"
-            className="w-full bg-red-600 hover:bg-black hover:text-red-600 border-2 border-red-600 py-6 rounded-2xl font-black italic uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group"
+            className="w-full bg-red-600 hover:bg-black text-white hover:text-red-600 border-2 border-red-600 py-6 rounded-2xl font-black italic uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group shadow-lg shadow-red-600/10"
           >
-            Log In <Zap size={20} className="group-hover:scale-125 transition-transform" />
+            Authenticate <Zap size={20} className="group-hover:scale-125 transition-transform" />
           </button>
         </form>
 
-        <div className="mt-12 pt-8 border-t border-white/5 grid grid-cols-2 gap-4">
+        <button 
+          onClick={handleLogout}
+          className="mt-6 w-full py-4 text-[9px] font-black uppercase tracking-[0.4em] text-white/20 hover:text-white transition-colors flex items-center justify-center gap-2"
+        >
+          <LogOut size={12} /> Switch Identity
+        </button>
+
+        <div className="mt-8 pt-8 border-t border-white/5 grid grid-cols-2 gap-4">
           <div className="flex flex-col items-center gap-1 group">
             <Terminal size={16} className="text-white/20 group-hover:text-red-600 transition-colors" />
             <span className="text-[8px] font-black uppercase text-white/20 tracking-widest">Protocol: Encrypted</span>
@@ -112,7 +155,7 @@ export default function AdminPasscodeGate({ children }: AdminPasscodeGateProps) 
         
         {attempts > 0 && (
           <div className="mt-6 text-center">
-            <p className="text-[8px] font-black uppercase text-white/10 tracking-widest">
+            <p className="text-[8px] font-black uppercase text-red-600/30 tracking-widest animate-pulse">
               Security Log: {attempts} Failed Attempts Recorded
             </p>
           </div>

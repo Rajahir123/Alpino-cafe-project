@@ -101,6 +101,7 @@
         "loadingUrl": { "type": "string" },
         "loadingVideoUrl": { "type": "string" },
         "siteName": { "type": "string" },
+        "url": { "type": "string" },
         "updatedAt": { "type": "string", "format": "date-time" }
       }
     },

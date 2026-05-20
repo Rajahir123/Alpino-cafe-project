@@ -1,11 +1,29 @@
 import { useAuth } from '../hooks/useAuth';
 import { motion } from 'motion/react';
-import { Package2, QrCode, AlertCircle, Clock } from 'lucide-react';
+import { QrCode, AlertCircle, Clock } from 'lucide-react';
 import { PLANS } from '../constants';
+import { useEffect, useState } from 'react';
+import { db } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function PaymentPage() {
   const { profile } = useAuth();
+  const [barcodeUrl, setBarcodeUrl] = useState('');
   const selectedPlan = PLANS.find(p => p.id === profile?.planId);
+
+  useEffect(() => {
+    const fetchBarcode = async () => {
+      try {
+        const docSnap = await getDoc(doc(db, 'settings', 'payment_barcode'));
+        if (docSnap.exists()) {
+          setBarcodeUrl(docSnap.data().url);
+        }
+      } catch (error) {
+        console.error("Failed to fetch barcode:", error);
+      }
+    };
+    fetchBarcode();
+  }, []);
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_top_right,rgba(220,38,38,0.1),transparent_50%)]">
@@ -24,9 +42,15 @@ export default function PaymentPage() {
            <div className="text-xl font-black italic text-red-600">₹{selectedPlan?.price}</div>
         </div>
 
-        <div className="bg-white p-8 rounded-3xl mb-8 flex flex-col items-center justify-center aspect-square shadow-[0_0_40px_rgba(255,255,255,0.05)] border-4 border-red-600/20">
-           <QrCode size={180} className="text-black" />
-           <div className="mt-4 text-black/40 text-[10px] font-bold uppercase tracking-widest">Scan with GPay / PhonePe</div>
+        <div className="bg-white p-8 rounded-3xl mb-8 flex flex-col items-center justify-center aspect-square shadow-[0_0_40px_rgba(255,255,255,0.05)] border-4 border-red-600/20 overflow-hidden">
+           {barcodeUrl ? (
+             <img src={barcodeUrl} alt="Payment Barcode" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+           ) : (
+             <>
+               <QrCode size={180} className="text-black" />
+               <div className="mt-4 text-black/40 text-[10px] font-bold uppercase tracking-widest">Scan with GPay / PhonePe</div>
+             </>
+           )}
         </div>
 
         <div className="space-y-6 mb-8 text-left">
