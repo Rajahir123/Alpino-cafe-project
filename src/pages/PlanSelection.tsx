@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PLANS } from '../constants';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { doc, updateDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { Check, Star, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Check, Star, Zap, ChevronRight, Fuel, ShieldCheck } from 'lucide-react';
 
 export default function PlanSelection() {
   const { profile } = useAuth();
@@ -61,72 +61,123 @@ export default function PlanSelection() {
 
       navigate('/payment');
     } catch (error) {
-      // If paymentRef exists, we might want to check which one failed, but generally a permissions error here is what we're looking for
       handleFirestoreError(error, OperationType.WRITE, 'Plan Selection Action');
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black pt-24 pb-12 px-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-black italic uppercase italic tracking-tighter mb-4">Choose Your <span className="text-red-600">Goal</span></h1>
-          <p className="text-white/50 text-lg uppercase tracking-widest font-bold">Select a routine that fits your lifestyle</p>
+    <div className="min-h-screen bg-black pt-28 pb-20 px-6 bg-[radial-gradient(circle_at_top_right,rgba(220,38,38,0.05),transparent_50%)]">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16 space-y-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="inline-flex items-center gap-2 bg-red-600/10 border border-red-600/20 px-4 py-2 rounded-full mb-4"
+          >
+            <ShieldCheck className="text-red-600" size={14} />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-red-600">Alpino Purity System</span>
+          </motion.div>
+          <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
+            Choose Your <span className="text-red-600">Protocol</span>
+          </h1>
+          <p className="text-white/30 text-sm md:text-base uppercase tracking-[0.4em] font-black max-w-2xl mx-auto">
+            PRECISION NUTRITION FOR ELITE PERFORMANCE
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
            {/* Section 1: Trial */}
-           <div className="space-y-6">
-             <div className="flex items-center gap-3 mb-6">
-               <Zap className="text-red-600" size={24} />
-               <h2 className="text-2xl font-black uppercase italic tracking-tighter">Trial Plans (5 Days)</h2>
+           <div className="space-y-8">
+             <div className="flex items-center justify-between border-b border-white/5 pb-4">
+               <div className="flex items-center gap-4">
+                 <div className="w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-red-600 transition-colors">
+                   <Zap className="text-red-600" size={20} />
+                 </div>
+                 <h2 className="text-2xl font-black uppercase italic tracking-tighter">Trial Phase <span className="text-white/20 ml-2">5 Days</span></h2>
+               </div>
+               <span className="text-[8px] font-black uppercase tracking-widest text-white/20">Starter Extraction</span>
              </div>
-             {PLANS.filter(p => p.type === 'trial').map(plan => (
-               <motion.div 
-                 key={plan.id}
-                 whileHover={{ scale: 1.02 }}
-                 className="bg-neutral-900 border border-white/10 p-6 rounded-2xl cursor-pointer hover:border-red-600 transition-all flex justify-between items-center group"
-                 onClick={() => handleSelectPlan(plan.id)}
-               >
-                 <div>
-                   <h3 className="font-bold uppercase tracking-wide group-hover:text-red-600 transition-colors">{plan.includes.join(' + ')}</h3>
-                   <p className="text-xs text-white/50">{plan.description}</p>
-                 </div>
-                 <div className="text-right">
-                   <div className="text-xl font-black italic">₹{plan.price}</div>
-                   <div className="text-[10px] uppercase font-bold text-red-600">Starter</div>
-                 </div>
-               </motion.div>
-             ))}
+             
+             <div className="space-y-4">
+               {PLANS.filter(p => p.type === 'trial').map(plan => (
+                 <motion.div 
+                   key={plan.id}
+                   whileHover={{ x: 10 }}
+                   className="bg-neutral-900/50 backdrop-blur-xl border border-white/5 p-6 rounded-[2rem] cursor-pointer hover:border-red-600/50 hover:bg-neutral-900 transition-all flex justify-between items-center group relative overflow-hidden"
+                   onClick={() => handleSelectPlan(plan.id)}
+                 >
+                   <div className="relative z-10">
+                     <h3 className="font-black uppercase tracking-wider text-white/80 group-hover:text-white transition-colors mb-2 italic">{plan.name.split(':')[1].trim()}</h3>
+                     <div className="flex items-center gap-3">
+                        <div className="flex -space-x-1">
+                          {plan.includes.map(inc => (
+                             <div key={inc} className="w-2 h-2 bg-red-600 rounded-full border border-black" />
+                          ))}
+                        </div>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-white/20">{plan.description}</p>
+                     </div>
+                   </div>
+                   <div className="text-right relative z-10">
+                     <div className="text-2xl font-black italic text-white group-hover:text-red-600 transition-colors">₹{plan.price}</div>
+                     <div className="flex items-center justify-end gap-2 text-[9px] font-black uppercase tracking-widest text-white/10 group-hover:text-red-600/50">
+                        Select <ChevronRight size={10} />
+                     </div>
+                   </div>
+                 </motion.div>
+               ))}
+             </div>
            </div>
 
            {/* Section 2: Pro */}
-           <div className="space-y-6">
-             <div className="flex items-center gap-3 mb-6">
-               <Star className="text-red-600" size={24} fill="currentColor" />
-               <h2 className="text-2xl font-black uppercase italic tracking-tighter">Pro Plans (20 Days)</h2>
+           <div className="space-y-8">
+             <div className="flex items-center justify-between border-b border-white/5 pb-4">
+               <div className="flex items-center gap-4">
+                 <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.3)]">
+                   <Star className="text-white" size={20} fill="currentColor" />
+                 </div>
+                 <h2 className="text-2xl font-black uppercase italic tracking-tighter">Pro Protocol <span className="text-red-600/40 ml-2">20 Days</span></h2>
+               </div>
+               <span className="text-[8px] font-black uppercase tracking-widest text-red-600/40">Elite Execution</span>
              </div>
-             {PLANS.filter(p => p.type === 'pro').map(plan => (
-               <motion.div 
-                 key={plan.id}
-                 whileHover={{ scale: 1.02 }}
-                 className="bg-red-600 text-white p-6 rounded-2xl cursor-pointer hover:bg-red-700 transition-all flex justify-between items-center shadow-lg group relative overflow-hidden"
-                 onClick={() => handleSelectPlan(plan.id)}
-               >
-                 <div className="absolute -right-4 -top-4 opacity-10">
-                   <Star size={80} fill="currentColor" />
-                 </div>
-                 <div>
-                   <h3 className="font-black uppercase tracking-wide italic">{plan.includes.join(' + ')}</h3>
-                   <p className="text-xs text-white/80">{plan.description}</p>
-                 </div>
-                 <div className="text-right">
-                   <div className="text-xl font-black italic">₹{plan.price}</div>
-                   <div className="text-[10px] uppercase font-bold text-black">Active Routine</div>
-                 </div>
-               </motion.div>
-             ))}
+
+             <div className="space-y-4">
+               {PLANS.filter(p => p.type === 'pro').map(plan => (
+                 <motion.div 
+                   key={plan.id}
+                   whileHover={{ x: -10 }}
+                   className="bg-red-600 p-7 rounded-[2rem] cursor-pointer hover:bg-black hover:border-red-600 border-2 border-transparent transition-all flex justify-between items-center group relative overflow-hidden shadow-2xl shadow-red-600/20"
+                   onClick={() => handleSelectPlan(plan.id)}
+                 >
+                   <div className="absolute right-0 top-0 opacity-10 -translate-y-4 translate-x-4">
+                     <Fuel size={120} />
+                   </div>
+                   <div className="relative z-10">
+                     <h3 className="font-black uppercase tracking-wider text-white group-hover:text-red-600 transition-colors mb-2 italic text-lg">{plan.name.split(':')[1].trim()}</h3>
+                     <div className="flex items-center gap-3">
+                        <div className="px-2 py-1 bg-white/20 rounded-md">
+                          <Check size={10} className="text-white" />
+                        </div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-white/60 group-hover:text-white/40">{plan.description}</p>
+                     </div>
+                   </div>
+                   <div className="text-right relative z-10">
+                     <div className="text-3xl font-black italic text-white group-hover:text-red-600 transition-colors">₹{plan.price}</div>
+                     <div className="flex items-center justify-end gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 group-hover:text-red-600">
+                        Activate <Check size={12} />
+                     </div>
+                   </div>
+                 </motion.div>
+               ))}
+             </div>
            </div>
+        </div>
+
+        <div className="mt-20 text-center">
+           <p className="text-[10px] font-black uppercase tracking-[0.5em] text-white/10 animate-pulse">
+             [ ALL PROTOCOLS INCLUDE BIO-ACTIVE PROTEIN OPTIMIZATION ]
+           </p>
         </div>
       </div>
     </div>

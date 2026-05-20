@@ -92,7 +92,7 @@ function App() {
             } 
           />
           
-          <Route path="/plans" element={user ? <PlanSelection /> : <Navigate to="/login" />} />
+          <Route path="/plans" element={<PlanSelection />} />
           <Route path="/payment" element={user ? <PaymentPage /> : <Navigate to="/login" />} />
           <Route path="/setup" element={user ? <ProfileSetup /> : <Navigate to="/login" />} />
           <Route path="/kitchen" element={profile?.role === 'admin' || profile?.role === 'kitchen' ? <KitchenDashboard /> : <Navigate to="/" />} />

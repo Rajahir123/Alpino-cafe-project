@@ -91,7 +91,7 @@ export default function LandingPage() {
           }`}>
             Admin Login
           </Link>
-          <Link to="/login" className={`bg-red-600 hover:bg-red-700 text-white rounded-xl text-[8px] md:text-sm font-black uppercase tracking-[0.2em] transition-all shadow-[0_4px_25px_rgba(220,38,38,0.4)] hover:scale-105 active:scale-95 ${
+          <Link to="/plans" className={`bg-red-600 hover:bg-red-700 text-white rounded-xl text-[8px] md:text-sm font-black uppercase tracking-[0.2em] transition-all shadow-[0_4px_25px_rgba(220,38,38,0.4)] hover:scale-105 active:scale-95 ${
             scrolled ? 'px-3 md:px-8 py-2 md:py-3' : 'px-4 md:px-10 py-2.5 md:py-4'
           }`}>
             Join Now
@@ -158,10 +158,10 @@ export default function LandingPage() {
                      <div className="absolute -inset-10 md:-inset-20 bg-red-600/20 rounded-full blur-[60px] md:blur-[100px] group-hover:bg-red-600/30 transition-colors duration-1000" />
                      
                      <DynamicLogo 
-                      layoutId="main-logo"
-                      size={window.innerWidth < 768 ? 100 : 180} 
-                      showText={false} 
-                      className="justify-center relative z-10 filter drop-shadow-[0_0_50px_rgba(220,38,38,0.5)] transform md:hover:scale-110 transition-all duration-700" 
+                       layoutId="main-logo"
+                       size={window.innerWidth < 768 ? 100 : 180} 
+                       showText={false} 
+                       className="justify-center relative z-10 filter drop-shadow-[0_0_50px_rgba(220,38,38,0.5)] transform md:hover:scale-110 transition-all duration-700" 
                      />
                    </motion.div>
                  )}
@@ -212,7 +212,7 @@ export default function LandingPage() {
             transition={{ delay: 0.6 }}
             className="flex flex-col md:flex-row gap-3 justify-center px-10 md:px-0"
           >
-            <Link to="/login" className="bg-red-600 hover:bg-red-700 text-white px-6 md:px-10 py-3.5 md:py-4 rounded-xl text-xs md:text-lg font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group shadow-[0_4px_20px_rgba(220,38,38,0.4)]">
+            <Link to="/plans" className="bg-red-600 hover:bg-red-700 text-white px-6 md:px-10 py-3.5 md:py-4 rounded-xl text-xs md:text-lg font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group shadow-[0_4px_20px_rgba(220,38,38,0.4)]">
               Start Your Plan <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link to="/menu" className="border-2 border-white/20 hover:border-red-600 hover:bg-red-600/10 px-6 md:px-10 py-3 md:py-4 rounded-xl text-xs md:text-lg font-black uppercase tracking-widest transition-all">
@@ -551,7 +551,7 @@ export default function LandingPage() {
                 >
                   <h4 className="text-3xl font-black italic uppercase italic tracking-tighter mb-4">Want a Custom Meal Plan?</h4>
                   <p className="text-white/50 mb-8 font-medium">Join our PRO Plan for personalized macros, automated tracking, and weekly nutrition consultations.</p>
-                  <Link to="/login" className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(220,38,38,0.3)]">
+                  <Link to="/plans" className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(220,38,38,0.3)]">
                     Get Started Now
                   </Link>
                 </motion.div>
@@ -603,7 +603,7 @@ export default function LandingPage() {
                  ))}
                </div>
 
-               <Link to="/login" className="w-full bg-white text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-neutral-200 transition-colors text-center">
+               <Link to="/plans" className="w-full bg-white text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-neutral-200 transition-colors text-center">
                  Join Trial
                </Link>
             </motion.div>
@@ -638,7 +638,7 @@ export default function LandingPage() {
                  ))}
                </div>
 
-               <Link to="/login" className="w-full bg-black text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-neutral-900 transition-colors text-center">
+               <Link to="/plans" className="w-full bg-black text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-neutral-900 transition-colors text-center">
                  Go Pro Today
                </Link>
             </motion.div>
