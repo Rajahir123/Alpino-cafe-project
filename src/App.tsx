@@ -86,7 +86,7 @@ function App() {
                 profile?.role === 'kitchen' ? <KitchenDashboard /> : 
                 (!profile?.phone || !profile?.address) ? <Navigate to="/setup" /> :
                 profile?.planStatus === 'none' ? <Navigate to="/plans" /> :
-                profile?.planStatus === 'pending' ? <PaymentPage /> :
+                (profile?.planStatus === 'pending' || profile?.planStatus === 'rejected') ? <PaymentPage /> :
                 <UserDashboard />
               ) : <Navigate to="/login" />
             } 

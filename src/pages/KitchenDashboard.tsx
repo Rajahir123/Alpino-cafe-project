@@ -39,7 +39,13 @@ export default function KitchenDashboard() {
   };
 
   const todayStr = new Date().toISOString().split('T')[0];
-  const activeOrders = orders.filter(o => o.status !== 'delivered');
+  const activeOrders = orders
+    .filter(o => o.status !== 'delivered')
+    .sort((a, b) => {
+      const timeA = a.updatedAt?.toMillis() || a.createdAt?.toMillis() || 0;
+      const timeB = b.updatedAt?.toMillis() || b.createdAt?.toMillis() || 0;
+      return timeB - timeA;
+    });
   const todayOrders = activeOrders.filter(o => o.date === todayStr);
   const futureOrders = activeOrders.filter(o => o.date > todayStr);
 

@@ -1,7 +1,7 @@
 export type UserRole = 'user' | 'admin' | 'kitchen';
-export type PlanStatus = 'none' | 'pending' | 'active' | 'expired';
+export type PlanStatus = 'none' | 'pending' | 'active' | 'expired' | 'rejected';
 export type OrderStatus = 'pending' | 'preparing' | 'out-for-delivery' | 'delivered';
-export type PaymentStatus = 'pending' | 'approved' | 'rejected';
+export type PaymentStatus = 'pending' | 'submitted' | 'approved' | 'rejected';
 
 export interface UserProfile {
   uid: string;
@@ -63,5 +63,11 @@ export interface PaymentRecord {
   planName: string;
   amount: number;
   status: PaymentStatus;
+  transactionId?: string;
+  screenshotUrl?: string;
+  statusMessage?: string;
+  verifiedBy?: string;
+  verifiedAt?: any;
   createdAt: any;
+  updatedAt?: any;
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { PLANS } from '../constants';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { doc, updateDoc, setDoc, Timestamp } from 'firebase/firestore';
@@ -9,11 +10,31 @@ import { Check, Star, Zap } from 'lucide-react';
 export default function PlanSelection() {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
+  const [checkingIntent, setCheckingIntent] = useState(true);
+
+  useEffect(() => {
+    const handleIntent = async () => {
+      const intent = sessionStorage.getItem('plan_intent');
+      if (intent && profile && !saving) {
+        sessionStorage.removeItem('plan_intent');
+        await handleSelectPlan(intent);
+      }
+      setCheckingIntent(false);
+    };
+    handleIntent();
+  }, [profile]);
 
   const handleSelectPlan = async (planId: string) => {
-    if (!profile) return;
+    if (!profile) {
+      // Store intent and redirect to login
+      sessionStorage.setItem('plan_intent', planId);
+      navigate('/login');
+      return;
+    }
     
     try {
+      setSaving(true);
       // Set plan selection and status to pending
       const userRef = doc(db, 'users', profile.uid);
       await updateDoc(userRef, {

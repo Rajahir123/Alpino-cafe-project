@@ -85,16 +85,23 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+
   const handleApprove = async (payment: PaymentRecord) => {
     const plan = PLANS.find(p => p.id === payment.planId);
     if (!plan) return;
 
+    setApprovingId(payment.id);
     const batch = writeBatch(db);
 
     try {
       // 1. Update Payment
       const payRef = doc(db, 'payments', payment.id);
-      batch.update(payRef, { status: 'approved' });
+      batch.update(payRef, { 
+        status: 'approved',
+        verifiedBy: user?.email,
+        verifiedAt: Timestamp.now()
+      });
 
       // 2. Update User
       const userRef = doc(db, 'users', payment.userId);
@@ -106,15 +113,29 @@ export default function AdminDashboard() {
       });
 
       await batch.commit();
-      fetchData();
+      
+      // Simulate Email Protocol
+      console.log(`[EMAIL SYSTEM]: Sending approval confirmation to ${payment.userEmail}...`);
+      
+      await fetchData();
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, `approve payment/${payment.id}`);
+    } finally {
+      setApprovingId(null);
     }
   };
 
   const handleReject = async (paymentId: string) => {
+    const reason = prompt("Enter rejection reason (User will see this):");
+    if (!reason) return;
+
     try {
-      await updateDoc(doc(db, 'payments', paymentId), { status: 'rejected' });
+      await updateDoc(doc(db, 'payments', paymentId), { 
+        status: 'rejected',
+        statusMessage: reason,
+        verifiedBy: user?.email,
+        verifiedAt: Timestamp.now()
+      });
       fetchData();
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, `payments/${paymentId}`);
@@ -227,7 +248,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const pendingPayments = payments.filter(p => p.status === 'pending');
+  const pendingPayments = payments.filter(p => p.status === 'submitted');
   const filteredUsers = users.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()));
 
   if (loading) return <div className="p-20 text-center font-black animate-pulse text-red-600 italic uppercase">Syncing CAFE COMMAND...</div>;
@@ -279,9 +300,14 @@ export default function AdminDashboard() {
               <div className="flex bg-neutral-900 p-1 rounded-xl border border-white/5 overflow-x-auto no-scrollbar shadow-inner">
                 <button 
                   onClick={() => setActiveTab('payments')}
-                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'payments' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap relative ${activeTab === 'payments' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                 >
                   Governance
+                  {pendingPayments.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-white text-red-600 rounded-full flex items-center justify-center text-[8px] font-black animate-bounce border border-red-600">
+                      {pendingPayments.length}
+                    </span>
+                  )}
                 </button>
                 <button 
                   onClick={() => setActiveTab('images')}
@@ -371,6 +397,21 @@ export default function AdminDashboard() {
                                <div className="text-[10px] font-black uppercase text-red-600 mb-1 tracking-widest">{payment.planName} Request</div>
                                <h3 className="font-black italic uppercase text-lg leading-tight tracking-tighter">{payment.userName}</h3>
                                <p className="text-[10px] text-white/30 font-black uppercase tracking-wider">{payment.userEmail}</p>
+                               {payment.transactionId && (
+                                 <div className="mt-2 text-[9px] font-mono text-white/50 bg-black/40 px-2 py-1 rounded">
+                                   TXID: {payment.transactionId}
+                                 </div>
+                               )}
+                               {payment.screenshotUrl && (
+                                 <a 
+                                   href={payment.screenshotUrl} 
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   className="mt-2 inline-flex items-center gap-1 text-[9px] font-black uppercase text-red-600 hover:text-white transition-colors"
+                                 >
+                                   <ExternalLink size={10} /> View Screenshot
+                                 </a>
+                               )}
                             </div>
                          </div>
                          

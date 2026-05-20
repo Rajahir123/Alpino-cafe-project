@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, setDoc, Timestamp, onSnapshot } from 'firebase/firestore';
@@ -13,7 +14,8 @@ import AssetImage from '../components/AssetImage';
 
 export default function UserDashboard() {
   const { profile } = useAuth();
-  const [tomorrowDate, setTomorrowDate] = useState('');
+  const [targetDate, setTargetDate] = useState('');
+  const [selectedDay, setSelectedDay] = useState<'today' | 'tomorrow'>('tomorrow');
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -23,10 +25,15 @@ export default function UserDashboard() {
   const [showRecipeId, setShowRecipeId] = useState<string | null>(null);
 
   useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    setTomorrowDate(tomorrow.toISOString().split('T')[0]);
-    
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+    setTargetDate(selectedDay === 'today' ? today : tomorrowStr);
+  }, [selectedDay]);
+
+  useEffect(() => {
     // Fetch orders
     const fetchOrders = async () => {
       if (!profile) return;
@@ -83,29 +90,35 @@ export default function UserDashboard() {
     return menuItems;
   }, [menuItems, plan]);
 
-  // Pre-select current order for tomorrow if it exists
+  // Pre-select current order for target date if it exists
   useEffect(() => {
     if (availableMenu.length > 0 && orders.length > 0) {
-      const tomorrowOrder = orders.find(o => o.date === tomorrowDate);
-      if (tomorrowOrder && tomorrowOrder.items.length > 0) {
-        const item = availableMenu.find(i => i.id === tomorrowOrder.items[0].id);
-        if (item) setSelectedItem(item);
+      const existingOrder = orders.find(o => o.date === targetDate);
+      if (existingOrder && existingOrder.items.length > 0) {
+        const item = availableMenu.find(i => i.id === existingOrder.items[0].id);
+        if (item) {
+          setSelectedItem(item);
+        } else {
+          setSelectedItem(null);
+        }
+      } else {
+        setSelectedItem(null);
       }
     }
-  }, [availableMenu, orders, tomorrowDate]);
+  }, [availableMenu, orders, targetDate]);
 
   const handleSaveToKitchen = async () => {
     if (!profile || !selectedItem) return;
     setSaving(true);
     
-    const orderId = `${profile.uid}_${tomorrowDate}`;
+    const orderId = `${profile.uid}_${targetDate}`;
     const path = `orders/${orderId}`;
     try {
       await setDoc(doc(db, 'orders', orderId), {
         id: orderId,
         userId: profile.uid,
         userName: profile.name,
-        date: tomorrowDate,
+        date: targetDate,
         items: [selectedItem],
         status: 'pending',
         createdAt: Timestamp.now(),
@@ -123,6 +136,9 @@ export default function UserDashboard() {
   const getDayLeft = () => {
     return profile?.daysRemaining || 0;
   };
+
+  const existingOrderForTarget = orders.find(o => o.date === targetDate);
+  const isLocked = existingOrderForTarget && existingOrderForTarget.status !== 'pending';
 
   if (loading) return (
     <div className="min-h-screen bg-black flex items-center justify-center p-6">
@@ -142,6 +158,13 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-black pt-24 pb-20 px-6 font-sans">
+      {profile?.role === 'admin' && (
+        <div className="max-w-4xl mx-auto mb-6 flex justify-end">
+           <Link to="/kitchen" className="flex items-center gap-2 px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
+             <Utensils size={14} /> Kitchen Feed
+           </Link>
+        </div>
+      )}
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Welcome Header */}
@@ -229,15 +252,35 @@ export default function UserDashboard() {
           <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
             <Calendar size={200} />
           </div>
-          <div className="flex justify-between items-start mb-12 relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-start mb-12 relative z-10 gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-2 h-2 bg-red-600 rounded-full animate-ping" />
-                <h2 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter">Tomorrow <span className="text-red-600">—</span> Change Recipe</h2>
+                <h2 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter">
+                  {selectedDay === 'today' ? 'Today' : 'Tomorrow'} <span className="text-red-600">—</span> Selection
+                </h2>
               </div>
               <p className="text-[10px] md:text-[11px] text-white/40 font-black uppercase tracking-[0.2em] bg-white/5 inline-block px-4 py-2 rounded-xl border border-white/5">Pick before 9 PM — instant kitchen synchronization</p>
             </div>
-            <Calendar className="text-red-600 hidden md:block" size={40} />
+            
+            <div className="flex bg-black border border-white/10 p-1 rounded-2xl">
+               <button 
+                 onClick={() => setSelectedDay('today')}
+                 className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                   selectedDay === 'today' ? 'bg-red-600 text-white shadow-lg' : 'text-white/30 hover:text-white'
+                 }`}
+               >
+                 Today
+               </button>
+               <button 
+                 onClick={() => setSelectedDay('tomorrow')}
+                 className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                   selectedDay === 'tomorrow' ? 'bg-red-600 text-white shadow-lg' : 'text-white/30 hover:text-white'
+                 }`}
+               >
+                 Tomorrow
+               </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-10">
@@ -245,10 +288,13 @@ export default function UserDashboard() {
                <motion.div 
                  key={item.id}
                  layoutId={`item-${item.id}`}
-                 whileTap={{ scale: 0.98 }}
-                 className={`p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] border-2 cursor-pointer transition-all relative overflow-hidden group ${
+                 whileTap={!isLocked ? { scale: 0.98 } : {}}
+                 className={`p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] border-2 transition-all relative overflow-hidden group ${
+                   isLocked ? 'opacity-60 cursor-not-allowed grayscale-[0.5]' : 'cursor-pointer'
+                 } ${
                    selectedItem?.id === item.id ? 'border-red-600 bg-red-600/10' : 'border-white/5 bg-black hover:border-white/20'
                  }`}
+                 onClick={() => !isLocked && setSelectedItem(item)}
                >
                   <div className="flex items-center justify-between gap-2 mb-2 relative z-10">
                     <div className="text-[8px] md:text-[10px] font-black tracking-widest text-white/40 uppercase truncate">{item.category}</div>
@@ -264,7 +310,6 @@ export default function UserDashboard() {
                   </div>
                   
                   <div 
-                    onClick={() => setSelectedItem(item)}
                     className="relative z-10"
                   >
                     <div className="w-full aspect-square mb-4 rounded-xl overflow-hidden border border-white/5 bg-neutral-900 group-hover:scale-105 transition-transform duration-500">
@@ -320,15 +365,17 @@ export default function UserDashboard() {
             </div>
             
             <button 
-              disabled={!selectedItem || saving}
+              disabled={!selectedItem || saving || isLocked}
               onClick={handleSaveToKitchen}
               className={`w-full md:w-auto px-10 py-4 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${
+                isLocked ? 'bg-neutral-800 text-white/40 cursor-not-allowed' :
                 selectedItem ? 'bg-red-600 hover:bg-red-700 text-white shadow-[0_0_30px_rgba(220,38,38,0.3)]' : 'bg-white/5 text-white/20 cursor-not-allowed'
               }`}
             >
-              {saving ? 'UPDATING...' : message || 'SAVE TO KITCHEN →'}
-              {!saving && !message && <Save size={18} />}
+              {isLocked ? 'LOCKED FOR SERVICE' : (saving ? 'UPDATING...' : message || 'SAVE TO KITCHEN →')}
+              {!saving && !message && !isLocked && <Save size={18} />}
               {message && <CheckCircle2 size={18} />}
+              {isLocked && <Lock size={18} />}
             </button>
           </div>
         </section>

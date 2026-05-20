@@ -9,7 +9,7 @@ export default function LoginPage() {
   const { user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const from = location.state?.from?.pathname || "/dashboard";
+  const from = sessionStorage.getItem('plan_intent') ? "/plan-selection" : (location.state?.from?.pathname || "/dashboard");
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
