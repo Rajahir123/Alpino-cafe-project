@@ -177,10 +177,10 @@ export default function LandingPage() {
           >
             <div className="flex flex-wrap justify-center gap-1 md:gap-4 px-2">
               {[
-                { label: "Maida", status: "NULL" },
-                { label: "Palm Oil", status: "NULL" },
-                { label: "Artificial", status: "NULL" },
-                { label: "Sugar", status: "NULL" }
+                { label: "Maida", status: "0%" },
+                { label: "Palm Oil", status: "0%" },
+                { label: "Artificial", status: "0%" },
+                { label: "Sugar", status: "0%" }
               ].map((item, i) => (
                 <div key={i} className="flex flex-col items-center group">
                   <div className="flex items-center gap-2 bg-neutral-900 border border-white/5 px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl group-hover:border-red-600/50 transition-all duration-300">
@@ -414,6 +414,7 @@ export default function LandingPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.05 }}
                         whileHover="hover"
+                        whileTap="hover"
                         className="group relative"
                       >
                         <motion.div 

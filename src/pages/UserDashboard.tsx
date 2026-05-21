@@ -194,7 +194,7 @@ export default function UserDashboard() {
                    {['Maida', 'Palm Oil', 'Artificial', 'Sugar'].map(tag => (
                      <div key={tag} className="flex justify-between items-center bg-white/5 px-4 py-3 rounded-xl border border-white/5">
                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/40">{tag}</span>
-                        <span className="text-xs font-black text-red-600 italic tracking-tighter">NULL</span>
+                        <span className="text-xs font-black text-red-600 italic tracking-tighter">0%</span>
                      </div>
                    ))}
                 </div>
