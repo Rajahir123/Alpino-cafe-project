@@ -79,7 +79,7 @@ export default function PlanSelection() {
             <ShieldCheck className="text-red-600" size={14} />
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-red-600">Alpino Purity System</span>
           </motion.div>
-          <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
+          <h1 className="text-4xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
             Choose Your <span className="text-red-600">Protocol</span>
           </h1>
           <p className="text-white/30 text-sm md:text-base uppercase tracking-[0.4em] font-black max-w-2xl mx-auto">
@@ -95,7 +95,7 @@ export default function PlanSelection() {
                  <div className="w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-red-600 transition-colors">
                    <Zap className="text-red-600" size={20} />
                  </div>
-                 <h2 className="text-2xl font-black uppercase italic tracking-tighter">Trial Phase <span className="text-white/20 ml-2">5 Days</span></h2>
+                 <h2 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter">Trial Phase <span className="text-white/20 ml-2">5 Days</span></h2>
                </div>
                <span className="text-[8px] font-black uppercase tracking-widest text-white/20">Starter Extraction</span>
              </div>
@@ -137,7 +137,7 @@ export default function PlanSelection() {
                  <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.3)]">
                    <Star className="text-white" size={20} fill="currentColor" />
                  </div>
-                 <h2 className="text-2xl font-black uppercase italic tracking-tighter">Pro Protocol <span className="text-red-600/40 ml-2">20 Days</span></h2>
+                 <h2 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter">Pro Protocol <span className="text-red-600/40 ml-2">20 Days</span></h2>
                </div>
                <span className="text-[8px] font-black uppercase tracking-widest text-red-600/40">Elite Execution</span>
              </div>

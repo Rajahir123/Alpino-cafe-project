@@ -15,6 +15,7 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [firestoreItems, setFirestoreItems] = useState<MenuItem[]>([]);
   const [tappedItemId, setTappedItemId] = useState<string | null>(null);
+  const [planModal, setPlanModal] = useState<"trial" | "pro" | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, "menu"));
@@ -301,18 +302,18 @@ export default function LandingPage() {
           {[...Array(10)].map((_, i) => (
             <div key={i} className="flex items-center gap-8 md:gap-16">
               <div className="flex items-center gap-8 md:gap-12">
-                <span className="text-3xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-2 md:gap-4">
+                <span className="text-2xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-2 md:gap-4">
                   Eat <span className="text-white">.</span>
                 </span>
-                <span className="text-3xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-2 md:gap-4">
+                <span className="text-2xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-2 md:gap-4">
                   Train <span className="text-white">.</span>
                 </span>
-                <span className="text-3xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-2 md:gap-4">
+                <span className="text-2xl md:text-8xl font-black italic uppercase tracking-tighter text-black flex items-center gap-2 md:gap-4">
                   Repeat <span className="text-white">.</span>
                 </span>
               </div>
               <div className="flex items-center gap-3 md:gap-4 bg-black px-4 md:px-8 py-1 md:py-2 transform -skew-x-12">
-                <span className="text-xl md:text-6xl font-black italic uppercase tracking-tighter text-red-600">
+                <span className="text-lg md:text-6xl font-black italic uppercase tracking-tighter text-red-600">
                   With Alpino Protein Cafe
                 </span>
                 <Zap className="text-white fill-current" size={24} />
@@ -343,7 +344,7 @@ export default function LandingPage() {
               >
                 The Alpino Way
               </motion.div>
-              <h2 className="text-4xl md:text-5xl font-black italic uppercase leading-tight mb-8">
+              <h2 className="text-3xl md:text-5xl font-black italic uppercase leading-tight mb-6">
                 Clean eating shouldn't be a{" "}
                 <span className="text-red-600">struggle.</span>
               </h2>
@@ -416,12 +417,12 @@ export default function LandingPage() {
         className="py-16 md:py-24 bg-black overflow-hidden border-t border-white/5"
       >
         <div className="container mx-auto px-6 mb-12 md:mb-16 relative">
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-red-600/10 blur-[120px] rounded-full" />
+          <div className="absolute -top-24 -left-24 w-64 h-64 md:w-96 md:h-96 bg-red-600/10 blur-[120px] rounded-full" />
           <div className="relative z-10">
-            <h2 className="text-4xl md:text-8xl font-black italic uppercase tracking-tighter mb-4 leading-none text-white/5 absolute -top-4 md:-top-12 left-0 select-none">
+            <h2 className="text-3xl md:text-8xl font-black italic uppercase tracking-tighter mb-4 leading-none text-white/5 absolute -top-2 md:-top-12 left-0 select-none">
               Performance
             </h2>
-            <h2 className="text-2xl md:text-7xl font-black italic uppercase tracking-tighter mb-4 relative">
+            <h2 className="text-3xl md:text-7xl font-black italic uppercase tracking-tighter mb-4 relative">
               The <span className="text-red-600">Alpino</span> Menu
             </h2>
             <p className="text-white/40 text-xs md:text-lg uppercase tracking-[0.1em] md:tracking-[0.4em] font-bold max-w-xl">
@@ -714,7 +715,7 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05 }}
                 className="bg-black px-12 border-2 border-red-600 rounded-2xl py-8 text-center max-w-2xl"
               >
-                <h4 className="text-3xl font-black italic uppercase italic tracking-tighter mb-4">
+                <h4 className="text-2xl md:text-3xl font-black italic uppercase italic tracking-tighter mb-4">
                   Want a Custom Meal Plan?
                 </h4>
                 <p className="text-white/50 mb-8 font-medium">
@@ -723,7 +724,7 @@ export default function LandingPage() {
                 </p>
                 <Link
                   to="/plans"
-                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(220,38,38,0.3)]"
+                  className="inline-block bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transform hover:-translate-y-1"
                 >
                   Get Started Now
                 </Link>
@@ -736,8 +737,8 @@ export default function LandingPage() {
       {/* Plans Section */}
       <section id="plans" className="py-24 bg-neutral-900 overflow-hidden">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl md:text-7xl font-black italic uppercase mb-4">
+          <div className="text-center mb-10 md:mb-16">
+            <h2 className="text-4xl md:text-7xl font-black italic uppercase mb-4">
               Choose Your <span className="text-red-600">Routine</span>
             </h2>
             <div className="flex justify-center gap-4 text-sm font-bold uppercase tracking-widest mb-12">
@@ -760,10 +761,10 @@ export default function LandingPage() {
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="bg-neutral-950 border-4 border-white/5 rounded-[40px] p-10 flex flex-col relative overflow-hidden group/plan shadow-2xl"
             >
-              <motion.div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/plan:opacity-100 transition-all duration-700" />
+              <motion.div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/plan:opacity-100 transition-all duration-700 pointer-events-none" />
               {/* Animated Shimmer */}
               <motion.div
-                className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -skew-x-45"
+                className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -skew-x-45 pointer-events-none"
                 animate={{ left: ["-100%", "200%"] }}
                 transition={{
                   duration: 4,
@@ -772,38 +773,27 @@ export default function LandingPage() {
                   repeatDelay: 2,
                 }}
               />
-              <div className="absolute top-0 right-0 bg-white text-black font-black px-6 py-2 rotate-45 translate-x-8 translate-y-4 uppercase text-xs tracking-widest">
+              <div className="absolute top-0 right-0 bg-white text-black font-black px-6 py-2 rotate-45 translate-x-8 translate-y-4 uppercase text-xs tracking-widest pointer-events-none">
                 Starter
               </div>
-              <h3 className="text-3xl font-black italic uppercase mb-2">
+              <h3 className="text-2xl md:text-3xl font-black italic uppercase mb-2">
                 Trial Plan
               </h3>
               <p className="text-white/50 mb-8 font-medium">
                 5-Day Starter with fixed menu for testing the waters.
               </p>
 
-              <div className="space-y-4 mb-10 flex-grow">
-                {PLANS.filter((p) => p.type === "trial").map((p) => (
-                  <div
-                    key={p.id}
-                    className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5"
-                  >
-                    <div className="font-bold text-sm uppercase tracking-wide">
-                      {p.includes.join(" + ")}
-                    </div>
-                    <div className="text-red-500 font-black text-xl">
-                      ₹{p.price}
-                    </div>
-                  </div>
-                ))}
+              <div className="flex-grow">
+                {/* Removed inline mapped plans */}
               </div>
 
-              <Link
-                to="/plans"
-                className="w-full bg-white text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-neutral-200 transition-colors text-center"
+              <button
+                type="button"
+                onClick={() => setPlanModal('trial')}
+                className="w-full bg-white text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-neutral-200 transition-colors text-center relative z-10"
               >
-                Join Trial
-              </Link>
+                Choose Trial Plan
+              </button>
             </motion.div>
 
             {/* Pro Plan */}
@@ -815,9 +805,9 @@ export default function LandingPage() {
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="bg-red-600 border-4 border-red-500 rounded-[40px] p-10 flex flex-col relative overflow-hidden shadow-[0_0_60px_rgba(220,38,38,0.4)] group/plan"
             >
-              <motion.div className="absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-transparent opacity-0 group-hover/plan:opacity-100 transition-all duration-700" />
+              <motion.div className="absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-transparent opacity-0 group-hover/plan:opacity-100 transition-all duration-700 pointer-events-none" />
               <motion.div
-                className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-45"
+                className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-45 pointer-events-none"
                 animate={{ left: ["-100%", "200%"] }}
                 transition={{
                   duration: 3,
@@ -826,38 +816,27 @@ export default function LandingPage() {
                   repeatDelay: 1,
                 }}
               />
-              <div className="absolute top-0 right-0 bg-black text-white font-black px-6 py-2 rotate-45 translate-x-8 translate-y-4 uppercase text-xs tracking-widest">
+              <div className="absolute top-0 right-0 bg-black text-white font-black px-6 py-2 rotate-45 translate-x-8 translate-y-4 uppercase text-xs tracking-widest pointer-events-none">
                 Elite
               </div>
-              <h3 className="text-3xl font-black italic uppercase mb-2">
+              <h3 className="text-2xl md:text-3xl font-black italic uppercase mb-2 relative z-10">
                 Pro Plan
               </h3>
-              <p className="text-white/80 mb-8 font-medium text-lg">
+              <p className="text-white/80 mb-8 font-medium text-lg relative z-10">
                 20-Day Routine for dedicated athletes and busy professionals.
               </p>
 
-              <div className="space-y-4 mb-10 flex-grow text-black">
-                {PLANS.filter((p) => p.type === "pro").map((p) => (
-                  <div
-                    key={p.id}
-                    className="flex justify-between items-center bg-white p-4 rounded-xl shadow-lg border-2 border-black/5"
-                  >
-                    <div className="font-bold text-sm uppercase tracking-wide">
-                      {p.includes.join(" + ")}
-                    </div>
-                    <div className="text-red-600 font-black text-xl">
-                      ₹{p.price}
-                    </div>
-                  </div>
-                ))}
+              <div className="flex-grow">
+                {/* Removed inline mapped plans */}
               </div>
 
-              <Link
-                to="/plans"
-                className="w-full bg-black text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-neutral-900 transition-colors text-center"
+              <button
+                type="button"
+                onClick={() => setPlanModal('pro')}
+                className="w-full bg-black text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-neutral-900 transition-colors text-center relative z-10"
               >
-                Go Pro Today
-              </Link>
+                Choose Pro Plan
+              </button>
             </motion.div>
           </div>
         </div>
@@ -904,6 +883,78 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+      {/* Plan Details Modal */}
+      <AnimatePresence>
+        {planModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setPlanModal(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className={`relative w-full max-w-lg rounded-3xl p-8 shadow-2xl z-10 border-2 ${
+                planModal === "trial"
+                  ? "bg-neutral-900 border-white/10"
+                  : "bg-red-600 border-red-500"
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => setPlanModal(null)}
+                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center font-black text-xl hover:opacity-50 transition-opacity"
+              >
+                ✕
+              </button>
+
+              <h2 className={`text-3xl font-black italic uppercase mb-2 ${planModal === "trial" ? "text-white" : "text-white"}`}>
+                {planModal === "trial" ? "Trial Plan Details" : "Pro Plan Details"}
+              </h2>
+              <p className={`mb-8 font-medium ${planModal === "trial" ? "text-white/50" : "text-white/80"}`}>
+                {planModal === "trial"
+                  ? "Select your preferred Trial configuration:"
+                  : "Select your preferred Pro configuration:"}
+              </p>
+
+              <div className="space-y-4 mb-10">
+                {PLANS.filter((p) => p.type === planModal).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      sessionStorage.setItem('plan_intent', p.id);
+                      window.location.href = '/plans';
+                    }}
+                    className={`w-full flex justify-between items-center p-4 rounded-xl cursor-pointer hover:scale-[1.02] active:scale-95 transition-all ${
+                      planModal === "trial"
+                        ? "bg-white/5 border border-white/5 hover:border-white/20 hover:bg-white/10"
+                        : "bg-black/10 border-2 border-black/5 shadow-lg hover:border-black/20 hover:bg-black/20"
+                    }`}
+                  >
+                    <div className="font-bold text-sm uppercase tracking-wide text-left text-white">
+                      {p.includes.join(" + ")}
+                    </div>
+                    <div className={`font-black text-xl flex items-center gap-3 ${planModal === "trial" ? "text-red-500" : "text-black"}`}>
+                      ₹{p.price}
+                      <span className={`text-[10px] uppercase tracking-widest px-3 py-1 rounded bg-black/20 ${planModal === "trial" ? "text-white" : "text-white"}`}>Select</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <div className="text-center opacity-50 text-[10px] uppercase tracking-widest font-black hidden">
+                {/* Removed the generic Link below since they can choose above */}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
