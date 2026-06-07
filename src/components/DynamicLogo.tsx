@@ -64,12 +64,6 @@ export default function DynamicLogo({
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
               >
                 <Mountain className="text-white fill-current relative z-10" size={size} />
-                {/* Internal Sweep effect */}
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent -translate-x-full"
-                  animate={{ translateX: ["100%", "-100%"] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
-                />
               </motion.div>
             )}
           </div>

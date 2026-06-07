@@ -256,107 +256,113 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-black text-white p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-8 md:space-y-12">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 border-b border-white/5 pb-8">
-          <div>
-            <div className="flex items-center gap-2 text-red-600 mb-2">
-              <ShieldCheck size={16} md:size={20} />
-              <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em]">System Admin</span>
+        <header className="border-b border-white/5 pb-8 space-y-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 text-red-600 mb-2">
+                <ShieldCheck size={16} md:size={20} />
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em]">System Admin</span>
+              </div>
+              <h1 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter">Command <span className="text-red-600">Center</span></h1>
             </div>
-            <h1 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter">Command <span className="text-red-600">Center</span></h1>
-          </div>
-          
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-end w-full md:w-auto">
-            {!user && (
+            
+            <div className="flex flex-wrap items-center gap-3">
+              {!user && (
+                <button 
+                  onClick={handleAdminLogin}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest text-white shadow-lg"
+                >
+                  <LogIn size={14} /> Full Access Login
+                </button>
+              )}
               <button 
-                onClick={handleAdminLogin}
-                className="flex items-center gap-2 px-6 py-2 bg-red-600 hover:bg-red-700 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-red-600/20"
+                onClick={handleSystemLock}
+                className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-red-600/20 hover:text-red-500 rounded-xl border border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/40"
+                title="Lock Admin Panel"
               >
-                <LogIn size={14} /> Full Access Login
+                <Lock size={14} /> Lock System
               </button>
-            )}
-            <button 
-              onClick={handleSystemLock}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-red-600/20 hover:text-red-500 rounded-xl border border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/40"
-              title="Lock Admin Panel"
-            >
-              <Lock size={14} /> Lock System
-            </button>
-            {(profile?.role !== 'admin') && (
-              <div className="bg-red-600/10 border border-red-600/20 p-4 rounded-2xl flex items-center gap-3 animate-pulse">
-                <ShieldAlert className="text-red-600" size={20} />
-                <div className="text-[10px] font-black uppercase tracking-widest text-red-100">
-                  Write Access Restricted <br/>
-                  <span className="opacity-60">Login as Primary Admin required to save changes.</span>
+              {(profile?.role !== 'admin') && (
+                <div className="bg-red-600/10 border border-red-600/20 p-3 rounded-xl flex items-center gap-2.5 animate-pulse max-w-sm">
+                  <ShieldAlert className="text-red-600 flex-shrink-0" size={16} />
+                  <div className="text-[8px] font-bold uppercase tracking-wider text-red-100">
+                    Write Restricted — Login Required for changes.
+                  </div>
                 </div>
-              </div>
-            )}
-            <Link to="/hub" className="flex items-center gap-2 px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
-              <Zap size={14} /> Systems Hub
-            </Link>
-            <Link to="/" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white">
-              <ExternalLink size={14} className="text-red-600" /> View Live Site
-            </Link>
-            <div className="flex flex-col gap-4 w-full md:w-auto">
-              <div className="flex bg-neutral-900 p-1 rounded-xl border border-white/5 overflow-x-auto no-scrollbar shadow-inner">
-                <button 
-                  onClick={() => setActiveTab('payments')}
-                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap relative ${activeTab === 'payments' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                >
-                  Governance
-                  {pendingPayments.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-white text-red-600 rounded-full flex items-center justify-center text-[8px] font-black animate-bounce border border-red-600">
-                      {pendingPayments.length}
-                    </span>
-                  )}
-                </button>
-                <button 
-                  onClick={() => setActiveTab('images')}
-                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'images' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                >
-                  Assets
-                </button>
-                <button 
-                  onClick={() => setActiveTab('menu')}
-                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'menu' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                >
-                  Menu
-                </button>
-                <button 
-                  onClick={() => setActiveTab('notes')}
-                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'notes' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                >
-                  Records
-                </button>
-              </div>
-              
-              <div className="flex gap-2">
-                <div className="relative group flex-grow">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-red-600 transition-colors" size={14} />
-                  <input 
-                    type="text"
-                    placeholder="LOCATE RECORDS OR USERS..."
-                    className="w-full bg-neutral-900/50 border border-white/5 rounded-2xl pl-12 pr-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] focus:border-red-600 focus:bg-black transition-all outline-none placeholder:text-white/10"
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <button 
-                  onClick={() => fetchData()}
-                  className="flex items-center justify-center p-3.5 bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white rounded-2xl transition-all border border-red-600/20 shadow-lg group"
-                  title="Sync Intelligence"
-                >
-                  <Zap size={16} className={loading ? "animate-pulse" : "group-hover:scale-125 transition-transform"} />
-                </button>
-              </div>
+              )}
+              <Link to="/hub" className="flex items-center gap-2 px-5 py-2.5 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
+                <Zap size={14} /> Systems Hub
+              </Link>
+              <Link to="/" className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white">
+                <ExternalLink size={14} className="text-red-600" /> View Live Site
+              </Link>
             </div>
-            <div className="flex gap-4 w-full md:w-auto self-end">
-              <div className="flex-1 md:min-w-[100px] bg-neutral-900 border border-white/5 p-4 rounded-2xl text-center">
-                  <div className="text-[10px] font-bold uppercase text-white/40 mb-1">Users</div>
-                  <div className="text-xl font-black">{users.length}</div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-center pt-4 border-t border-white/5">
+            {/* Tabs container */}
+            <div className="flex bg-neutral-900 p-1 rounded-xl border border-white/5 overflow-x-auto no-scrollbar shadow-inner w-full">
+              <button 
+                onClick={() => setActiveTab('payments')}
+                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap relative cursor-pointer ${activeTab === 'payments' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+              >
+                Governance
+                {pendingPayments.length > 0 && (
+                  <span className="absolute -top-1 right-1.5 w-3.5 h-3.5 bg-white text-red-600 rounded-full flex items-center justify-center text-[7px] font-black animate-bounce border border-red-600">
+                    {pendingPayments.length}
+                  </span>
+                )}
+              </button>
+              <button 
+                onClick={() => setActiveTab('images')}
+                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'images' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+              >
+                Assets
+              </button>
+              <button 
+                onClick={() => setActiveTab('menu')}
+                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'menu' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+              >
+                Menu
+              </button>
+              <button 
+                onClick={() => setActiveTab('notes')}
+                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'notes' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+              >
+                Records
+              </button>
+            </div>
+
+            {/* Search Input Filter Container */}
+            <div className="flex gap-2 w-full">
+              <div className="relative group flex-grow">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-red-600 transition-colors" size={12} />
+                <input 
+                  type="text"
+                  placeholder="LOCATE RECORDS OR USERS..."
+                  className="w-full bg-neutral-900/50 border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] focus:border-red-600 focus:bg-black transition-all outline-none placeholder:text-white/10"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
               </div>
-              <div className="flex-1 md:min-w-[100px] bg-red-600 p-4 rounded-2xl text-center">
-                  <div className="text-[10px] font-bold uppercase text-black/40 mb-1">Queue</div>
-                  <div className="text-xl font-black">{pendingPayments.length}</div>
+              <button 
+                onClick={() => fetchData()}
+                className="flex items-center justify-center px-3.5 py-2.5 bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white rounded-xl transition-all border border-red-600/20 shadow-lg group cursor-pointer"
+                title="Sync Intelligence"
+              >
+                <Zap size={14} className={loading ? "animate-pulse" : "group-hover:scale-125 transition-transform"} />
+              </button>
+            </div>
+
+            {/* Stats block */}
+            <div className="flex gap-4 w-full md:w-auto">
+              <div className="flex-1 bg-neutral-900 border border-white/5 p-3 rounded-2xl text-center">
+                  <div className="text-[8px] font-black uppercase text-white/40 mb-0.5 tracking-wider">Users</div>
+                  <div className="text-lg font-black">{users.length}</div>
+              </div>
+              <div className="flex-1 bg-red-600 p-3 rounded-2xl text-center">
+                  <div className="text-[8px] font-black uppercase text-black/60 mb-0.5 tracking-wider">Queue</div>
+                  <div className="text-lg font-black text-black">{pendingPayments.length}</div>
               </div>
             </div>
           </div>

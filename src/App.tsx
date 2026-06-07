@@ -71,7 +71,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-black text-white font-sans selection:bg-red-600 selection:text-white">
+      <div className="min-h-screen bg-white text-neutral-900 font-sans selection:bg-red-600 selection:text-white">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/menu" element={<MenuPage />} />

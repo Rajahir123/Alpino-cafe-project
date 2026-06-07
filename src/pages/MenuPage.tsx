@@ -30,6 +30,13 @@ export default function MenuPage() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    document.body.classList.add("theme-light");
+    return () => {
+      document.body.classList.remove("theme-light");
+    };
+  }, []);
+
   const categories = ['All', 'Bowl', 'Smoothies', 'Shake', 'Wrap'];
   
   const filteredItems = activeCategory === 'All' 
@@ -45,7 +52,8 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-red-600 selection:text-white">
+    <div className="theme-light">
+      <div className="min-h-screen bg-black text-white font-sans selection:bg-red-600 selection:text-white">
       {/* Dynamic Background */}
       <div className="fixed inset-0 pointer-events-none opacity-20">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-red-600 rounded-full blur-[120px]" />
@@ -82,14 +90,14 @@ export default function MenuPage() {
         </div>
 
         {/* Menu Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
           {filteredItems.map((item, index) => (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
               key={item.id}
-              className="group bg-neutral-900/40 border border-white/5 rounded-[3rem] overflow-hidden hover:border-red-600/30 transition-all duration-500 flex flex-col h-full"
+              className="group glass-card-light rounded-2xl md:rounded-[3rem] overflow-hidden hover:border-red-600/50 hover:shadow-xl transition-all duration-500 flex flex-col h-full"
             >
               <div className="relative aspect-square overflow-hidden bg-black/40">
                 <AssetImage
@@ -99,36 +107,36 @@ export default function MenuPage() {
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
-                <div className="absolute top-8 right-8">
-                   <div className="bg-red-600 text-white px-4 py-2 rounded-xl font-black italic uppercase tracking-tighter text-xl shadow-2xl">
+                <div className="absolute top-3 right-3 md:top-8 md:right-8">
+                   <div className="bg-red-600 text-white px-2.5 py-1 md:px-4 md:py-2 rounded-lg md:rounded-xl font-black italic uppercase tracking-tighter text-xs md:text-xl shadow-2xl">
                      {item.protein}g P
                    </div>
                 </div>
-                <div className="absolute bottom-8 left-8">
-                   <span className="bg-white/10 backdrop-blur-md text-white/60 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-[0.2em] border border-white/5">
+                <div className="absolute bottom-3 left-3 md:bottom-8 md:left-8">
+                   <span className="bg-white/10 backdrop-blur-md text-white/60 px-2 py-0.5 md:px-3 md:py-1 rounded-md md:rounded-lg text-[7px] md:text-[8px] font-black uppercase tracking-[0.2em] border border-white/5">
                      {item.category}
                    </span>
                 </div>
               </div>
 
-              <div className="p-10 flex-grow flex flex-col">
-                <h3 className="text-2xl font-black italic uppercase leading-none mb-4 group-hover:text-red-600 transition-colors">
+              <div className="p-3 md:p-10 flex-grow flex flex-col">
+                <h3 className="text-sm md:text-2xl font-black italic uppercase leading-none mb-1.5 md:mb-4 group-hover:text-red-600 transition-colors line-clamp-1">
                   {item.name}
                 </h3>
-                <p className="text-white/40 text-sm font-medium leading-relaxed mb-8 flex-grow">
+                <p className="text-white/40 text-[10px] md:text-sm font-medium leading-relaxed mb-3 md:mb-8 flex-grow line-clamp-1 md:line-clamp-2">
                   {item.description}
                 </p>
                 
-                <div className="flex items-center justify-between pt-8 border-t border-white/5">
+                <div className="flex items-center justify-between pt-3 md:pt-8 border-t border-white/5">
                    <div className="flex flex-col">
-                      <span className="text-[8px] font-black uppercase tracking-widest text-white/20">Calories</span>
-                      <span className="text-lg font-black italic">{item.calories} KCAL</span>
+                      <span className="text-[6px] md:text-[8px] font-black uppercase tracking-widest text-white/20">Calories</span>
+                      <span className="text-[10px] md:text-lg font-black italic leading-tight">{item.calories} KCAL</span>
                    </div>
                    <Link 
                      to="/plans"
-                     className="bg-white text-black px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-600 hover:text-white transition-all active:scale-95"
+                     className="bg-white text-black px-3 py-1.5 md:px-6 md:py-3 rounded-lg md:rounded-2xl font-black uppercase tracking-widest text-[8px] md:text-[10px] hover:bg-red-600 hover:text-white transition-all active:scale-95"
                    >
-                     Order Now
+                     Order
                    </Link>
                 </div>
               </div>
@@ -145,6 +153,7 @@ export default function MenuPage() {
              No fillers. No shortcuts. Just industrial-grade nourishment.
            </p>
         </div>
+      </div>
       </div>
     </div>
   );

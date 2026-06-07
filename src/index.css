@@ -6,6 +6,13 @@
   --font-display: "Outfit", sans-serif;
   --font-logo: "Space Grotesk", sans-serif;
 
+  /* Custom requested theme palette */
+  --color-primary: #ffffff;
+  --color-secondary: #dc2626; /* RED */
+  --color-pigeon: #7a8f9d; /* Pigeon Blue-Gray */
+  --color-pigeon-light: #eceff1;
+  --color-pigeon-dark: #374652;
+
   @keyframes shimmer {
     from {
       transform: translateX(-100%);
@@ -19,6 +26,13 @@
 @layer base {
   body {
     @apply bg-black text-white antialiased overflow-x-hidden w-full relative;
+    background-color: #000000;
+    color: #ffffff;
+  }
+
+  body.theme-light {
+    background-color: #ffffff;
+    color: #1a222a;
   }
 
   body::after {
@@ -29,9 +43,146 @@
     width: 100%;
     height: 100%;
     background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
-    opacity: 0.05;
+    opacity: 0.08; /* Slightly more visible dust pattern on white bg */
     pointer-events: none;
     z-index: 9999;
+  }
+
+  /* ------------------ Dynamic Light/Pigeon Palette Scoped ------------------ */
+
+  /* Ultra premium glassmorphism and frosted-glass utility classes for beautiful card accents */
+  .glass-card-light {
+    background: rgba(255, 255, 255, 0.45) !important;
+    backdrop-filter: blur(24px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+    box-shadow: 0 16px 45px 0 rgba(121, 142, 155, 0.12),
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+  }
+
+  .glass-card-red {
+    background: rgba(220, 38, 38, 0.82) !important;
+    backdrop-filter: blur(28px) saturate(180%) brightness(108%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(108%) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 20px 50px 0 rgba(220, 38, 38, 0.32),
+                inset 0 1px 2px 0 rgba(255, 255, 255, 0.4) !important;
+  }
+
+  .glass-badge-red {
+    background: rgba(220, 38, 38, 0.08) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(220, 38, 38, 0.18) !important;
+  }
+
+  .glass-badge-pigeon {
+    background: rgba(122, 143, 157, 0.08) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(122, 143, 157, 0.18) !important;
+  }
+
+  /* The public pages wrapped in .theme-light are rendered in White, Red, and Pigeon Grey */
+  .theme-light {
+    background-color: #ffffff;
+    color: #1a222a;
+  }
+
+  /* Primary clean white backgrounds in light mode */
+  .theme-light .bg-black {
+    background-color: #ffffff !important;
+  }
+  .theme-light .bg-neutral-950 {
+    background-color: #ffffff !important;
+  }
+
+  /* Muted pigeon-light for support rows and cards instead of dark neutral in light mode */
+  .theme-light .bg-neutral-900 {
+    background-color: #f1f4f6 !important; /* Soft pigeon background */
+  }
+  .theme-light .bg-neutral-900\/80 {
+    background-color: rgba(241, 244, 246, 0.8) !important;
+  }
+  .theme-light .bg-neutral-900\/50 {
+    background-color: rgba(241, 244, 246, 0.5) !important;
+  }
+  .theme-light .bg-neutral-900\/40 {
+    background-color: rgba(241, 244, 246, 0.4) !important;
+  }
+  .theme-light .bg-neutral-900\/20 {
+    background-color: rgba(241, 244, 246, 0.2) !important;
+  }
+  
+  /* Slate/Pigeon midtones in light mode */
+  .theme-light .bg-neutral-800 {
+    background-color: #e2e8f0 !important; /* Premium slate gray */
+  }
+  .theme-light .bg-neutral-800\/50 {
+    background-color: rgba(226, 232, 240, 0.5) !important;
+  }
+
+  /* Text color corrections for white & pigeon support in light mode */
+  .theme-light .text-white {
+    color: #1c2730 !important; /* Elegant deep-slate dark gray */
+  }
+  .theme-light .text-white\/90 {
+    color: rgba(28, 39, 48, 0.9) !important;
+  }
+  .theme-light .text-white\/80 {
+    color: rgba(28, 39, 48, 0.8) !important;
+  }
+  .theme-light .text-white\/70 {
+    color: rgba(28, 39, 48, 0.7) !important;
+  }
+  .theme-light .text-white\/60 {
+    color: rgba(28, 39, 48, 0.6) !important;
+  }
+  .theme-light .text-white\/50 {
+    color: rgba(28, 39, 48, 0.5) !important;
+  }
+  .theme-light .text-white\/40 {
+    color: rgba(28, 39, 48, 0.4) !important;
+  }
+  
+  /* Supportive labels now map to a gorgeous pigeon color in light mode */
+  .theme-light .text-white\/30, 
+  .theme-light .text-neutral-400 {
+    color: #7a8f9d !important; /* Pigeon Blue-Gray */
+  }
+  .theme-light .text-white\/20, 
+  .theme-light .text-white\/10, 
+  .theme-light .text-neutral-500 {
+    color: rgba(122, 143, 157, 0.6) !important; /* Muted pigeon color */
+  }
+
+  /* Borders and Dividers mapped to Pigeon accents in light mode */
+  .theme-light .border-white\/5 {
+    border-color: rgba(122, 143, 157, 0.15) !important;
+  }
+  .theme-light .border-white\/10 {
+    border-color: rgba(122, 143, 157, 0.25) !important;
+  }
+  .theme-light .border-white\/20 {
+    border-color: rgba(122, 143, 157, 0.4) !important;
+  }
+  .theme-light .border-neutral-850, 
+  .theme-light .border-neutral-800 {
+    border-color: #cfd8dc !important;
+  }
+
+  /* Maintain standard colors for panels and layouts outside light mode */
+  .text-white {
+    color: #ffffff;
+  }
+  .bg-black {
+    background-color: #000000;
+  }
+  .bg-white {
+    background-color: #ffffff;
+  }
+  .text-black {
+    color: #000000;
   }
 }
 
@@ -40,9 +191,16 @@
     width: 6px;
   }
   .scrollbar-thin::-webkit-scrollbar-track {
-    @apply bg-white/5;
+    background-color: #eceff1;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
     @apply bg-red-600 rounded-full;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none !important;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none !important;  /* IE and Edge */
+    scrollbar-width: none !important;  /* Firefox */
   }
 }

@@ -318,6 +318,26 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
         </div>
       </motion.div>
 
+      {/* Floating Let's Go Button for microsecond redirection */}
+      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-[120]">
+        <motion.button
+          type="button"
+          initial={{ opacity: 0, scale: 0.9, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onFinished?.();
+          }}
+          className="bg-red-600 hover:bg-neutral-900 border-2 border-red-600 hover:border-white/20 text-white px-8 py-4 rounded-full font-black uppercase tracking-[0.25em] text-xs md:text-sm shadow-[0_0_35px_rgba(220,38,38,0.5)] hover:shadow-none transition-all flex items-center gap-3 cursor-pointer select-none"
+        >
+          <span>Let's Go</span>
+          <Zap size={16} className="fill-current animate-pulse text-white" />
+        </motion.button>
+      </div>
+
     </div>
   );
 }

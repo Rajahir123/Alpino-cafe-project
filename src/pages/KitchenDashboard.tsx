@@ -11,6 +11,13 @@ export default function KitchenDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    document.body.classList.add("theme-light");
+    return () => {
+      document.body.classList.remove("theme-light");
+    };
+  }, []);
+
+  useEffect(() => {
     // Listen for today and future orders
     const today = new Date().toISOString().split('T')[0];
     try {
@@ -49,10 +56,15 @@ export default function KitchenDashboard() {
   const todayOrders = activeOrders.filter(o => o.date === todayStr);
   const futureOrders = activeOrders.filter(o => o.date > todayStr);
 
-  if (loading) return <div className="p-20 text-center font-black animate-pulse text-red-600 italic">SYNCING KITCHEN...</div>;
+  if (loading) return (
+    <div className="theme-light">
+      <div className="p-20 text-center font-black animate-pulse text-red-600 italic">SYNCING KITCHEN...</div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 md:p-8 font-sans">
+    <div className="theme-light">
+      <div className="min-h-screen bg-black text-white p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-8 md:space-y-12">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8 border-b border-white/5 pb-8">
           <div>
@@ -173,6 +185,7 @@ export default function KitchenDashboard() {
              </div>
            </section>
         </div>
+      </div>
       </div>
     </div>
   );

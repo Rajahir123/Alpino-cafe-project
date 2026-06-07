@@ -1,13 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
+import { signOut } from 'firebase/auth';
+import { auth, db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, setDoc, Timestamp, onSnapshot } from 'firebase/firestore';
 import { PLANS } from '../constants';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Mountain, Calendar, Target, TrendingUp, Truck, 
-  ChevronRight, Save, Clock, CheckCircle2, ChevronDown, Info, Utensils, Zap, X
+  ChevronRight, Save, Clock, CheckCircle2, ChevronDown, Info, Utensils, Zap, X,
+  LogOut, Home, User, Lock
 } from 'lucide-react';
 import { MenuItem, Order } from '../types';
 import AssetImage from '../components/AssetImage';
@@ -23,6 +25,14 @@ export default function UserDashboard() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showRecipeId, setShowRecipeId] = useState<string | null>(null);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.add("theme-light");
+    return () => {
+      document.body.classList.remove("theme-light");
+    };
+  }, []);
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -141,10 +151,12 @@ export default function UserDashboard() {
   const isLocked = existingOrderForTarget && existingOrderForTarget.status !== 'pending';
 
   if (loading) return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-6">
-       <div className="text-red-600 font-black italic uppercase animate-pulse flex items-center gap-3">
-         <Zap size={24} /> Syncing Intelligence...
-       </div>
+    <div className="theme-light">
+      <div className="min-h-screen bg-black flex items-center justify-center p-6">
+         <div className="text-red-600 font-black italic uppercase animate-pulse flex items-center gap-3">
+           <Zap size={24} /> Syncing Intelligence...
+         </div>
+      </div>
     </div>
   );
 
@@ -157,7 +169,8 @@ export default function UserDashboard() {
   const tomorrowOrder = orders.find(o => o.date === tomorrowDateStr);
 
   return (
-    <div className="min-h-screen bg-black pt-24 pb-20 px-6 font-sans">
+    <div className="theme-light">
+      <div className="min-h-screen bg-black pt-24 pb-20 px-4 sm:px-6 font-sans">
       {profile?.role === 'admin' && (
         <div className="max-w-4xl mx-auto mb-6 flex justify-end">
            <Link to="/kitchen" className="flex items-center gap-2 px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
@@ -165,10 +178,10 @@ export default function UserDashboard() {
            </Link>
         </div>
       )}
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
         
         {/* Welcome Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 md:mb-12">
            <div>
              <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-red-600 mb-2 underline underline-offset-8 decoration-red-600/30">Protocol: Active</div>
              <h1 className="text-3xl md:text-4xl font-black italic uppercase leading-none tracking-tighter">Hey {profile?.name.split(' ')[0]}</h1>
@@ -206,11 +219,9 @@ export default function UserDashboard() {
         </div>
 
         {/* Current Sync Status */}
-        <div className="grid md:grid-cols-2 gap-6">
-           <div className="bg-red-600 p-8 rounded-[2.5rem] shadow-[0_0_50px_rgba(220,38,38,0.2)] text-white flex justify-between items-center relative overflow-hidden group">
-             <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
-               <TrendingUp size={120} />
-             </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="bg-red-600 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_0_50px_rgba(220,38,38,0.2)] text-white flex justify-between items-center relative overflow-hidden group">
+
              <div className="relative z-10">
                <div className="text-[10px] font-black uppercase tracking-[0.3em] text-black/60 mb-2">Today's Arrival</div>
                {todayOrder ? (
@@ -230,10 +241,8 @@ export default function UserDashboard() {
              </div>
            </div>
 
-           <div className="bg-neutral-900 p-8 rounded-[2.5rem] border border-white/5 shadow-xl flex flex-col justify-center group overflow-hidden relative">
-             <div className="absolute -right-4 top-1/2 -translate-y-1/2 opacity-[0.02] group-hover:scale-110 transition-transform duration-700">
-                <Truck size={140} />
-             </div>
+           <div className="bg-neutral-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-white/5 shadow-xl flex flex-col justify-center group overflow-hidden relative">
+
              <div className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 mb-4 relative z-10">Extraction Logistics</div>
              <div className="flex gap-4 items-center relative z-10">
                 <div className="p-4 bg-white/5 rounded-2xl text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all"><Truck size={24} /></div>
@@ -248,11 +257,9 @@ export default function UserDashboard() {
         </div>
 
         {/* Change Recipe Section */}
-        <section className="bg-neutral-900/50 border border-white/10 rounded-[3.5rem] p-8 md:p-12 relative overflow-hidden backdrop-blur-sm">
-          <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-            <Calendar size={200} />
-          </div>
-          <div className="flex flex-col md:flex-row justify-between items-start mb-12 relative z-10 gap-6">
+        <section className="bg-neutral-900/50 border border-white/10 rounded-[2rem] md:rounded-[3.5rem] p-5 sm:p-8 md:p-12 relative overflow-hidden backdrop-blur-sm">
+
+          <div className="flex flex-col md:flex-row justify-between items-start mb-8 md:mb-12 relative z-10 gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-2 h-2 bg-red-600 rounded-full animate-ping" />
@@ -263,10 +270,10 @@ export default function UserDashboard() {
               <p className="text-[10px] md:text-[11px] text-white/40 font-black uppercase tracking-[0.2em] bg-white/5 inline-block px-4 py-2 rounded-xl border border-white/5">Pick before 9 PM — instant kitchen synchronization</p>
             </div>
             
-            <div className="flex bg-black border border-white/10 p-1 rounded-2xl">
+            <div className="flex bg-black border border-white/10 p-1 rounded-2xl w-full md:w-auto">
                <button 
                  onClick={() => setSelectedDay('today')}
-                 className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                 className={`flex-1 md:flex-none px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                    selectedDay === 'today' ? 'bg-red-600 text-white shadow-lg' : 'text-white/30 hover:text-white'
                  }`}
                >
@@ -274,7 +281,7 @@ export default function UserDashboard() {
                </button>
                <button 
                  onClick={() => setSelectedDay('tomorrow')}
-                 className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                 className={`flex-1 md:flex-none px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                    selectedDay === 'tomorrow' ? 'bg-red-600 text-white shadow-lg' : 'text-white/30 hover:text-white'
                  }`}
                >
@@ -283,21 +290,21 @@ export default function UserDashboard() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-10">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2.5 md:gap-4 mb-8 md:mb-10">
              {availableMenu.map((item) => (
                <motion.div 
                  key={item.id}
                  layoutId={`item-${item.id}`}
                  whileTap={!isLocked ? { scale: 0.98 } : {}}
-                 className={`p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] border-2 transition-all relative overflow-hidden group ${
+                 className={`p-3 md:p-6 rounded-xl md:rounded-[1.5rem] border-2 transition-all relative overflow-hidden group ${
                    isLocked ? 'opacity-60 cursor-not-allowed grayscale-[0.5]' : 'cursor-pointer'
-                 } ${
+                 }  ${
                    selectedItem?.id === item.id ? 'border-red-600 bg-red-600/10' : 'border-white/5 bg-black hover:border-white/20'
                  }`}
                  onClick={() => !isLocked && setSelectedItem(item)}
                >
-                  <div className="flex items-center justify-between gap-2 mb-2 relative z-10">
-                    <div className="text-[8px] md:text-[10px] font-black tracking-widest text-white/40 uppercase truncate">{item.category}</div>
+                  <div className="flex items-center justify-between gap-1.5 mb-1.5 md:mb-2 relative z-10">
+                    <div className="text-[7px] md:text-[10px] font-black tracking-widest text-white/40 uppercase truncate">{item.category}</div>
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
@@ -305,14 +312,14 @@ export default function UserDashboard() {
                       }}
                       className="p-1 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-all"
                     >
-                      <Info size={14} />
+                      <Info size={12} className="md:w-3.5 md:h-3.5" />
                     </button>
                   </div>
                   
                   <div 
                     className="relative z-10"
                   >
-                    <div className="w-full aspect-square mb-4 rounded-xl overflow-hidden border border-white/5 bg-neutral-900 group-hover:scale-105 transition-transform duration-500">
+                    <div className="w-full aspect-square mb-2 md:mb-4 rounded-lg md:rounded-xl overflow-hidden border border-white/5 bg-neutral-900 group-hover:scale-105 transition-transform duration-500">
                       <AssetImage 
                         assetName={item.name}
                         fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=200`}
@@ -320,10 +327,10 @@ export default function UserDashboard() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <h3 className="font-black italic uppercase text-[10px] md:text-sm leading-tight mb-2 line-clamp-2 min-h-[2.5em] group-hover:text-red-500 transition-colors">{item.name}</h3>
-                    <div className="flex justify-between items-baseline pt-2 border-t border-white/5">
-                      <span className="text-sm md:text-lg font-black text-red-600 italic tracking-tighter">{item.protein}g</span>
-                      <span className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-widest">Protein</span>
+                    <h3 className="font-black italic uppercase text-[9px] md:text-sm leading-tight mb-1.5 md:mb-2 line-clamp-2 min-h-[2.5em] group-hover:text-red-500 transition-colors">{item.name}</h3>
+                    <div className="flex justify-between items-baseline pt-1.5 md:pt-2 border-t border-white/5">
+                      <span className="text-xs md:text-lg font-black text-red-600 italic tracking-tighter">{item.protein}g</span>
+                      <span className="text-[7px] md:text-[10px] font-black text-white/20 uppercase tracking-widest">Protein</span>
                     </div>
                   </div>
 
@@ -414,12 +421,60 @@ export default function UserDashboard() {
       </div>
 
       {/* Profile/Logout Floating Action */}
-      <div className="fixed bottom-8 right-8 flex flex-col gap-4">
-         <button className="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-xl hover:scale-110 transition-transform">
-           <Mountain size={24} className="fill-current" />
-         </button>
+      <div className="fixed bottom-8 right-8 flex flex-col items-end gap-3 z-50">
+        <AnimatePresence>
+          {showProfileMenu && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              className="bg-neutral-950/95 border border-white/10 rounded-2xl p-5 shadow-2xl w-64 backdrop-blur-md flex flex-col gap-3 text-white"
+            >
+              <div className="border-b border-white/5 pb-3">
+                <div className="text-[10px] font-black uppercase tracking-wider text-red-600 mb-1">Subscriber Identity</div>
+                <div className="text-sm font-black italic uppercase tracking-tight truncate">{profile?.name || 'ALPINO USER'}</div>
+                <div className="text-[10px] text-white/40 truncate">{profile?.email}</div>
+              </div>
+
+              {profile?.planStatus && (
+                <div className="bg-white/5 rounded-xl p-3 flex flex-col">
+                  <div className="text-[9px] font-black uppercase tracking-wider text-white/30">Active Protocol</div>
+                  <div className="text-xs font-black uppercase tracking-widest text-red-500 mt-0.5">{profile.planStatus}</div>
+                  {profile.daysRemaining !== undefined && (
+                    <div className="text-[9px] text-white/40 mt-1 uppercase font-black tracking-wider">
+                      {profile.daysRemaining} Cycles Remaining
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2 mt-1">
+                <Link 
+                  to="/" 
+                  className="flex items-center gap-2 justify-center py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                >
+                  <Home size={12} /> Back to Home
+                </Link>
+                <button 
+                  onClick={() => signOut(auth)}
+                  className="flex items-center gap-2 justify-center py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                >
+                  <LogOut size={12} /> Log Out
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <button 
+          onClick={() => setShowProfileMenu(!showProfileMenu)}
+          className="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-xl hover:scale-110 active:scale-95 transition-all"
+        >
+          {showProfileMenu ? <X size={20} /> : <Mountain size={24} className="fill-current" />}
+        </button>
       </div>
 
+      </div>
     </div>
   );
 }
