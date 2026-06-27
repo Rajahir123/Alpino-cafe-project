@@ -72,55 +72,11 @@ export default function LandingPage() {
         className="bg-black text-white"
       >
       {/* Navbar */}
-      {/* Navbar with Off-White Glass Effect, Graphic Lines, and Round Geometric Shapes */}
       <nav
-        className={`fixed top-3 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] md:w-[calc(100%-3rem)] max-w-7xl z-50 transition-all duration-500 ease-in-out px-5 md:px-10 flex justify-between items-center overflow-hidden rounded-2xl md:rounded-full ${
-          scrolled ? "py-1.5 md:py-3.5" : "py-2.5 md:py-6"
+        className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 px-6 md:px-12 flex justify-between items-center bg-[#fcfbfa]/95 backdrop-blur-md border-b border-neutral-200 shadow-sm ${
+          scrolled ? "py-3" : "py-5"
         }`}
-        style={{
-          background: scrolled 
-            ? "rgba(247, 246, 242, 0.88)" 
-            : "rgba(251, 250, 246, 0.75)",
-          backdropFilter: "blur(28px) saturate(190%)",
-          WebkitBackdropFilter: "blur(28px) saturate(190%)",
-          border: scrolled 
-            ? "1.5px solid rgba(220, 38, 38, 0.12)" 
-            : "1.5px solid rgba(255, 255, 255, 0.75)",
-          boxShadow: scrolled
-            ? "0 15px 35px -5px rgba(121, 142, 155, 0.15), 0 5px 15px -3px rgba(121, 142, 155, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.9)"
-            : "0 10px 25px -10px rgba(121, 142, 155, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.5)",
-        }}
       >
-        {/* Dynamic Graphic Round Vector Shapes & Linear Path Grid Cover */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
-          {/* Subtle horizontal baseline grid line */}
-          <div className="absolute bottom-0 left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-red-600/10 to-transparent" />
-          
-          {/* Left Decorative Intersecting Linear & Round Vector Elements */}
-          <svg className="absolute left-1/4 top-1/2 -translate-y-1/2 w-40 h-10 opacity-15" viewBox="0 0 150 40">
-            <line x1="0" y1="20" x2="150" y2="20" stroke="#DC2626" strokeWidth="1" strokeDasharray="4,4" />
-            <circle cx="75" cy="20" r="14" fill="none" stroke="#DC2626" strokeWidth="1" />
-            <circle cx="75" cy="20" r="4" fill="#DC2626" />
-          </svg>
-
-          {/* Right Floating Ambient Concentric Rings (Round Shapes) */}
-          <div className="absolute right-1/3 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
-            <motion.div 
-              animate={{ scale: [1, 1.1, 1], opacity: [0.12, 0.22, 0.12] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute w-16 h-16 rounded-full border border-red-600/30" 
-            />
-            <motion.div 
-              animate={{ scale: [1.1, 1, 1.1], opacity: [0.1, 0.2, 0.1] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute w-24 h-24 rounded-full border border-neutral-400/20" 
-            />
-          </div>
-
-          {/* Decorative Fine Horizontal Accent Track */}
-          <div className="absolute top-[3px] left-1/2 -translate-x-1/2 w-32 h-[2px] bg-gradient-to-r from-transparent via-red-600/30 to-transparent rounded-full" />
-        </div>
-
         <Link
           to="/"
           className="hover:opacity-90 transition-all duration-500 flex-shrink-0 flex items-center relative h-10 md:h-12 z-10"
