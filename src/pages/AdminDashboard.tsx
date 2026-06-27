@@ -15,19 +15,31 @@ import { auth as firebaseAuth, googleProvider } from '../lib/firebase';
 export default function AdminDashboard() {
   const { profile, user } = useAuth();
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
+
+  const handleSystemLock = () => {
+    localStorage.removeItem('alpino_admin_authorized');
+    window.location.reload();
+  };
+
+  const handleAdminLogin = async () => {
+    try {
+      await signInWithPopup(firebaseAuth, googleProvider);
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [notes, setNotes] = useState<{id: string, text: string, createdAt: any}[]>([]);
   const [paymentBarcode, setPaymentBarcode] = useState('');
   const [loading, setLoading] = useState(true);
   
-  const [selectedMenuItemIds, setSelectedMenuItemIds] = useState<Set<string>>(new Set());
-  const [isMenuSelectMode, setIsMenuSelectMode] = useState(false);
-  const [approvingId, setApprovingId] = useState<string | null>(null);
-  
   // Persisted variables
   const [searchTerm, setSearchTerm] = usePersistedState('admin_search', '');
   const [activeTab, setActiveTab] = usePersistedState<'payments' | 'images' | 'menu' | 'notes'>('admin_tab', 'payments');
+  
+  const [selectedMenuItemIds, setSelectedMenuItemIds] = useState<Set<string>>(new Set());
+  const [isMenuSelectMode, setIsMenuSelectMode] = useState(false);
   
   // Menu Item Form State
   const [newItem, setNewItem] = usePersistedState<Partial<MenuItem>>('admin_new_item', { 
@@ -63,6 +75,7 @@ export default function AdminDashboard() {
       setNotes(notesSnap.docs.map(d => ({ id: d.id, ...d.data() } as any)).sort((a,b) => b.createdAt?.seconds - a.createdAt?.seconds));
     } catch (error: any) {
       console.error("Data fetch failed:", error);
+      // We don't throw here to avoid crashing the UI
     } finally {
       setLoading(false);
     }
@@ -72,18 +85,7 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
-  const handleSystemLock = () => {
-    localStorage.removeItem('alpino_admin_authorized');
-    window.location.reload();
-  };
-
-  const handleAdminLogin = async () => {
-    try {
-      await signInWithPopup(firebaseAuth, googleProvider);
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
-  };
+  const [approvingId, setApprovingId] = useState<string | null>(null);
 
   const handleApprove = async (payment: PaymentRecord) => {
     const plan = PLANS.find(p => p.id === payment.planId);
