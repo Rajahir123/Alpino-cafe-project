@@ -248,7 +248,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const pendingPayments = payments.filter(p => p.status === 'submitted');
+  const pendingPayments = payments.filter(p => p.status === 'pending');
   const filteredUsers = users.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()));
 
   if (loading) return <div className="p-20 text-center font-black animate-pulse text-red-600 italic uppercase">Syncing CAFE COMMAND...</div>;

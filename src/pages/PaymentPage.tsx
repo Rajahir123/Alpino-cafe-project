@@ -38,7 +38,7 @@ export default function PaymentPage() {
         // Sort by newest
         const docs = snap.docs.sort((a,b) => b.data().createdAt.seconds - a.data().createdAt.seconds);
         const data = docs[0].data();
-        if (data.status === 'submitted') {
+        if (data.status === 'pending' || data.status === 'submitted') {
           setSubmitted(true);
         } else if (data.status === 'rejected') {
           setSubmitted(false);
@@ -68,7 +68,7 @@ export default function PaymentPage() {
         amount: selectedPlan?.price,
         transactionId: transactionId,
         screenshotUrl: screenshotUrl || 'https://via.placeholder.com/400?text=Screenshot+Pending',
-        status: 'submitted',
+        status: 'pending',
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now()
       });
