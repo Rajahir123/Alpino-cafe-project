@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Zap, Target, Clock, Star, Info } from "lucide-react";
 import { MENU_ITEMS, PLANS, LANDING_PAGE_ITEM_NAMES } from "../constants";
-import { db } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
 import { collection, onSnapshot, query } from "firebase/firestore";
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { MenuItem } from "../types";
 import { useAuth } from "../hooks/useAuth";
 import DynamicLogo from "../components/DynamicLogo";
@@ -18,6 +19,15 @@ export default function LandingPage() {
   const [firestoreItems, setFirestoreItems] = useState<MenuItem[]>([]);
   const [tappedItemId, setTappedItemId] = useState<string | null>(null);
   const [planModal, setPlanModal] = useState<"trial" | "pro" | null>(null);
+
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
 
   useEffect(() => {
     const q = query(collection(db, "menu"));
@@ -154,6 +164,17 @@ export default function LandingPage() {
         </Link>
 
         <div className="flex gap-2 md:gap-3 items-center relative z-10">
+          {!user && (
+            <button
+              onClick={handleGoogleLogin}
+              className={`bg-white/40 flex items-center gap-2 hover:bg-white/80 text-neutral-800 rounded-xl text-[9px] md:text-xs font-black uppercase tracking-[0.2em] transition-all border border-neutral-200 hover:border-red-600/30 cursor-pointer ${
+                scrolled ? "px-3 md:px-4 py-1.5 md:py-2" : "px-4 md:px-5 py-2 md:py-2.5"
+              }`}
+            >
+              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-3 h-3 md:w-4 md:h-4" />
+              Sign in with Google
+            </button>
+          )}
           <Link
             to={user ? "/dashboard" : "/login"}
             className={`bg-white/40 hover:bg-white/80 text-neutral-800 rounded-xl text-[9px] md:text-xs font-black uppercase tracking-[0.2em] transition-all border border-neutral-200 hover:border-red-600/30 cursor-pointer ${
