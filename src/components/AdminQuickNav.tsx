@@ -17,7 +17,7 @@ export default function AdminQuickNav() {
     <motion.div 
       initial={{ y: 50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-[9999] bg-white/80 backdrop-blur-2xl border border-white/50 p-1.5 md:p-2 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.2)] flex items-center gap-1 pointer-events-auto"
+      className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[100] bg-white/70 backdrop-blur-xl border border-white/50 p-1.5 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.1)] flex items-center gap-0.5"
     >
       <div className="px-3 py-1.5 flex items-center gap-1.5 border-r border-black/10 mr-1 ml-1">
         <Zap size={12} className="text-red-600 fill-current" />

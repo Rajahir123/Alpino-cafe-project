@@ -248,7 +248,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const pendingPayments = payments.filter(p => p.status === 'pending');
+  const pendingPayments = payments.filter(p => p.status === 'submitted');
   const filteredUsers = users.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()));
 
   if (loading) return <div className="p-20 text-center font-black animate-pulse text-red-600 italic uppercase">Syncing CAFE COMMAND...</div>;
@@ -290,12 +290,6 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               )}
-              <Link to="/kitchen" className="flex items-center gap-2 px-5 py-2.5 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
-                <Utensils size={14} /> Kitchen
-              </Link>
-              <Link to="/user-view" className="flex items-center gap-2 px-5 py-2.5 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
-                <LayoutDashboard size={14} /> User View
-              </Link>
               <Link to="/hub" className="flex items-center gap-2 px-5 py-2.5 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
                 <Zap size={14} /> Systems Hub
               </Link>

@@ -82,8 +82,8 @@ function App() {
             path="/dashboard" 
             element={
               user ? (
-                profile?.role === 'admin' ? <Navigate to="/admin" /> : 
-                profile?.role === 'kitchen' ? <Navigate to="/kitchen" /> : 
+                profile?.role === 'admin' ? <AdminDashboard /> : 
+                profile?.role === 'kitchen' ? <KitchenDashboard /> : 
                 (!profile?.phone || !profile?.address) ? <Navigate to="/setup" /> :
                 profile?.planStatus === 'none' ? <Navigate to="/plans" /> :
                 (profile?.planStatus === 'pending' || profile?.planStatus === 'rejected') ? <PaymentPage /> :
