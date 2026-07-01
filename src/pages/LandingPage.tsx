@@ -156,7 +156,7 @@ export default function LandingPage() {
         <div className="flex gap-2 md:gap-3 items-center relative z-10">
           <Link
             to={user ? "/dashboard" : "/login"}
-            className={`hidden md:block bg-white/40 hover:bg-white/80 text-neutral-800 rounded-xl text-[9px] md:text-xs font-black uppercase tracking-[0.2em] transition-all border border-neutral-200 hover:border-red-600/30 cursor-pointer ${
+            className={`bg-white/40 hover:bg-white/80 text-neutral-800 rounded-xl text-[9px] md:text-xs font-black uppercase tracking-[0.2em] transition-all border border-neutral-200 hover:border-red-600/30 cursor-pointer ${
               scrolled ? "px-3 md:px-4 py-1.5 md:py-2" : "px-4 md:px-5 py-2 md:py-2.5"
             }`}
           >
