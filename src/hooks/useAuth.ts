@@ -38,7 +38,13 @@ export function useAuth() {
             await setDoc(userRef, newProfile);
             setProfile(newProfile);
           } else {
-            setProfile(userSnap.data() as UserProfile);
+            const data = userSnap.data() as UserProfile;
+            // Force admin for specific email even if document already exists
+            if (firebaseUser.email === 'denyteny123@gmail.com' && data.role !== 'admin') {
+              data.role = 'admin';
+              await setDoc(userRef, { role: 'admin' }, { merge: true });
+            }
+            setProfile(data);
           }
         } catch (error) {
           handleFirestoreError(error, OperationType.GET, `users/${firebaseUser.uid}`);
