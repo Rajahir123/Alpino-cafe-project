@@ -38,6 +38,7 @@ export default function AdminDashboard() {
   // Persisted variables
   const [searchTerm, setSearchTerm] = usePersistedState('admin_search', '');
   const [activeTab, setActiveTab] = usePersistedState<'payments' | 'images' | 'menu' | 'notes' | 'users'>('admin_tab', 'payments');
+  const [viewingScreenshot, setViewingScreenshot] = useState<string | null>(null);
   
   const [selectedMenuItemIds, setSelectedMenuItemIds] = useState<Set<string>>(new Set());
   const [isMenuSelectMode, setIsMenuSelectMode] = useState(false);
@@ -424,14 +425,12 @@ export default function AdminDashboard() {
                                  </div>
                                )}
                                {payment.screenshotUrl && (
-                                 <a 
-                                   href={payment.screenshotUrl} 
-                                   target="_blank" 
-                                   rel="noopener noreferrer"
+                                 <button 
+                                   onClick={() => setViewingScreenshot(payment.screenshotUrl)}
                                    className="mt-2 inline-flex items-center gap-1 text-[9px] font-black uppercase text-red-600 hover:text-white transition-colors"
                                  >
                                    <ExternalLink size={10} /> View Screenshot
-                                 </a>
+                                 </button>
                                )}
                             </div>
                          </div>
@@ -834,6 +833,26 @@ export default function AdminDashboard() {
           <ImageManagement />
         )}
       </div>
+
+      {/* Screenshot Modal */}
+      {viewingScreenshot && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm" onClick={() => setViewingScreenshot(null)}>
+          <div className="relative max-w-4xl max-h-[90vh] w-full flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <button 
+              onClick={() => setViewingScreenshot(null)}
+              className="absolute -top-12 right-0 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-full transition-all"
+            >
+              <X size={24} />
+            </button>
+            <img 
+              src={viewingScreenshot} 
+              alt="Payment Screenshot" 
+              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-white/10"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -202,7 +202,53 @@ export default function PaymentPage() {
                            setScreenshotUrl(data.url);
                          } catch (error: any) {
                            console.error('Upload failed:', error);
-                           alert(`Upload failed: ${error.message}. Please check Vercel Blob configuration (Protocol Rejection).`);
+                           // Fallback 2: Compress and store as base64 data URL
+                           try {
+                             const compressedDataUrl = await new Promise<string>((resolve, reject) => {
+                               const reader = new FileReader();
+                               reader.onload = (e) => {
+                                 const img = new Image();
+                                 img.onload = () => {
+                                   const canvas = document.createElement('canvas');
+                                   let width = img.width;
+                                   let height = img.height;
+                                   const maxDim = 800;
+                                   
+                                   if (width > height && width > maxDim) {
+                                     height = Math.round((height * maxDim) / width);
+                                     width = maxDim;
+                                   } else if (height > maxDim) {
+                                     width = Math.round((width * maxDim) / height);
+                                     height = maxDim;
+                                   }
+                                   
+                                   canvas.width = width;
+                                   canvas.height = height;
+                                   const ctx = canvas.getContext('2d');
+                                   if (ctx) {
+                                     ctx.drawImage(img, 0, 0, width, height);
+                                     resolve(canvas.toDataURL('image/jpeg', 0.6));
+                                   } else {
+                                     reject(new Error('Canvas context not available'));
+                                   }
+                                 };
+                                 img.onerror = () => reject(new Error('Failed to load image for compression'));
+                                 if (e.target?.result) {
+                                   img.src = e.target.result as string;
+                                 } else {
+                                   reject(new Error('FileReader result is null'));
+                                 }
+                               };
+                               reader.onerror = () => reject(new Error('FileReader failed'));
+                               reader.readAsDataURL(file);
+                             });
+                             
+                             setScreenshotUrl(compressedDataUrl);
+                             // Silently succeed
+                           } catch (compressError: any) {
+                             console.error('Compression failed:', compressError);
+                             alert(`Upload completely failed. Storage error: ${error.message}. Local error: ${compressError.message}`);
+                           }
                          } finally {
                            setUploading(false);
                          }
