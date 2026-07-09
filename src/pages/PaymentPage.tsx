@@ -182,9 +182,82 @@ export default function PaymentPage() {
                            await uploadBytes(storageRef, file);
                            const downloadURL = await getDownloadURL(storageRef);
                            setScreenshotUrl(downloadURL);
-                         } catch (error) {
+                         } catch (error: any) {
                            console.error('Upload failed:', error);
-                           alert('Failed to upload image. Please try again.');
+                           if (error.code === 'storage/retry-limit-exceeded' || error.message?.includes('retry-limit-exceeded')) {
+                              try {
+                                const base64 = await new Promise<string>((resolve) => {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    const base64String = reader.result as string;
+                                    resolve(base64String.split(',')[1]);
+                                  };
+                                  reader.readAsDataURL(file);
+                                });
+                                const response = await fetch('/api/upload-blob', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    filename: `payments/${profile.uid}_${Date.now()}_${file.name}`,
+                                    contentType: file.type,
+                                    data: base64
+                                  })
+                                });
+                                if (!response.ok) throw new Error('Vercel Blob upload failed');
+                                const data = await response.json();
+                                setScreenshotUrl(data.url);
+                                alert('Upload successful (used alternative storage)');
+                                return; // Success, skip the final error alert
+                              } catch (blobError) {
+                                console.error('Fallback upload failed:', blobError);
+                                // Fallback 2: Compress and store as base64 data URL
+                                try {
+                                  const compressedDataUrl = await new Promise<string>((resolve, reject) => {
+                                    const reader = new FileReader();
+                                    reader.onload = (e) => {
+                                      const img = new Image();
+                                      img.onload = () => {
+                                        const canvas = document.createElement('canvas');
+                                        let width = img.width;
+                                        let height = img.height;
+                                        const maxDim = 800;
+                                        
+                                        if (width > height && width > maxDim) {
+                                          height = Math.round((height * maxDim) / width);
+                                          width = maxDim;
+                                        } else if (height > maxDim) {
+                                          width = Math.round((width * maxDim) / height);
+                                          height = maxDim;
+                                        }
+                                        
+                                        canvas.width = width;
+                                        canvas.height = height;
+                                        const ctx = canvas.getContext('2d');
+                                        if (ctx) {
+                                          ctx.drawImage(img, 0, 0, width, height);
+                                          resolve(canvas.toDataURL('image/jpeg', 0.6));
+                                        } else {
+                                          reject(new Error('Canvas context not available'));
+                                        }
+                                      };
+                                      img.onerror = reject;
+                                      img.src = e.target?.result as string;
+                                    };
+                                    reader.onerror = reject;
+                                    reader.readAsDataURL(file);
+                                  });
+                                  
+                                  setScreenshotUrl(compressedDataUrl);
+                                  alert('Upload successful (used local compression)');
+                                  return;
+                                } catch (compressError) {
+                                  console.error('Compression failed:', compressError);
+                                  alert('Firebase Storage is unconfigured and fallback upload also failed. Protocol Rejection.');
+                                }
+                              }
+                           } else {
+                             alert(error.message || 'Failed to upload image. Please try again. Protocol Rejection.');
+                           }
                          } finally {
                            setUploading(false);
                          }
