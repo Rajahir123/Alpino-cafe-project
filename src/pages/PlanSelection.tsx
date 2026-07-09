@@ -44,29 +44,41 @@ export default function PlanSelection() {
       setSaving(true);
       // Set plan selection and status to pending
       const userRef = doc(db, 'users', profile.uid);
-      await updateDoc(userRef, {
-        planId: planId,
-        planStatus: 'pending',
-        updatedAt: Timestamp.now()
-      });
+      try {
+        await updateDoc(userRef, {
+          planId: planId,
+          planStatus: 'pending',
+          updatedAt: Timestamp.now()
+        });
+      } catch (err) {
+        handleFirestoreError(err, OperationType.WRITE, 'Plan Selection Action (User Update)');
+      }
 
       // Create a payment record
       const selectedPlan = PLANS.find(p => p.id === planId);
       const paymentId = `pay_${Date.now()}`;
       const paymentRef = doc(db, 'payments', paymentId);
-      await setDoc(paymentRef, {
-        id: paymentId,
-        userId: profile.uid,
-        userName: profile.name,
-        userEmail: profile.email,
-        planId: planId,
-        planName: selectedPlan?.name,
-        amount: selectedPlan?.price,
-        status: 'pending',
-        createdAt: Timestamp.now()
-      });
+      try {
+        await setDoc(paymentRef, {
+          id: paymentId,
+          userId: profile.uid,
+          userName: profile.name,
+          userEmail: profile.email,
+          planId: planId,
+          planName: selectedPlan?.name || 'Unknown',
+          amount: selectedPlan?.price || 0,
+          status: 'pending',
+          createdAt: Timestamp.now()
+        });
+      } catch (err) {
+        handleFirestoreError(err, OperationType.WRITE, 'Plan Selection Action (Payment Create)');
+      }
 
-      navigate('/payment');
+      if (!profile.phone || !profile.address || !profile.gender || !profile.primaryGoal) {
+        navigate('/setup');
+      } else {
+        navigate('/payment');
+      }
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, 'Plan Selection Action');
     } finally {
@@ -117,7 +129,7 @@ export default function PlanSelection() {
                    onClick={() => handleSelectPlan(plan.id)}
                  >
                    <div className="relative z-10">
-                     <h3 className="font-black uppercase tracking-wider text-white/80 group-hover:text-white transition-colors mb-1 md:mb-2 italic text-xs md:text-sm">{plan.name.split(':')[1].trim()}</h3>
+                     <h3 className="font-black uppercase tracking-wider text-white/80 group-hover:text-white transition-colors mb-1 md:mb-2 italic text-xs md:text-sm">{plan.name.includes('—') ? plan.name.split('—')[1]?.trim() : plan.name}</h3>
                      <div className="flex items-center gap-2 md:gap-3">
                         <div className="flex -space-x-1">
                           {plan.includes.map(inc => (
@@ -160,7 +172,7 @@ export default function PlanSelection() {
                      <Fuel size={80} className="md:w-[120px] md:h-[120px]" />
                    </div>
                    <div className="relative z-10">
-                     <h3 className="font-black uppercase tracking-wider text-white group-hover:text-red-600 transition-colors mb-1 md:mb-2 italic text-xs md:text-lg">{plan.name.split(':')[1].trim()}</h3>
+                     <h3 className="font-black uppercase tracking-wider text-white group-hover:text-red-600 transition-colors mb-1 md:mb-2 italic text-xs md:text-lg">{plan.name.includes('—') ? plan.name.split('—')[1]?.trim() : plan.name}</h3>
                      <div className="flex items-center gap-2 md:gap-3">
                         <div className="px-1.5 py-0.5 md:px-2 md:py-1 bg-white/20 rounded-md">
                           <Check size={8} className="text-white md:w-2.5 md:h-2.5" />

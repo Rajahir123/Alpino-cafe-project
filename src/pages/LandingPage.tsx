@@ -5,7 +5,7 @@ import { ChevronRight, Zap, Target, Clock, Star, Info } from "lucide-react";
 import { MENU_ITEMS, PLANS, LANDING_PAGE_ITEM_NAMES } from "../constants";
 import { auth, db } from "../lib/firebase";
 import { collection, onSnapshot, query } from "firebase/firestore";
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { MenuItem } from "../types";
 import { useAuth } from "../hooks/useAuth";
 import DynamicLogo from "../components/DynamicLogo";
@@ -26,6 +26,14 @@ export default function LandingPage() {
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Login failed:", error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   };
 
@@ -183,6 +191,16 @@ export default function LandingPage() {
           >
             {user ? "Dashboard" : "Admin Login"}
           </Link>
+          {user && (
+            <button
+              onClick={handleLogout}
+              className={`bg-white/40 hover:bg-white/80 text-neutral-800 rounded-xl text-[9px] md:text-xs font-black uppercase tracking-[0.2em] transition-all border border-neutral-200 hover:border-red-600/30 cursor-pointer ${
+                scrolled ? "px-3 md:px-4 py-1.5 md:py-2" : "px-4 md:px-5 py-2 md:py-2.5"
+              }`}
+            >
+              Logout
+            </button>
+          )}
           <Link
             to={user ? "/dashboard" : "/plans"}
             className={`bg-red-600 hover:bg-neutral-900 hover:text-white text-white rounded-xl text-[9px] md:text-xs font-black uppercase tracking-[0.2em] transition-all shadow-[0_4px_25px_rgba(220,38,38,0.3)] hover:scale-[1.03] active:scale-95 cursor-pointer ${

@@ -27,7 +27,7 @@ service cloud.firestore {
 
     function isAdmin() {
       return isSignedIn() && (
-        request.auth.token.email == 'denyteny123@gmail.com' ||
+        request.auth.token.get('email', '') == 'denyteny123@gmail.com' ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
       );
@@ -64,14 +64,14 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin() || isKitchen();
-      allow list: if request.auth.token.email == 'denyteny123@gmail.com' || isAdmin();
+      allow list: if request.auth.token.get('email', '') == 'denyteny123@gmail.com' || isAdmin();
       allow create: if isOwner(userId) && isValidUser(incoming()) && (
         incoming().role == 'user' || 
-        (incoming().role == 'admin' && request.auth.token.email == 'denyteny123@gmail.com')
+        (incoming().role == 'admin' && request.auth.token.get('email', '') == 'denyteny123@gmail.com')
       );
       allow update: if (isOwner(userId) || isAdmin()) && (
         // Action: Update Profile (User) - Restricted to non-sensitive fields
-        (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'address', 'proteinGoal', 'planId', 'updatedAt', 'avgProtein', 'drafts'])) ||
+        (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'address', 'gender', 'occupation', 'primaryGoal', 'workoutFrequency', 'mealPreference', 'foodAllergies', 'consumptionMethod', 'preferredTimeSlot', 'upgradeMeals', 'socialMediaFeature', 'fitnessTips', 'heardAboutUs', 'startDate', 'proteinGoal', 'planId', 'planStatus', 'updatedAt', 'avgProtein', 'drafts'])) ||
         // Action: Admin adjustments - Admin can change anything
         (isAdmin())
       );
@@ -124,16 +124,14 @@ service cloud.firestore {
 
     // --- Payments ---
     function isValidPayment(data) {
-      return data.keys().hasAll(['userId', 'amount', 'planId', 'status']) &&
-             data.userId == request.auth.uid &&
-             data.amount is number &&
-             data.status == 'pending';
+      return data.userId == request.auth.uid &&
+             (data.status == 'pending' || data.status == 'submitted');
     }
 
     match /payments/{paymentId} {
       allow get: if isOwner(resource.data.userId) || isAdmin();
       allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow create: if isEmailVerified() && isValidPayment(incoming());
+      allow create: if isSignedIn() && isValidPayment(incoming());
       allow update: if isAdmin() && incoming().status in ['approved', 'rejected'];
     }
 

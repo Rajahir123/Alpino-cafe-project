@@ -43,12 +43,23 @@ export function usePersistedState<T>(panelId: string, initialState: T) {
 
     const timeout = setTimeout(async () => {
       if (user) {
+        let sanitizedData = state;
+        if (state && typeof state === 'object' && !Array.isArray(state)) {
+          sanitizedData = Object.fromEntries(
+            Object.entries(state as Record<string, any>).filter(([_, v]) => v !== undefined)
+          ) as T;
+        }
+
         const draftRef = doc(db, 'users', user.uid, 'drafts', panelId);
-        await setDoc(draftRef, {
-          panelId,
-          data: state,
-          updatedAt: Timestamp.now()
-        });
+        try {
+          await setDoc(draftRef, {
+            panelId,
+            data: sanitizedData,
+            updatedAt: Timestamp.now()
+          });
+        } catch (err) {
+          console.error("Error saving draft:", err);
+        }
       } else {
         localStorage.setItem(`draft_${panelId}`, JSON.stringify(state));
       }

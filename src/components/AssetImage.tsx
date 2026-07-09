@@ -44,7 +44,7 @@ export default function AssetImage({ assetName, fallbackUrl, alt, className = ""
         </div>
       )}
       <img 
-        src={url} 
+        src={url || undefined} 
         alt={alt} 
         onLoad={() => setLoading(false)}
         onError={(e) => {

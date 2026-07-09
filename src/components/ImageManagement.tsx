@@ -115,7 +115,11 @@ export default function ImageManagement() {
       setAssetName('');
       fetchData();
     } catch (error: any) {
-      alert(error.message || 'Error saving asset');
+      if (error.code === 'storage/retry-limit-exceeded' || error.message?.includes('retry-limit-exceeded')) {
+        alert('Firebase Storage error: The bucket is not configured or you do not have permission. Please enable Firebase Storage in the console, or use Vercel Blob instead.');
+      } else {
+        alert(error.message || 'Error saving asset');
+      }
       handleFirestoreError(error, OperationType.WRITE, `assets ${assetMode} upload`);
     } finally {
       setUploading(false);
@@ -152,7 +156,11 @@ export default function ImageManagement() {
       else setLoadingUrl(url);
       alert(`${isLogo ? 'Logo' : isVideo ? 'Loading video' : 'Loading interface'} uploaded to ${mode === 'blob' ? 'Vercel' : 'Firebase'} successfully!`);
     } catch (error: any) {
-      alert(error.message || 'Upload failed');
+      if (error.code === 'storage/retry-limit-exceeded' || error.message?.includes('retry-limit-exceeded')) {
+        alert('Firebase Storage error: The bucket is not configured or you do not have permission. Please enable Firebase Storage in the console, or use Vercel Blob instead.');
+      } else {
+        alert(error.message || 'Upload failed');
+      }
       handleFirestoreError(error, OperationType.WRITE, `${field} ${mode} upload`);
     } finally {
       if (isLogo) setLogoLoading(false);

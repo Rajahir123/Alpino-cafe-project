@@ -7,6 +7,7 @@ import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Check, X, ShieldCheck, ShieldAlert, Users, CreditCard, LayoutDashboard, Search, Image as ImageIcon, Utensils, Plus, Trash2, Save, History, FileText, Zap, ExternalLink, Lock, LogIn } from 'lucide-react';
 import ImageManagement from '../components/ImageManagement';
+import CustomerTable from '../components/CustomerTable';
 import { usePersistedState } from '../hooks/usePersistedState';
 import { useAuth } from '../hooks/useAuth';
 import { signInWithPopup } from 'firebase/auth';
@@ -36,7 +37,7 @@ export default function AdminDashboard() {
   
   // Persisted variables
   const [searchTerm, setSearchTerm] = usePersistedState('admin_search', '');
-  const [activeTab, setActiveTab] = usePersistedState<'payments' | 'images' | 'menu' | 'notes'>('admin_tab', 'payments');
+  const [activeTab, setActiveTab] = usePersistedState<'payments' | 'images' | 'menu' | 'notes' | 'users'>('admin_tab', 'payments');
   
   const [selectedMenuItemIds, setSelectedMenuItemIds] = useState<Set<string>>(new Set());
   const [isMenuSelectMode, setIsMenuSelectMode] = useState(false);
@@ -248,8 +249,10 @@ export default function AdminDashboard() {
     }
   };
 
-  const pendingPayments = payments.filter(p => p.status === 'pending');
-  const filteredUsers = users.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()));
+  const pendingPayments = payments.filter(p => p.status === 'submitted');
+  const filteredUsers = users
+    .filter(u => u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || u.email?.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
   if (loading) return <div className="p-20 text-center font-black animate-pulse text-red-600 italic uppercase">Syncing CAFE COMMAND...</div>;
 
@@ -330,6 +333,12 @@ export default function AdminDashboard() {
                 className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'menu' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
               >
                 Menu
+              </button>
+              <button 
+                onClick={() => setActiveTab('users')}
+                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'users' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+              >
+                Users
               </button>
               <button 
                 onClick={() => setActiveTab('notes')}
@@ -586,7 +595,7 @@ export default function AdminDashboard() {
                     <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Category</label>
                     <select 
                       className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none transition-all appearance-none"
-                      value={newItem.category}
+                      value={newItem.category || 'Bowl'}
                       onChange={e => setNewItem({...newItem, category: e.target.value as any})}
                     >
                       <option value="Bowl">Bowl</option>
@@ -601,7 +610,7 @@ export default function AdminDashboard() {
                     <input 
                       type="number" 
                       className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
-                      value={newItem.price}
+                      value={newItem.price ?? ''}
                       onChange={e => setNewItem({...newItem, price: Number(e.target.value)})}
                     />
                   </div>
@@ -631,7 +640,7 @@ export default function AdminDashboard() {
                     <input 
                       type="number" 
                       className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
-                      value={newItem.protein}
+                      value={newItem.protein ?? ''}
                       onChange={e => setNewItem({...newItem, protein: Number(e.target.value)})}
                     />
                   </div>
@@ -641,7 +650,7 @@ export default function AdminDashboard() {
                     <input 
                       type="number" 
                       className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
-                      value={newItem.calories}
+                      value={newItem.calories ?? ''}
                       onChange={e => setNewItem({...newItem, calories: Number(e.target.value)})}
                     />
                   </div>
@@ -718,7 +727,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center overflow-hidden border border-white/5 relative">
                            {(item.spinningImage || item.image) ? (
-                             <img src={item.spinningImage || item.image || ''} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                             <img src={item.spinningImage || item.image || undefined} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                            ) : (
                              <Utensils className="text-white/10" size={24} />
                            )}
@@ -804,6 +813,22 @@ export default function AdminDashboard() {
                  </div>
                ))}
             </section>
+          </main>
+        ) : activeTab === 'users' ? (
+          <main className="space-y-12">
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-black italic uppercase flex items-center gap-3">
+                <Users className="text-red-600" /> Customer <span className="text-red-600">Database</span>
+              </h2>
+              <span className="text-[10px] font-black uppercase text-white/20 tracking-widest">{filteredUsers.length} REGISTERED</span>
+            </div>
+            {filteredUsers.length === 0 ? (
+              <div className="bg-neutral-900/50 border border-white/5 p-12 rounded-[3rem] text-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">No users found.</p>
+              </div>
+            ) : (
+              <CustomerTable users={users} searchTerm={searchTerm} />
+            )}
           </main>
         ) : (
           <ImageManagement />

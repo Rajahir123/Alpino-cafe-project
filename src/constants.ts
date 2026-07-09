@@ -5,57 +5,93 @@ export const VERCEL_BLOB_LOADING_VIDEO_URL = "https://7ivl0z2as6asv43v.public.bl
 
 export const PLANS = [
   {
+    id: 'trial_shakes_only',
+    name: 'Trial Subscription — 5 Protein Shakes',
+    type: 'trial',
+    price: 699,
+    duration: 5,
+    description: '5-Day Starter with Protein Shakes',
+    includes: ['Shakes']
+  },
+  {
+    id: 'trial_smoothies_only',
+    name: 'Trial Subscription — 5 Protein Smoothies',
+    type: 'trial',
+    price: 1249,
+    duration: 5,
+    description: '5-Day Starter with Protein Smoothies',
+    includes: ['Smoothies']
+  },
+  {
     id: 'trial_food',
-    name: 'TRIAL PLAN: Food Only',
+    name: 'Trial Subscription — 5 Protein Bowls',
     type: 'trial',
     price: 1299,
     duration: 5,
-    description: '5-Day Starter with fixed menu',
+    description: '5-Day Starter with Protein Bowls',
     includes: ['Food']
   },
   {
     id: 'trial_shakes',
-    name: 'TRIAL PLAN: Food + Shakes',
+    name: 'Trial Subscription — 5 Bowls + Protein Shakes',
     type: 'trial',
-    price: 1949,
+    price: 1999,
     duration: 5,
-    description: '5-Day Starter with fixed menu + shakes',
+    description: '5-Day Starter with Bowls & Shakes',
     includes: ['Food', 'Shakes']
   },
   {
     id: 'trial_smoothies',
-    name: 'TRIAL PLAN: Food + Smoothies',
+    name: 'Trial Subscription — 5 Bowls + Smoothies',
     type: 'trial',
-    price: 2249,
+    price: 2299,
     duration: 5,
-    description: '5-Day Starter with fixed menu + smoothies',
+    description: '5-Day Starter with Bowls & Smoothies',
     includes: ['Food', 'Smoothies']
   },
   {
-    id: 'pro_food',
-    name: 'PRO PLAN: Food Only',
+    id: 'pro_shakes_only',
+    name: 'Monthly Subscription — 20 Protein Shakes',
+    type: 'pro',
+    price: 2499,
+    duration: 20,
+    description: '20-Day Routine with Protein Shakes',
+    includes: ['Shakes']
+  },
+  {
+    id: 'pro_smoothies_only',
+    name: 'Monthly Subscription — 20 Protein Smoothies',
     type: 'pro',
     price: 4499,
     duration: 20,
-    description: '20-Day Routine with multiple choice bowls',
+    description: '20-Day Routine with Protein Smoothies',
+    includes: ['Smoothies']
+  },
+  {
+    id: 'pro_food',
+    name: 'Monthly Subscription — 20 Protein Bowls',
+    type: 'pro',
+    price: 4499,
+    duration: 20,
+    description: '20-Day Routine with Protein Bowls',
     includes: ['Food']
   },
   {
     id: 'pro_shakes',
-    name: 'PRO PLAN: Food + Shakes',
+    name: 'Monthly Subscription — 20 Bowls + Protein Shakes',
     type: 'pro',
     price: 6699,
     duration: 20,
-    description: '20-Day Routine + daily shakes',
+    description: '20-Day Routine with Bowls & Shakes',
     includes: ['Food', 'Shakes']
   },
   {
     id: 'pro_smoothies',
-    name: 'PRO PLAN: Food + Smoothies',
+    name: 'Monthly Subscription — 20 Bowls + Smoothies',
     type: 'pro',
     price: 7799,
     duration: 20,
-    description: '20-Day Routine + daily smoothies',
+    description: '20-Day Routine with Bowls & Smoothies',
     includes: ['Food', 'Smoothies']
   }
 ];

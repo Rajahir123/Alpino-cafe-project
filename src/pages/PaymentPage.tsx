@@ -38,11 +38,13 @@ export default function PaymentPage() {
         // Sort by newest
         const docs = snap.docs.sort((a,b) => b.data().createdAt.seconds - a.data().createdAt.seconds);
         const data = docs[0].data();
-        if (data.status === 'pending' || data.status === 'submitted') {
+        if (data.status === 'submitted') {
           setSubmitted(true);
         } else if (data.status === 'rejected') {
           setSubmitted(false);
           setRejectionMessage(data.statusMessage || 'Payment rejected. Please verify your details and try again.');
+        } else if (data.status === 'pending') {
+          setSubmitted(false);
         }
       }
     };
@@ -64,11 +66,11 @@ export default function PaymentPage() {
         userName: profile.name,
         userEmail: profile.email,
         planId: profile.planId,
-        planName: selectedPlan?.name,
-        amount: selectedPlan?.price,
+        planName: selectedPlan?.name || 'Unknown Plan',
+        amount: selectedPlan?.price || 0,
         transactionId: transactionId,
         screenshotUrl: screenshotUrl || 'https://via.placeholder.com/400?text=Screenshot+Pending',
-        status: 'pending',
+        status: 'submitted',
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now()
       });
@@ -154,25 +156,59 @@ export default function PaymentPage() {
                 </div>
 
                 <div className="p-0.5 md:p-1 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
-                   <button 
-                     onClick={() => setScreenshotUrl('https://via.placeholder.com/800x1200?text=Screenshot+Verified')}
-                     className={`w-full flex items-center justify-center gap-2 md:gap-3 p-3 md:p-4 rounded-lg md:rounded-xl border-2 border-dashed transition-all ${
+                   <label 
+                     className={`w-full flex items-center justify-center gap-2 md:gap-3 p-3 md:p-4 rounded-lg md:rounded-xl border-2 border-dashed transition-all cursor-pointer ${
                        screenshotUrl ? 'bg-green-600/10 border-green-600/50 text-green-500' : 'bg-black border-white/10 text-white/40 hover:border-white/20'
                      }`}
                    >
-                     {screenshotUrl ? <CheckCircle2 size={14} className="md:w-4.5 md:h-4.5" /> : <Upload size={14} className="md:w-4.5 md:h-4.5" />}
+                     <input 
+                       type="file" 
+                       accept=".jpeg, .jpg, .png" 
+                       className="hidden" 
+                       onChange={async (e) => {
+                         const file = e.target.files?.[0];
+                         if (!file || !profile) return;
+                         
+                         if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+                           alert('Please upload a .jpeg or .png file');
+                           return;
+                         }
+
+                         setUploading(true);
+                         try {
+                           const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+                           const { storage } = await import('../lib/firebase');
+                           const storageRef = ref(storage, `payments/${profile.uid}_${Date.now()}_${file.name}`);
+                           await uploadBytes(storageRef, file);
+                           const downloadURL = await getDownloadURL(storageRef);
+                           setScreenshotUrl(downloadURL);
+                         } catch (error) {
+                           console.error('Upload failed:', error);
+                           alert('Failed to upload image. Please try again.');
+                         } finally {
+                           setUploading(false);
+                         }
+                       }}
+                     />
+                     {uploading ? (
+                       <Clock size={14} className="md:w-4.5 md:h-4.5 animate-spin" />
+                     ) : screenshotUrl ? (
+                       <CheckCircle2 size={14} className="md:w-4.5 md:h-4.5" />
+                     ) : (
+                       <Upload size={14} className="md:w-4.5 md:h-4.5" />
+                     )}
                      <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">
-                       {screenshotUrl ? 'Screenshot Attached' : 'Attach Screenshot'}
+                       {uploading ? 'Uploading...' : screenshotUrl ? 'Screenshot Attached' : 'Attach Screenshot'}
                      </span>
-                   </button>
+                   </label>
                 </div>
               </div>
 
               <button 
                 onClick={handleSubmitPayment}
-                disabled={!transactionId || uploading}
+                disabled={!transactionId || !screenshotUrl || uploading}
                 className={`w-full py-3.5 md:py-5 rounded-xl md:rounded-2xl font-black italic uppercase tracking-[0.2em] text-xs md:text-sm transition-all flex items-center justify-center gap-2 md:gap-3 shadow-lg cursor-pointer ${
-                  transactionId ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-600/20' : 'bg-neutral-800 text-white/20 cursor-not-allowed'
+                  transactionId && screenshotUrl ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-600/20' : 'bg-neutral-800 text-white/20 cursor-not-allowed'
                 }`}
               >
                 {uploading ? 'SYNCHRONIZING...' : 'SUBMIT PAYMENT'}

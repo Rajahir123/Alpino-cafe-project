@@ -196,7 +196,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     playsInline
                     loop
                     preload="auto"
-                    src={videoUrl}
+                    src={videoUrl || undefined}
                     onCanPlay={() => {
                       console.log("Video: onCanPlay reached");
                       setVideoLoaded(true);
@@ -239,7 +239,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
           <div className="w-full h-full relative">
             {customUrl ? (
               <img 
-                src={customUrl} 
+                src={customUrl || undefined} 
                 alt="Background" 
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
