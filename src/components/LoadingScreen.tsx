@@ -78,7 +78,7 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
       if (isBuffering) setIsBuffering(false);
       timeoutId = window.setTimeout(() => {
         handleFinish();
-      }, 12000);
+      }, 4000);
     }
 
     if (videoLoaded && !videoError && useVideo) {
@@ -86,14 +86,14 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
       // We increased this to 12 seconds to ensure the full cinematic experience plays out
       finishTimer = window.setTimeout(() => {
         handleFinish();
-      }, 12000); 
+      }, 4000); 
     }
 
     const video = videoRef.current;
     if (useVideo && video && !videoError) {
       video.muted = true;
       video.playsInline = true;
-      video.playbackRate = 1.0; 
+      video.playbackRate = 3.0; 
       video.setAttribute('preload', 'auto');
       
       // Force immediate header fetch
@@ -197,13 +197,13 @@ export function LoadingScreen({ customUrl, videoUrl, logoUrl, onFinished }: Load
                     loop
                     preload="auto"
                     src={videoUrl || undefined}
-                    onCanPlay={() => {
+                    onCanPlay={(e) => { e.currentTarget.playbackRate = 3.0; 
                       console.log("Video: onCanPlay reached");
                       setVideoLoaded(true);
                       setIsBuffering(false);
                       setVideoError(false);
                     }}
-                    onPlay={() => {
+                    onPlay={(e) => { e.currentTarget.playbackRate = 3.0;
                       console.log("Video: onPlay reached");
                       setVideoLoaded(true);
                       setIsBuffering(false);

@@ -32,17 +32,41 @@ export function useAuth() {
               updatedAt: Timestamp.now(),
             };
             // Special case for initial admin
-            if (firebaseUser.email === 'denyteny123@gmail.com') {
+            if (firebaseUser.email && ['denyteny123@gmail.com', 'yuvraj.gurjar.ai@gmail.com'].includes(firebaseUser.email)) {
               newProfile.role = 'admin';
+              newProfile.planStatus = 'active';
+              newProfile.planId = 'muscle_gain_pro';
+              newProfile.daysRemaining = 30;
+              newProfile.phone = 'Admin';
+              newProfile.address = 'Admin HQ';
             }
             await setDoc(userRef, newProfile);
             setProfile(newProfile);
           } else {
             const data = userSnap.data() as UserProfile;
             // Force admin for specific email even if document already exists
-            if (firebaseUser.email === 'denyteny123@gmail.com' && data.role !== 'admin') {
-              data.role = 'admin';
-              await setDoc(userRef, { role: 'admin' }, { merge: true });
+            if (firebaseUser.email && ['denyteny123@gmail.com', 'yuvraj.gurjar.ai@gmail.com'].includes(firebaseUser.email)) {
+              let updates: Partial<UserProfile> = {};
+              if (data.role !== 'admin') {
+                data.role = 'admin';
+                updates.role = 'admin';
+              }
+              if (!data.phone || !data.address || data.planStatus === 'none' || data.planStatus === 'pending') {
+                data.planStatus = 'active';
+                data.planId = data.planId || 'muscle_gain_pro';
+                data.daysRemaining = Math.max(data.daysRemaining || 0, 30);
+                data.phone = data.phone || 'Admin';
+                data.address = data.address || 'Admin HQ';
+                
+                updates.planStatus = data.planStatus;
+                updates.planId = data.planId;
+                updates.daysRemaining = data.daysRemaining;
+                updates.phone = data.phone;
+                updates.address = data.address;
+              }
+              if (Object.keys(updates).length > 0) {
+                await setDoc(userRef, updates, { merge: true });
+              }
             }
             setProfile(data);
           }

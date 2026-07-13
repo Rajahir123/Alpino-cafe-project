@@ -92,9 +92,9 @@ function App() {
             } 
           />
           
-          <Route path="/plans" element={<PlanSelection />} />
-          <Route path="/payment" element={user ? <PaymentPage /> : <Navigate to="/login" />} />
-          <Route path="/setup" element={user ? <ProfileSetup /> : <Navigate to="/login" />} />
+          <Route path="/plans" element={user ? (profile?.role === 'kitchen' ? <Navigate to="/kitchen" /> : <PlanSelection />) : <Navigate to="/login" />} />
+          <Route path="/payment" element={user ? (profile?.role === 'kitchen' ? <Navigate to="/kitchen" /> : <PaymentPage />) : <Navigate to="/login" />} />
+          <Route path="/setup" element={user ? (profile?.role === 'kitchen' ? <Navigate to="/kitchen" /> : <ProfileSetup />) : <Navigate to="/login" />} />
           <Route path="/kitchen" element={profile?.role === 'admin' || profile?.role === 'kitchen' ? <KitchenDashboard /> : <Navigate to="/" />} />
           <Route path="/admin" element={<AdminPasscodeGate><AdminDashboard /></AdminPasscodeGate>} />
           <Route path="/hub" element={<AdminPasscodeGate><ListingPage /></AdminPasscodeGate>} />
