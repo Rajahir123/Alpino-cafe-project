@@ -181,6 +181,12 @@ export default function CustomerTable({ users, searchTerm }: CustomerTableProps)
                                 <div className="text-xs font-bold uppercase text-white/80">{user.mealPreference}</div>
                               </div>
                             )}
+                            {user.mealTypes && (
+                              <div>
+                                <div className="text-[8px] font-black uppercase text-white/30 tracking-widest mb-1">Meal Types</div>
+                                <div className="text-xs font-bold uppercase text-white/80">{user.mealTypes}</div>
+                              </div>
+                            )}
                             {user.foodAllergies && (
                               <div>
                                 <div className="text-[8px] font-black uppercase text-red-400/50 tracking-widest mb-1">Allergies</div>

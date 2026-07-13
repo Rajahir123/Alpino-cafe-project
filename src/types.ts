@@ -14,6 +14,7 @@ export interface UserProfile {
   primaryGoal?: string;
   workoutFrequency?: string;
   mealPreference?: string;
+  mealTypes?: string;
   foodAllergies?: string;
   consumptionMethod?: string;
   preferredTimeSlot?: string;
