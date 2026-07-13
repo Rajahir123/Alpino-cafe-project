@@ -64,9 +64,9 @@ export default function KitchenDashboard() {
 
   return (
     <div className="theme-light">
-      <div className="min-h-screen bg-black text-white p-4 md:p-8 font-sans">
+      <div className="min-h-screen bg-white text-neutral-900 p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-8 md:space-y-12">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8 border-b border-white/5 pb-8">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8 border-b border-neutral-200 pb-8">
           <div>
             <div className="flex items-center gap-2 text-red-600 mb-2">
               <Utensils size={16} md:size={20} />
@@ -78,7 +78,7 @@ export default function KitchenDashboard() {
             <Link to="/hub" className="flex items-center gap-2 px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
               <Zap size={14} /> Hub
             </Link>
-            <div className="h-10 md:h-12 flex items-center gap-4 bg-neutral-900 border border-white/5 px-4 md:px-6 rounded-full">
+            <div className="h-10 md:h-12 flex items-center gap-4 bg-neutral-100 border border-neutral-200 px-4 md:px-6 rounded-full">
               <div className="w-2 h-2 bg-red-600 rounded-full animate-ping shrink-0" />
               <span className="text-[10px] font-black uppercase tracking-widest italic">{activeOrders.length} LIVE TICKETS</span>
             </div>
@@ -95,7 +95,7 @@ export default function KitchenDashboard() {
 
              <div className="space-y-6">
                 {todayOrders.length === 0 ? (
-                  <div className="bg-neutral-900/50 p-12 rounded-[2rem] border-2 border-dashed border-white/5 text-center text-white/20 font-black italic uppercase italic tracking-widest">
+                  <div className="bg-neutral-50 p-12 rounded-[2rem] border-2 border-dashed border-neutral-200 text-center text-neutral-500 font-black italic uppercase italic tracking-widest">
                     Kitchen empty — All clear.
                   </div>
                 ) : (
@@ -103,7 +103,7 @@ export default function KitchenDashboard() {
                     <motion.div 
                       key={order.id}
                       layout
-                      className="bg-neutral-900 border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-xl relative overflow-hidden"
+                      className="bg-neutral-100 border border-neutral-200 p-6 md:p-8 rounded-[2rem] shadow-xl relative overflow-hidden"
                     >
                       <div className="absolute top-0 right-0 py-2 px-4 md:px-6 bg-red-600 text-white font-black italic uppercase text-[8px] md:text-[10px] tracking-widest">Urgent</div>
                       
@@ -113,14 +113,14 @@ export default function KitchenDashboard() {
                            <h3 className="text-xl md:text-2xl font-black italic uppercase leading-none">{order.userName}</h3>
                          </div>
                          <div className="text-right">
-                            <div className="text-[8px] md:text-[10px] font-bold uppercase text-white/30 tracking-widest">Status</div>
-                            <div className="text-xs md:text-sm font-black italic text-white uppercase">{order.status}</div>
+                            <div className="text-[8px] md:text-[10px] font-bold uppercase text-neutral-500 tracking-widest">Status</div>
+                            <div className="text-xs md:text-sm font-black italic text-neutral-900 uppercase">{order.status}</div>
                          </div>
                       </div>
 
                       <div className="space-y-2 md:space-y-3 mb-8">
                         {order.items.map((item, idx) => (
-                           <div key={idx} className="flex justify-between items-center p-3 md:p-4 bg-white/5 rounded-2xl border border-white/5">
+                           <div key={idx} className="flex justify-between items-center p-3 md:p-4 bg-neutral-50 rounded-2xl border border-neutral-200">
                             <div className="font-black uppercase italic tracking-tighter text-sm md:text-lg">{item.name}</div>
                             <div className="text-[8px] md:text-[10px] font-bold uppercase p-1 bg-red-600 rounded text-white shrink-0 ml-2">{item.category}</div>
                           </div>
@@ -162,25 +162,25 @@ export default function KitchenDashboard() {
            {/* Section 2: Future Outlook */}
            <section className="space-y-8">
              <div className="flex items-center gap-4">
-               <div className="bg-neutral-800 p-2 rounded-lg text-white/50"><AlertTriangle size={20} /></div>
-               <h2 className="text-2xl font-black italic uppercase tracking-tighter italic text-white/40">Incoming Orders</h2>
+               <div className="bg-neutral-800 p-2 rounded-lg text-neutral-500"><AlertTriangle size={20} /></div>
+               <h2 className="text-2xl font-black italic uppercase tracking-tighter italic text-neutral-500">Incoming Orders</h2>
              </div>
              
              <div className="space-y-4">
                 {futureOrders.map(order => (
-                  <div key={order.id} className="bg-neutral-900/50 border border-white/5 p-6 rounded-2xl flex justify-between items-center group hover:bg-neutral-900 transition-all">
+                  <div key={order.id} className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl flex justify-between items-center group hover:bg-neutral-100 transition-all">
                      <div>
-                        <div className="text-[10px] font-black uppercase text-white/20 tracking-widest italic">{new Date(order.date).toLocaleDateString(undefined, {weekday: 'long', month: 'short', day: 'numeric'})}</div>
+                        <div className="text-[10px] font-black uppercase text-neutral-500 tracking-widest italic">{new Date(order.date).toLocaleDateString(undefined, {weekday: 'long', month: 'short', day: 'numeric'})}</div>
                         <div className="font-black italic uppercase tracking-tighter text-lg leading-tight">{order.userName}</div>
                         <div className="text-[10px] font-bold uppercase text-red-600 italic">{order.items[0]?.name}</div>
                      </div>
                      <div className="text-right">
-                        <div className="text-2xl font-black italic text-white/10 group-hover:text-red-500/20 transition-all italic">FUTURE</div>
+                        <div className="text-2xl font-black italic text-neutral-500 group-hover:text-red-500/20 transition-all italic">FUTURE</div>
                      </div>
                   </div>
                 ))}
                 {futureOrders.length === 0 && (
-                  <div className="text-center p-8 text-white/10 font-black italic uppercase text-sm tracking-widest">No future tickets yet.</div>
+                  <div className="text-center p-8 text-neutral-500 font-black italic uppercase text-sm tracking-widest">No future tickets yet.</div>
                 )}
              </div>
            </section>

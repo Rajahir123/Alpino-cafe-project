@@ -52,7 +52,7 @@ export default function PaymentPage() {
   }, [profile]);
 
   const handleSubmitPayment = async () => {
-    if (!profile || !transactionId) return;
+    if (!profile || !screenshotUrl) return;
     setUploading(true);
     
     try {
@@ -91,11 +91,11 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center pt-16 md:pt-24 pb-8 md:pb-12 px-4 md:px-6 bg-[radial-gradient(circle_at_top_right,rgba(220,38,38,0.1),transparent_50%)] overflow-y-auto">
+    <div className="min-h-screen bg-white flex flex-col items-center pt-16 md:pt-24 pb-8 md:pb-12 px-4 md:px-6 bg-[radial-gradient(circle_at_top_right,rgba(220,38,38,0.1),transparent_50%)] overflow-y-auto">
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-neutral-900 border border-white/10 p-5 md:p-10 rounded-2xl md:rounded-[2.5rem] text-center shadow-2xl relative overflow-hidden"
+        className="max-w-md w-full bg-neutral-100 border border-neutral-200 p-5 md:p-10 rounded-2xl md:rounded-[2.5rem] text-center shadow-2xl relative overflow-hidden"
       >
         <div className="absolute top-0 left-0 w-full h-1 bg-red-600" />
         
@@ -104,9 +104,9 @@ export default function PaymentPage() {
              <div className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-red-600 mb-1 md:mb-2">Protocol: Deposit</div>
              <h1 className="text-xl md:text-3xl font-black italic uppercase leading-none tracking-tighter">{selectedPlan?.name}</h1>
            </div>
-           <div className="text-lg md:text-2xl font-black italic text-white flex flex-col items-end">
+           <div className="text-lg md:text-2xl font-black italic text-neutral-900 flex flex-col items-end">
              <span className="text-red-600">₹{selectedPlan?.price}</span>
-             <span className="text-[8px] md:text-[10px] font-bold text-white/20 uppercase tracking-widest">Total cost</span>
+             <span className="text-[8px] md:text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Total cost</span>
            </div>
         </div>
 
@@ -138,27 +138,27 @@ export default function PaymentPage() {
                     <div className="mt-2 md:mt-4 text-black/40 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em]">Scan with GPay / PhonePe</div>
                   </>
                 )}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                   <p className="text-white text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em]">Official Alpino Vector</p>
+                <div className="absolute inset-0 bg-neutral-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                   <p className="text-neutral-900 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em]">Official Alpino Vector</p>
                 </div>
               </div>
 
               <div className="space-y-3 md:space-y-4 text-left">
                 <div>
-                  <label className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 md:mb-2 block ml-1">Transaction ID / Reference No.</label>
+                  <label className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-1.5 md:mb-2 block ml-1">Transaction ID / Reference No. (Optional)</label>
                   <input 
                     type="text" 
                     value={transactionId}
                     onChange={(e) => setTransactionId(e.target.value)}
                     placeholder="Enter 12-digit number"
-                    className="w-full bg-black border border-white/10 rounded-xl md:rounded-2xl p-3 md:p-4 text-white font-bold text-xs md:text-sm focus:border-red-600 outline-none transition-all placeholder:text-white/10"
+                    className="w-full bg-white border border-neutral-200 rounded-xl md:rounded-2xl p-3 md:p-4 text-neutral-900 font-bold text-xs md:text-sm focus:border-red-600 outline-none transition-all placeholder:text-neutral-500"
                   />
                 </div>
 
-                <div className="p-0.5 md:p-1 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
+                <div className="p-0.5 md:p-1 bg-neutral-50 rounded-xl md:rounded-2xl border border-neutral-200">
                    <label 
                      className={`w-full flex items-center justify-center gap-2 md:gap-3 p-3 md:p-4 rounded-lg md:rounded-xl border-2 border-dashed transition-all cursor-pointer ${
-                       screenshotUrl ? 'bg-green-600/10 border-green-600/50 text-green-500' : 'bg-black border-white/10 text-white/40 hover:border-white/20'
+                       screenshotUrl ? 'bg-green-600/10 border-green-600/50 text-green-500' : 'bg-white border-neutral-200 text-neutral-500 hover:border-neutral-200'
                      }`}
                    >
                      <input 
@@ -270,16 +270,16 @@ export default function PaymentPage() {
 
               <button 
                 onClick={handleSubmitPayment}
-                disabled={!transactionId || !screenshotUrl || uploading}
+                disabled={!screenshotUrl || uploading}
                 className={`w-full py-3.5 md:py-5 rounded-xl md:rounded-2xl font-black italic uppercase tracking-[0.2em] text-xs md:text-sm transition-all flex items-center justify-center gap-2 md:gap-3 shadow-lg cursor-pointer ${
-                  transactionId && screenshotUrl ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-600/20' : 'bg-neutral-800 text-white/20 cursor-not-allowed'
+                  screenshotUrl ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-600/20' : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
                 }`}
               >
                 {uploading ? 'SYNCHRONIZING...' : 'SUBMIT PAYMENT'}
                 {!uploading && <ChevronRight size={16} className="md:w-5 md:h-5" />}
               </button>
 
-              <p className="text-[8px] md:text-[9px] text-white/20 font-black uppercase leading-relaxed tracking-widest">
+              <p className="text-[8px] md:text-[9px] text-neutral-500 font-black uppercase leading-relaxed tracking-widest">
                 Our logistics AI will verify the transaction within 30-60 minutes. Access will unlock automatically.
               </p>
             </motion.div>
@@ -299,27 +299,27 @@ export default function PaymentPage() {
 
               <div>
                 <h2 className="text-lg md:text-xl font-black italic uppercase mb-1 md:mb-2">Extraction Pending</h2>
-                <p className="text-[9px] md:text-[10px] text-white/40 font-black uppercase tracking-widest leading-relaxed px-4">
+                <p className="text-[9px] md:text-[10px] text-neutral-500 font-black uppercase tracking-widest leading-relaxed px-4">
                   Your payment record has been submitted to Alpino Governance. Verification is currently active.
                 </p>
               </div>
 
-              <div className="bg-white/5 border border-white/5 p-4 md:p-6 rounded-xl md:rounded-2xl text-left space-y-3 md:space-y-4">
+              <div className="bg-neutral-50 border border-neutral-200 p-4 md:p-6 rounded-xl md:rounded-2xl text-left space-y-3 md:space-y-4">
                  <div className="flex justify-between items-center text-[10px] font-black uppercase">
-                   <span className="text-white/20">Target Status</span>
+                   <span className="text-neutral-500">Target Status</span>
                    <span className="text-red-600 flex items-center gap-2">
                      <Zap size={10} className="animate-bounce" /> ANALYZING
                    </span>
                  </div>
                  <div className="flex justify-between items-center text-[10px] font-black uppercase">
-                   <span className="text-white/20">Access Token</span>
-                   <span className="text-white/40">GATED</span>
+                   <span className="text-neutral-500">Access Token</span>
+                   <span className="text-neutral-500">GATED</span>
                  </div>
               </div>
 
               <button 
                 onClick={() => window.location.reload()}
-                className="w-full py-3 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-white/20 hover:text-white transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-3 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-neutral-500 hover:text-neutral-900 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Clock size={10} /> Force State Sync
               </button>
@@ -328,7 +328,7 @@ export default function PaymentPage() {
         </AnimatePresence>
       </motion.div>
 
-      <div className="mt-6 md:mt-12 text-center text-[8px] md:text-[9px] text-white/10 font-black uppercase tracking-[0.3em] md:tracking-[0.5em] animate-pulse">
+      <div className="mt-6 md:mt-12 text-center text-[8px] md:text-[9px] text-neutral-500 font-black uppercase tracking-[0.3em] md:tracking-[0.5em] animate-pulse">
         [ ALPINO SECURE TRANSACTION PROTOCOL v4.2 ]
       </div>
     </div>

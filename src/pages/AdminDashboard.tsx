@@ -258,9 +258,9 @@ export default function AdminDashboard() {
   if (loading) return <div className="p-20 text-center font-black animate-pulse text-red-600 italic uppercase">Syncing CAFE COMMAND...</div>;
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-white text-neutral-900 p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-8 md:space-y-12">
-        <header className="border-b border-white/5 pb-8 space-y-6">
+        <header className="border-b border-neutral-200 pb-8 space-y-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 text-red-600 mb-2">
@@ -281,7 +281,7 @@ export default function AdminDashboard() {
               )}
               <button 
                 onClick={handleSystemLock}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-red-600/20 hover:text-red-500 rounded-xl border border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/40"
+                className="flex items-center gap-2 px-5 py-2.5 bg-neutral-100 hover:bg-red-600/20 hover:text-red-500 rounded-xl border border-neutral-200 transition-all text-[10px] font-black uppercase tracking-widest text-neutral-500"
                 title="Lock Admin Panel"
               >
                 <Lock size={14} /> Lock System
@@ -303,18 +303,18 @@ export default function AdminDashboard() {
               <Link to="/hub" className="flex items-center gap-2 px-5 py-2.5 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
                 <Zap size={14} /> Systems Hub
               </Link>
-              <Link to="/" className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white">
+              <Link to="/" className="flex items-center gap-2 px-5 py-2.5 bg-neutral-100 hover:bg-neutral-100 rounded-xl border border-neutral-200 transition-all text-[10px] font-black uppercase tracking-widest text-neutral-500 hover:text-neutral-900">
                 <ExternalLink size={14} className="text-red-600" /> View Live Site
               </Link>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-center pt-4 border-t border-white/5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-center pt-4 border-t border-neutral-200">
             {/* Tabs container */}
-            <div className="flex bg-neutral-900 p-1 rounded-xl border border-white/5 overflow-x-auto no-scrollbar shadow-inner w-full">
+            <div className="flex bg-neutral-100 p-1 rounded-xl border border-neutral-200 overflow-x-auto no-scrollbar shadow-inner w-full">
               <button 
                 onClick={() => setActiveTab('payments')}
-                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap relative cursor-pointer ${activeTab === 'payments' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap relative cursor-pointer ${activeTab === 'payments' ? 'bg-red-600 text-white shadow-lg' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'}`}
               >
                 Governance
                 {pendingPayments.length > 0 && (
@@ -325,25 +325,25 @@ export default function AdminDashboard() {
               </button>
               <button 
                 onClick={() => setActiveTab('images')}
-                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'images' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'images' ? 'bg-red-600 text-white shadow-lg' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'}`}
               >
                 Assets
               </button>
               <button 
                 onClick={() => setActiveTab('menu')}
-                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'menu' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'menu' ? 'bg-red-600 text-white shadow-lg' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'}`}
               >
                 Menu
               </button>
               <button 
                 onClick={() => setActiveTab('users')}
-                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'users' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'users' ? 'bg-red-600 text-white shadow-lg' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'}`}
               >
                 Users
               </button>
               <button 
                 onClick={() => setActiveTab('notes')}
-                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'notes' ? 'bg-red-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap cursor-pointer ${activeTab === 'notes' ? 'bg-red-600 text-white shadow-lg' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'}`}
               >
                 Records
               </button>
@@ -352,11 +352,11 @@ export default function AdminDashboard() {
             {/* Search Input Filter Container */}
             <div className="flex gap-2 w-full">
               <div className="relative group flex-grow">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-red-600 transition-colors" size={12} />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-red-600 transition-colors" size={12} />
                 <input 
                   type="text"
                   placeholder="LOCATE RECORDS OR USERS..."
-                  className="w-full bg-neutral-900/50 border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] focus:border-red-600 focus:bg-black transition-all outline-none placeholder:text-white/10"
+                  className="w-full bg-neutral-50 border border-neutral-200 rounded-xl pl-10 pr-4 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] focus:border-red-600 focus:bg-white transition-all outline-none placeholder:text-neutral-500"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
@@ -372,8 +372,8 @@ export default function AdminDashboard() {
 
             {/* Stats block */}
             <div className="flex gap-4 w-full md:w-auto">
-              <div className="flex-1 bg-neutral-900 border border-white/5 p-3 rounded-2xl text-center">
-                  <div className="text-[8px] font-black uppercase text-white/40 mb-0.5 tracking-wider">Users</div>
+              <div className="flex-1 bg-neutral-100 border border-neutral-200 p-3 rounded-2xl text-center">
+                  <div className="text-[8px] font-black uppercase text-neutral-500 mb-0.5 tracking-wider">Users</div>
                   <div className="text-lg font-black">{users.length}</div>
               </div>
               <div className="flex-1 bg-red-600 p-3 rounded-2xl text-center">
@@ -391,15 +391,15 @@ export default function AdminDashboard() {
                  <h2 className="text-3xl font-black italic uppercase flex items-center gap-3">
                    <CreditCard className="text-red-600" /> Payment <span className="text-red-600">Verification</span>
                  </h2>
-                 <span className="text-[10px] font-black uppercase text-white/20 tracking-widest">{pendingPayments.length} PENDING REQUESTS</span>
+                 <span className="text-[10px] font-black uppercase text-neutral-500 tracking-widest">{pendingPayments.length} PENDING REQUESTS</span>
                </div>
 
                {pendingPayments.length === 0 ? (
-                 <div className="bg-neutral-900/50 border border-white/5 p-12 rounded-[3rem] text-center">
-                    <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Check className="text-white/20" />
+                 <div className="bg-neutral-50 border border-neutral-200 p-12 rounded-[3rem] text-center">
+                    <div className="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Check className="text-neutral-500" />
                     </div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">All accounts are currently synchronized.</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500">All accounts are currently synchronized.</p>
                  </div>
                ) : (
                  <div className="space-y-4">
@@ -409,7 +409,7 @@ export default function AdminDashboard() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         key={payment.id} 
-                        className="bg-neutral-900 border border-white/5 p-6 md:p-8 rounded-[2.5rem] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group hover:border-red-600/30 transition-all"
+                        className="bg-neutral-100 border border-neutral-200 p-6 md:p-8 rounded-[2.5rem] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group hover:border-yellow-500/30 transition-all"
                       >
                          <div className="flex gap-4">
                             <div className="w-12 h-12 bg-red-600/10 rounded-xl flex items-center justify-center text-red-600 shrink-0">
@@ -418,16 +418,16 @@ export default function AdminDashboard() {
                             <div>
                                <div className="text-[10px] font-black uppercase text-red-600 mb-1 tracking-widest">{payment.planName} Request</div>
                                <h3 className="font-black italic uppercase text-lg leading-tight tracking-tighter">{payment.userName}</h3>
-                               <p className="text-[10px] text-white/30 font-black uppercase tracking-wider">{payment.userEmail}</p>
+                               <p className="text-[10px] text-neutral-500 font-black uppercase tracking-wider">{payment.userEmail}</p>
                                {payment.transactionId && (
-                                 <div className="mt-2 text-[9px] font-mono text-white/50 bg-black/40 px-2 py-1 rounded">
+                                 <div className="mt-2 text-[9px] font-mono text-neutral-500 bg-neutral-100 px-2 py-1 rounded">
                                    TXID: {payment.transactionId}
                                  </div>
                                )}
                                {payment.screenshotUrl && (
                                  <button 
                                    onClick={() => setViewingScreenshot(payment.screenshotUrl)}
-                                   className="mt-2 inline-flex items-center gap-1 text-[9px] font-black uppercase text-red-600 hover:text-white transition-colors"
+                                   className="mt-2 inline-flex items-center gap-1 text-[9px] font-black uppercase text-red-600 hover:text-neutral-900 transition-colors"
                                  >
                                    <ExternalLink size={10} /> View Screenshot
                                  </button>
@@ -437,7 +437,7 @@ export default function AdminDashboard() {
                          
                          <div className="flex items-center gap-4 w-full md:w-auto">
                             <div className="text-right flex-grow md:flex-grow-0 hidden md:block">
-                               <div className="text-[10px] font-black uppercase text-white/20 tracking-widest">Amount</div>
+                               <div className="text-[10px] font-black uppercase text-neutral-500 tracking-widest">Amount</div>
                                <div className="text-xl font-black tracking-tighter italic">₹{payment.amount}</div>
                             </div>
                             <div className="flex gap-2 w-full md:w-auto">
@@ -449,7 +449,7 @@ export default function AdminDashboard() {
                                </button>
                                <button 
                                  onClick={() => handleReject(payment.id)}
-                                 className="flex-1 md:flex-none border border-white/10 hover:bg-red-600 hover:border-red-600 transition-all text-white px-6 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest"
+                                 className="flex-1 md:flex-none border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition-all px-6 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest"
                                >
                                  Reject
                                </button>
@@ -464,21 +464,21 @@ export default function AdminDashboard() {
                  <h2 className="text-2xl font-black italic uppercase flex items-center gap-3">
                    <Users className="text-red-600" /> User <span className="text-red-600">Database</span>
                  </h2>
-                 <div className="bg-neutral-900 border border-white/5 rounded-[3rem] overflow-hidden">
+                 <div className="bg-neutral-100 border border-neutral-200 rounded-[3rem] overflow-hidden">
                     <table className="w-full text-left">
                       <thead>
-                        <tr className="border-b border-white/5">
-                          <th className="p-6 text-[10px] font-black uppercase text-white/30 tracking-widest">Identity</th>
-                          <th className="p-6 text-[10px] font-black uppercase text-white/30 tracking-widest">Plan Status</th>
-                          <th className="p-6 text-[10px] font-black uppercase text-white/30 tracking-widest text-right">Integrity</th>
+                        <tr className="border-b border-neutral-200">
+                          <th className="p-6 text-[10px] font-black uppercase text-neutral-500 tracking-widest">Identity</th>
+                          <th className="p-6 text-[10px] font-black uppercase text-neutral-500 tracking-widest">Plan Status</th>
+                          <th className="p-6 text-[10px] font-black uppercase text-neutral-500 tracking-widest text-right">Integrity</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">
                         {filteredUsers.map(u => (
-                          <tr key={u.uid} className="hover:bg-white/5 transition-colors">
+                          <tr key={u.uid} className="hover:bg-neutral-100 transition-colors">
                             <td className="p-6">
                                <div className="font-black italic uppercase text-sm tracking-tighter">{u.name}</div>
-                               <div className="text-[10px] text-white/30 font-black uppercase">{u.email}</div>
+                               <div className="text-[10px] text-neutral-500 font-black uppercase">{u.email}</div>
                             </td>
                             <td className="p-6">
                                <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md border ${u.planStatus === 'active' ? 'bg-green-600/10 text-green-500 border-green-600/20' : 'bg-red-600/10 text-red-600 border-red-600/20'}`}>
@@ -486,7 +486,7 @@ export default function AdminDashboard() {
                                </span>
                             </td>
                             <td className="p-6 text-right">
-                               <div className="text-[10px] font-black uppercase text-white/20">Prot: {u.proteinGoal}g</div>
+                               <div className="text-[10px] font-black uppercase text-neutral-500">Prot: {u.proteinGoal}g</div>
                             </td>
                           </tr>
                         ))}
@@ -497,7 +497,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="space-y-8">
-               <div className="bg-neutral-900 border border-white/5 p-8 rounded-[3rem] relative overflow-hidden">
+               <div className="bg-neutral-100 border border-neutral-200 p-8 rounded-[3rem] relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
                     <ImageIcon size={100} />
                   </div>
@@ -506,13 +506,13 @@ export default function AdminDashboard() {
                   </h3>
                   
                   <div className="space-y-6">
-                    <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/30">Select an image from the Assets tab to use as your payment QR code.</p>
+                    <p className="text-[8px] font-black uppercase tracking-[0.2em] text-neutral-500">Select an image from the Assets tab to use as your payment QR code.</p>
                     
-                    <div className="aspect-square bg-black border border-white/10 rounded-2xl flex items-center justify-center overflow-hidden relative group">
+                    <div className="aspect-square bg-white border border-neutral-200 rounded-2xl flex items-center justify-center overflow-hidden relative group">
                       {paymentBarcode ? (
                         <>
                           <img src={paymentBarcode} alt="Payment Barcode" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+                          <div className="absolute inset-0 bg-neutral-100 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
                             <button 
                               onClick={() => updateBarcode('')}
                               className="bg-red-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest"
@@ -523,21 +523,21 @@ export default function AdminDashboard() {
                         </>
                       ) : (
                         <div className="text-center p-8">
-                           <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mx-auto mb-4">
-                             <Plus className="text-white/20" />
+                           <div className="w-12 h-12 bg-neutral-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                             <Plus className="text-neutral-500" />
                            </div>
-                           <p className="text-[10px] font-black uppercase tracking-widest text-white/20">No Barcode Assigned</p>
+                           <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500">No Barcode Assigned</p>
                         </div>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Barcode URL</label>
+                       <label className="text-[10px] font-black uppercase text-neutral-500 ml-1 tracking-widest">Barcode URL</label>
                        <div className="flex gap-2">
                          <input 
                            type="text" 
                            placeholder="PASTE IMAGE URL HERE..."
-                           className="flex-grow bg-black border border-white/10 rounded-xl p-4 text-[10px] font-bold uppercase tracking-widest focus:border-red-600 outline-none"
+                           className="flex-grow bg-white border border-neutral-200 rounded-xl p-4 text-[10px] font-bold uppercase tracking-widest focus:border-red-600 outline-none"
                            value={paymentBarcode}
                            onChange={e => setPaymentBarcode(e.target.value)}
                          />
@@ -555,12 +555,12 @@ export default function AdminDashboard() {
                <div className="bg-red-600/5 border border-red-600/10 p-8 rounded-[3rem]">
                   <h3 className="text-sm font-black italic uppercase mb-4 text-red-600">Quick Intelligence</h3>
                   <div className="space-y-4">
-                     <div className="flex justify-between items-center bg-black/40 p-4 rounded-2xl border border-white/5">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Revenue Target</span>
+                     <div className="flex justify-between items-center bg-neutral-100 p-4 rounded-2xl border border-neutral-200">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Revenue Target</span>
                         <span className="text-sm font-black italic uppercase tracking-tighter text-red-600 italic">Calculated</span>
                      </div>
-                     <div className="flex justify-between items-center bg-black/40 p-4 rounded-2xl border border-white/5">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Sync Health</span>
+                     <div className="flex justify-between items-center bg-neutral-100 p-4 rounded-2xl border border-neutral-200">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Sync Health</span>
                         <span className="text-sm font-black italic uppercase tracking-tighter text-green-500">Optimal</span>
                      </div>
                   </div>
@@ -569,7 +569,7 @@ export default function AdminDashboard() {
           </main>
         ) : activeTab === 'menu' ? (
           <main className="space-y-12">
-            <section className="bg-neutral-900 p-8 md:p-12 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
+            <section className="bg-neutral-100 p-8 md:p-12 rounded-[3rem] border border-neutral-200 shadow-2xl relative overflow-hidden">
                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
                  <Utensils size={150} />
                </div>
@@ -580,20 +580,20 @@ export default function AdminDashboard() {
 
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
                   <div className="lg:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Product Title</label>
+                    <label className="text-[10px] font-black uppercase text-neutral-500 ml-1 tracking-widest">Product Title</label>
                     <input 
                       type="text" 
                       placeholder="e.g. MEXICAN PANEER RICE BOWL"
-                      className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none transition-all"
+                      className="w-full bg-white border border-neutral-200 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none transition-all"
                       value={newItem.name || ''}
                       onChange={e => setNewItem({...newItem, name: e.target.value})}
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Category</label>
+                    <label className="text-[10px] font-black uppercase text-neutral-500 ml-1 tracking-widest">Category</label>
                     <select 
-                      className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none transition-all appearance-none"
+                      className="w-full bg-white border border-neutral-200 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none transition-all appearance-none"
                       value={newItem.category || 'Bowl'}
                       onChange={e => setNewItem({...newItem, category: e.target.value as any})}
                     >
@@ -605,72 +605,72 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Price (INR)</label>
+                    <label className="text-[10px] font-black uppercase text-neutral-500 ml-1 tracking-widest">Price (INR)</label>
                     <input 
                       type="number" 
-                      className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
+                      className="w-full bg-white border border-neutral-200 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
                       value={newItem.price ?? ''}
                       onChange={e => setNewItem({...newItem, price: Number(e.target.value)})}
                     />
                   </div>
 
                   <div className="lg:col-span-3 space-y-2">
-                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Product Description & Details</label>
+                    <label className="text-[10px] font-black uppercase text-neutral-500 ml-1 tracking-widest">Product Description & Details</label>
                     <textarea 
                       placeholder="ENTER NUTRITION INFO, INGREDIENTS, OR STORY..."
-                      className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-semibold uppercase tracking-widest focus:border-red-600 outline-none min-h-[100px] resize-none"
+                      className="w-full bg-white border border-neutral-200 rounded-2xl p-5 text-xs font-semibold uppercase tracking-widest focus:border-red-600 outline-none min-h-[100px] resize-none"
                       value={newItem.description || ''}
                       onChange={e => setNewItem({...newItem, description: e.target.value})}
                     />
                   </div>
 
                   <div className="space-y-2 flex flex-col justify-end">
-                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest mb-2">Plan Availability</label>
+                    <label className="text-[10px] font-black uppercase text-neutral-500 ml-1 tracking-widest mb-2">Plan Availability</label>
                     <button 
                       onClick={() => setNewItem({...newItem, isTrialFixed: !newItem.isTrialFixed})}
-                      className={`w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${newItem.isTrialFixed ? 'bg-red-600 border-red-600 text-white' : 'border-white/10 text-white/40 hover:text-white'}`}
+                      className={`w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${newItem.isTrialFixed ? 'bg-red-600 border-red-600 text-white' : 'border-neutral-200 text-neutral-500 hover:text-neutral-900'}`}
                     >
                       {newItem.isTrialFixed ? 'Trial Plan Fixed' : 'Pro Plan Only'}
                     </button>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Protein (g)</label>
+                    <label className="text-[10px] font-black uppercase text-neutral-500 ml-1 tracking-widest">Protein (g)</label>
                     <input 
                       type="number" 
-                      className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
+                      className="w-full bg-white border border-neutral-200 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
                       value={newItem.protein ?? ''}
                       onChange={e => setNewItem({...newItem, protein: Number(e.target.value)})}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Calories (kcal)</label>
+                    <label className="text-[10px] font-black uppercase text-neutral-500 ml-1 tracking-widest">Calories (kcal)</label>
                     <input 
                       type="number" 
-                      className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
+                      className="w-full bg-white border border-neutral-200 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
                       value={newItem.calories ?? ''}
                       onChange={e => setNewItem({...newItem, calories: Number(e.target.value)})}
                     />
                   </div>
 
                   <div className="lg:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Background Image (URL)</label>
+                    <label className="text-[10px] font-black uppercase text-neutral-500 ml-1 tracking-widest">Background Image (URL)</label>
                     <input 
                       type="text" 
                       placeholder="PASTE URL FROM ASSETS TAB..."
-                      className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
+                      className="w-full bg-white border border-neutral-200 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
                       value={newItem.bgImage || ''}
                       onChange={e => setNewItem({...newItem, bgImage: e.target.value})}
                     />
                   </div>
 
                   <div className="lg:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black uppercase text-white/40 ml-1 tracking-widest">Spinning Cut-out PNG (URL)</label>
+                    <label className="text-[10px] font-black uppercase text-neutral-500 ml-1 tracking-widest">Spinning Cut-out PNG (URL)</label>
                     <input 
                       type="text" 
                       placeholder="PASTE URL FROM ASSETS TAB..."
-                      className="w-full bg-black border border-white/10 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
+                      className="w-full bg-white border border-neutral-200 rounded-2xl p-5 text-xs font-bold uppercase tracking-widest focus:border-red-600 outline-none"
                       value={newItem.spinningImage || ''}
                       onChange={e => setNewItem({...newItem, spinningImage: e.target.value})}
                     />
@@ -679,7 +679,7 @@ export default function AdminDashboard() {
                   <div className="lg:col-span-4 pt-4">
                     <button 
                       onClick={handleAddMenuItem}
-                      className="w-full bg-red-600 hover:bg-black hover:text-red-600 border-2 border-red-600 p-6 rounded-2xl font-black italic uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 text-lg"
+                      className="w-full bg-red-600 hover:bg-white hover:text-red-600 border-2 border-red-600 p-6 rounded-2xl font-black italic uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 text-lg"
                     >
                       Authenticate & List Product <Plus size={24} />
                     </button>
@@ -692,13 +692,13 @@ export default function AdminDashboard() {
                  <div className="flex items-center gap-6">
                    <h3 className="text-xl font-black italic uppercase tracking-tighter">Active <span className="text-red-600">Showcase</span></h3>
                    {menuItems.length > 0 && (
-                     <div className="flex bg-neutral-900 border border-white/5 p-1 rounded-xl">
+                     <div className="flex bg-neutral-100 border border-neutral-200 p-1 rounded-xl">
                        <button 
                          onClick={() => {
                            setIsMenuSelectMode(!isMenuSelectMode);
                            setSelectedMenuItemIds(new Set());
                          }}
-                         className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isMenuSelectMode ? 'bg-red-600 text-white' : 'text-white/40 hover:text-white'}`}
+                         className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isMenuSelectMode ? 'bg-red-600 text-white' : 'text-neutral-500 hover:text-neutral-900'}`}
                        >
                          {isMenuSelectMode ? 'Cancel' : 'Multi-Select'}
                        </button>
@@ -713,7 +713,7 @@ export default function AdminDashboard() {
                      </div>
                    )}
                  </div>
-                 <span className="text-[10px] font-black uppercase text-white/20">{menuItems.length} ITEMS SYNCED</span>
+                 <span className="text-[10px] font-black uppercase text-neutral-500">{menuItems.length} ITEMS SYNCED</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                  {menuItems.map(item => (
@@ -721,23 +721,23 @@ export default function AdminDashboard() {
                     layout
                     key={item.id} 
                     onClick={() => isMenuSelectMode && toggleMenuItemSelection(item.id)}
-                    className={`bg-neutral-900 border ${item.published ? 'border-red-600/30 shadow-[0_0_20px_rgba(220,38,38,0.1)]' : 'border-white/5'} p-6 rounded-[2.5rem] flex justify-between items-center group transition-all cursor-pointer ${isMenuSelectMode && selectedMenuItemIds.has(item.id) ? 'ring-2 ring-red-600 border-red-600' : ''}`}
+                    className={`bg-neutral-100 border ${item.published ? 'border-yellow-500/30 shadow-[0_0_20px_rgba(220,38,38,0.1)]' : 'border-neutral-200'} p-6 rounded-[2.5rem] flex justify-between items-center group transition-all cursor-pointer ${isMenuSelectMode && selectedMenuItemIds.has(item.id) ? 'ring-2 ring-red-600 border-red-600' : ''}`}
                    >
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center overflow-hidden border border-white/5 relative">
+                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden border border-neutral-200 relative">
                            {(item.spinningImage || item.image) ? (
                              <img src={item.spinningImage || item.image || undefined} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                            ) : (
-                             <Utensils className="text-white/10" size={24} />
+                             <Utensils className="text-neutral-500" size={24} />
                            )}
                            {!item.published && (
-                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                               <X size={12} className="text-white/40" />
+                             <div className="absolute inset-0 bg-neutral-100 flex items-center justify-center">
+                               <X size={12} className="text-neutral-500" />
                              </div>
                            )}
                            {isMenuSelectMode && (
-                             <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${selectedMenuItemIds.has(item.id) ? 'opacity-100' : 'opacity-0'}`}>
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedMenuItemIds.has(item.id) ? 'bg-red-600 text-white' : 'border-2 border-white text-white'}`}>
+                             <div className={`absolute inset-0 flex items-center justify-center bg-neutral-100 transition-opacity ${selectedMenuItemIds.has(item.id) ? 'opacity-100' : 'opacity-0'}`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedMenuItemIds.has(item.id) ? 'bg-red-600 text-white' : 'border-2 border-neutral-200 text-neutral-500'}`}>
                                    <Check size={16} className={selectedMenuItemIds.has(item.id) ? 'opacity-100' : 'opacity-0'} />
                                 </div>
                              </div>
@@ -747,11 +747,11 @@ export default function AdminDashboard() {
                           <div className="flex items-center gap-2 mb-0.5">
                             <div className="text-[10px] font-black uppercase text-red-600 tracking-widest">{item.category}</div>
                             {!item.published && (
-                              <span className="bg-white/5 text-[8px] font-black uppercase tracking-widest text-white/20 px-1.5 py-0.5 rounded border border-white/5">Draft</span>
+                              <span className="bg-neutral-100 text-[8px] font-black uppercase tracking-widest text-neutral-500 px-1.5 py-0.5 rounded border border-neutral-200">Draft</span>
                             )}
                           </div>
                           <div className="font-black italic uppercase text-lg leading-tight tracking-tighter">{item.name}</div>
-                          <div className="text-[10px] text-white/30 font-black uppercase mt-1">₹{item.price} • {item.protein}g Protein</div>
+                          <div className="text-[10px] text-neutral-500 font-black uppercase mt-1">₹{item.price} • {item.protein}g Protein</div>
                         </div>
                       </div>
                       {!isMenuSelectMode && (
@@ -761,11 +761,11 @@ export default function AdminDashboard() {
                             className={`p-4 rounded-2xl ${item.published ? 'bg-green-600/10 text-green-500 hover:bg-green-600 hover:text-white' : 'bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white'} transition-all shadow-lg`}
                             title={item.published ? "Take Offline" : "Go Live"}
                           >
-                            {item.published ? <Check size={20} /> : <Zap size={20} />}
+                            {item.published ? <Check size={20} /> : <Zap size={20} className="text-yellow-500" />}
                           </button>
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleDeleteMenuItem(item.id); }}
-                            className="p-4 rounded-2xl bg-white/5 text-white/20 hover:bg-red-600 hover:text-white transition-all shadow-lg"
+                            className="p-4 rounded-2xl bg-neutral-100 text-neutral-500 hover:bg-red-600 hover:text-white transition-all shadow-lg"
                           >
                             <Trash2 size={20} />
                           </button>
@@ -778,15 +778,15 @@ export default function AdminDashboard() {
           </main>
         ) : activeTab === 'notes' ? (
           <main className="space-y-12">
-            <section className="bg-neutral-900 p-8 rounded-[3rem] border border-white/5">
+            <section className="bg-neutral-100 p-8 rounded-[3rem] border border-neutral-200">
                 <h2 className="text-2xl font-black italic uppercase mb-8 flex items-center gap-3">
                   <FileText className="text-red-600" /> Admin Records
                 </h2>
                 <div className="space-y-4">
-                  <div className="text-[10px] font-black uppercase text-white/40 ml-1 mb-2">History is preserved. Add any data here.</div>
+                  <div className="text-[10px] font-black uppercase text-neutral-500 ml-1 mb-2">History is preserved. Add any data here.</div>
                   <textarea 
                     placeholder="ENTER LOGS, SYSTEM NOTES, OR ANNOUNCEMENTS..."
-                    className="w-full bg-black border border-white/10 rounded-3xl p-6 text-sm font-bold uppercase tracking-widest focus:border-red-600 outline-none h-40 resize-none"
+                    className="w-full bg-white border border-neutral-200 rounded-3xl p-6 text-sm font-bold uppercase tracking-widest focus:border-red-600 outline-none h-40 resize-none"
                     value={newNote}
                     onChange={e => setNewNote(e.target.value)}
                   />
@@ -801,7 +801,7 @@ export default function AdminDashboard() {
 
             <section className="space-y-4">
                {notes.map(note => (
-                 <div key={note.id} className="bg-neutral-900 border border-white/5 p-8 rounded-[2.5rem] relative overflow-hidden group">
+                 <div key={note.id} className="bg-neutral-100 border border-neutral-200 p-8 rounded-[2.5rem] relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
                       <Save size={100} />
                     </div>
@@ -819,11 +819,11 @@ export default function AdminDashboard() {
               <h2 className="text-3xl font-black italic uppercase flex items-center gap-3">
                 <Users className="text-red-600" /> Customer <span className="text-red-600">Database</span>
               </h2>
-              <span className="text-[10px] font-black uppercase text-white/20 tracking-widest">{filteredUsers.length} REGISTERED</span>
+              <span className="text-[10px] font-black uppercase text-neutral-500 tracking-widest">{filteredUsers.length} REGISTERED</span>
             </div>
             {filteredUsers.length === 0 ? (
-              <div className="bg-neutral-900/50 border border-white/5 p-12 rounded-[3rem] text-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">No users found.</p>
+              <div className="bg-neutral-50 border border-neutral-200 p-12 rounded-[3rem] text-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500">No users found.</p>
               </div>
             ) : (
               <CustomerTable users={users} searchTerm={searchTerm} />
@@ -836,18 +836,18 @@ export default function AdminDashboard() {
 
       {/* Screenshot Modal */}
       {viewingScreenshot && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm" onClick={() => setViewingScreenshot(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-100 backdrop-blur-sm" onClick={() => setViewingScreenshot(null)}>
           <div className="relative max-w-4xl max-h-[90vh] w-full flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
             <button 
               onClick={() => setViewingScreenshot(null)}
-              className="absolute -top-12 right-0 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-full transition-all"
+              className="absolute -top-12 right-0 text-neutral-500 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-100 p-2 rounded-full transition-all"
             >
               <X size={24} />
             </button>
             <img 
               src={viewingScreenshot} 
               alt="Payment Screenshot" 
-              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-white/10"
+              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-neutral-200"
               referrerPolicy="no-referrer"
             />
           </div>

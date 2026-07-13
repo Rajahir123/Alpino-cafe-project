@@ -152,9 +152,9 @@ export default function UserDashboard() {
 
   if (loading) return (
     <div className="theme-light">
-      <div className="min-h-screen bg-black flex items-center justify-center p-6">
+      <div className="min-h-screen bg-white flex items-center justify-center p-6">
          <div className="text-red-600 font-black italic uppercase animate-pulse flex items-center gap-3">
-           <Zap size={24} /> Syncing Intelligence...
+           <Zap size={24} className="text-yellow-500" /> Syncing Intelligence...
          </div>
       </div>
     </div>
@@ -170,7 +170,7 @@ export default function UserDashboard() {
 
   return (
     <div className="theme-light">
-      <div className="min-h-screen bg-black pt-24 pb-20 px-4 sm:px-6 font-sans">
+      <div className="min-h-screen bg-white pt-24 pb-20 px-4 sm:px-6 font-sans">
       {profile?.role === 'admin' && (
         <div className="max-w-4xl mx-auto mb-6 flex justify-end">
            <Link to="/kitchen" className="flex items-center gap-2 px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-xl border border-red-600/20 transition-all text-[10px] font-black uppercase tracking-widest">
@@ -183,36 +183,36 @@ export default function UserDashboard() {
         {/* Welcome Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 md:mb-12">
            <div>
-             <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-red-600 mb-2 underline underline-offset-8 decoration-red-600/30">Protocol: Active</div>
+             <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-yellow-500 mb-2 underline underline-offset-8 decoration-red-600/30">Protocol: Active</div>
              <h1 className="text-3xl md:text-4xl font-black italic uppercase leading-none tracking-tighter">Hey {profile?.name.split(' ')[0]}</h1>
            </div>
-           <div className="flex w-full md:w-auto bg-neutral-900 border border-white/5 rounded-2xl p-4 divide-x divide-white/10 shadow-lg relative group transition-all hover:border-red-600/30">
+           <div className="flex w-full md:w-auto bg-neutral-100 border border-neutral-200 rounded-2xl p-4 divide-x divide-white/10 shadow-lg relative group transition-all hover:border-yellow-500/30">
               <div className="flex-1 md:flex-none px-4 md:px-6 text-center">
-                <div className="text-[10px] font-black uppercase text-white/40 mb-1 tracking-widest">Days Left</div>
-                <div className="text-xl md:text-2xl font-black text-white">{getDayLeft()}</div>
+                <div className="text-[10px] font-black uppercase text-neutral-500 mb-1 tracking-widest">Days Left</div>
+                <div className="text-xl md:text-2xl font-black text-neutral-900">{getDayLeft()}</div>
               </div>
               <div className="flex-1 md:flex-none px-4 md:px-6 text-center">
-                <div className="text-[10px] font-black uppercase text-white/40 mb-1 tracking-widest">Avg Protein</div>
+                <div className="text-[10px] font-black uppercase text-neutral-500 mb-1 tracking-widest">Avg Protein</div>
                 <div className="text-2xl font-black text-red-600">{profile?.avgProtein}g</div>
-                <div className="text-[9px] uppercase font-black text-white/20 mt-1">Goal: {profile?.proteinGoal}g+</div>
+                <div className="text-[9px] uppercase font-black text-neutral-500 mt-1">Goal: {profile?.proteinGoal}g+</div>
               </div>
 
               {/* Integrity Manifest Tooltip */}
-              <div className="absolute top-full left-0 right-0 mt-4 bg-black/95 backdrop-blur-2xl border border-red-600/30 p-5 rounded-[2rem] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 z-50 pointer-events-none shadow-[0_25px_60px_rgba(220,38,38,0.3)]">
+              <div className="absolute top-full left-0 right-0 mt-4 bg-neutral-50 backdrop-blur-2xl border border-yellow-500/30 p-5 rounded-[2rem] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 z-50 pointer-events-none shadow-[0_25px_60px_rgba(220,38,38,0.3)]">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-1 h-1 bg-red-600 rounded-full animate-ping" />
-                  <div className="text-[9px] font-black uppercase tracking-[0.4em] text-red-600">Integrity Protocol Active</div>
+                  <div className="text-[9px] font-black uppercase tracking-[0.4em] text-yellow-500">Integrity Protocol Active</div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                    {['Maida', 'Palm Oil', 'Artificial', 'Sugar'].map(tag => (
-                     <div key={tag} className="flex justify-between items-center bg-white/5 px-4 py-3 rounded-xl border border-white/5">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/40">{tag}</span>
+                     <div key={tag} className="flex justify-between items-center bg-neutral-50 px-4 py-3 rounded-xl border border-neutral-200">
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-neutral-500">{tag}</span>
                         <span className="text-xs font-black text-red-600 italic tracking-tighter">0%</span>
                      </div>
                    ))}
                 </div>
-                <div className="mt-4 pt-4 border-t border-white/5 text-center">
-                   <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Zero Compromise Logistics</p>
+                <div className="mt-4 pt-4 border-t border-neutral-200 text-center">
+                   <p className="text-[8px] font-bold text-neutral-500 uppercase tracking-widest">Zero Compromise Logistics</p>
                 </div>
               </div>
            </div>
@@ -241,14 +241,14 @@ export default function UserDashboard() {
              </div>
            </div>
 
-           <div className="bg-neutral-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-white/5 shadow-xl flex flex-col justify-center group overflow-hidden relative">
+           <div className="bg-neutral-100 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-neutral-200 shadow-xl flex flex-col justify-center group overflow-hidden relative">
 
-             <div className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 mb-4 relative z-10">Extraction Logistics</div>
+             <div className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-500 mb-4 relative z-10">Extraction Logistics</div>
              <div className="flex gap-4 items-center relative z-10">
-                <div className="p-4 bg-white/5 rounded-2xl text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all"><Truck size={24} /></div>
+                <div className="p-4 bg-neutral-50 rounded-2xl text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all"><Truck size={24} /></div>
                 <div>
                   <div className="text-sm font-black italic uppercase tracking-tighter truncate max-w-[200px] mb-1">{profile?.address || 'UNSET VECTOR'}</div>
-                  <div className="text-[10px] text-white/30 font-black uppercase tracking-widest flex items-center gap-2">
+                  <div className="text-[10px] text-neutral-500 font-black uppercase tracking-widest flex items-center gap-2">
                     <Clock size={12} className="text-red-600" /> Slot: 8:00 AM - 9:00 AM
                   </div>
                 </div>
@@ -257,7 +257,7 @@ export default function UserDashboard() {
         </div>
 
         {/* Change Recipe Section */}
-        <section className="bg-neutral-900/50 border border-white/10 rounded-[2rem] md:rounded-[3.5rem] p-5 sm:p-8 md:p-12 relative overflow-hidden backdrop-blur-sm">
+        <section className="bg-neutral-50 border border-neutral-200 rounded-[2rem] md:rounded-[3.5rem] p-5 sm:p-8 md:p-12 relative overflow-hidden backdrop-blur-sm">
 
           <div className="flex flex-col md:flex-row justify-between items-start mb-8 md:mb-12 relative z-10 gap-6">
             <div>
@@ -267,14 +267,14 @@ export default function UserDashboard() {
                   {selectedDay === 'today' ? 'Today' : 'Tomorrow'} <span className="text-red-600">—</span> Selection
                 </h2>
               </div>
-              <p className="text-[10px] md:text-[11px] text-white/40 font-black uppercase tracking-[0.2em] bg-white/5 inline-block px-4 py-2 rounded-xl border border-white/5">Pick before 9 PM — instant kitchen synchronization</p>
+              <p className="text-[10px] md:text-[11px] text-neutral-500 font-black uppercase tracking-[0.2em] bg-neutral-50 inline-block px-4 py-2 rounded-xl border border-neutral-200">Pick before 9 PM — instant kitchen synchronization</p>
             </div>
             
-            <div className="flex bg-black border border-white/10 p-1 rounded-2xl w-full md:w-auto">
+            <div className="flex bg-white border border-neutral-200 p-1 rounded-2xl w-full md:w-auto">
                <button 
                  onClick={() => setSelectedDay('today')}
                  className={`flex-1 md:flex-none px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                   selectedDay === 'today' ? 'bg-red-600 text-white shadow-lg' : 'text-white/30 hover:text-white'
+                   selectedDay === 'today' ? 'bg-red-600 text-white shadow-lg' : 'text-neutral-500 hover:text-neutral-900'
                  }`}
                >
                  Today
@@ -282,7 +282,7 @@ export default function UserDashboard() {
                <button 
                  onClick={() => setSelectedDay('tomorrow')}
                  className={`flex-1 md:flex-none px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                   selectedDay === 'tomorrow' ? 'bg-red-600 text-white shadow-lg' : 'text-white/30 hover:text-white'
+                   selectedDay === 'tomorrow' ? 'bg-red-600 text-white shadow-lg' : 'text-neutral-500 hover:text-neutral-900'
                  }`}
                >
                  Tomorrow
@@ -299,18 +299,18 @@ export default function UserDashboard() {
                  className={`p-3 md:p-6 rounded-xl md:rounded-[1.5rem] border-2 transition-all relative overflow-hidden group ${
                    isLocked ? 'opacity-60 cursor-not-allowed grayscale-[0.5]' : 'cursor-pointer'
                  }  ${
-                   selectedItem?.id === item.id ? 'border-red-600 bg-red-600/10' : 'border-white/5 bg-black hover:border-white/20'
+                   selectedItem?.id === item.id ? 'border-red-600 bg-red-600/10' : 'border-neutral-200 bg-white hover:border-neutral-200'
                  }`}
                  onClick={() => !isLocked && setSelectedItem(item)}
                >
                   <div className="flex items-center justify-between gap-1.5 mb-1.5 md:mb-2 relative z-10">
-                    <div className="text-[7px] md:text-[10px] font-black tracking-widest text-white/40 uppercase truncate">{item.category}</div>
+                    <div className="text-[7px] md:text-[10px] font-black tracking-widest text-neutral-500 uppercase truncate">{item.category}</div>
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
                         setShowRecipeId(showRecipeId === item.id ? null : item.id);
                       }}
-                      className="p-1 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-all"
+                      className="p-1 hover:bg-neutral-50 rounded-lg text-neutral-500 hover:text-neutral-900 transition-all"
                     >
                       <Info size={12} className="md:w-3.5 md:h-3.5" />
                     </button>
@@ -319,7 +319,7 @@ export default function UserDashboard() {
                   <div 
                     className="relative z-10"
                   >
-                    <div className="w-full aspect-square mb-2 md:mb-4 rounded-lg md:rounded-xl overflow-hidden border border-white/5 bg-neutral-900 group-hover:scale-105 transition-transform duration-500">
+                    <div className="w-full aspect-square mb-2 md:mb-4 rounded-lg md:rounded-xl overflow-hidden border border-neutral-200 bg-neutral-100 group-hover:scale-105 transition-transform duration-500">
                       <AssetImage 
                         assetName={item.name}
                         fallbackUrl={item.image || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=200`}
@@ -328,9 +328,9 @@ export default function UserDashboard() {
                       />
                     </div>
                     <h3 className="font-black italic uppercase text-[9px] md:text-sm leading-tight mb-1.5 md:mb-2 line-clamp-2 min-h-[2.5em] group-hover:text-red-500 transition-colors">{item.name}</h3>
-                    <div className="flex justify-between items-baseline pt-1.5 md:pt-2 border-t border-white/5">
+                    <div className="flex justify-between items-baseline pt-1.5 md:pt-2 border-t border-neutral-200">
                       <span className="text-xs md:text-lg font-black text-red-600 italic tracking-tighter">{item.protein}g</span>
-                      <span className="text-[7px] md:text-[10px] font-black text-white/20 uppercase tracking-widest">Protein</span>
+                      <span className="text-[7px] md:text-[10px] font-black text-neutral-500 uppercase tracking-widest">Protein</span>
                     </div>
                   </div>
 
@@ -340,21 +340,21 @@ export default function UserDashboard() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute inset-0 bg-black/95 z-20 p-6 flex flex-col justify-center text-left"
+                        className="absolute inset-0 bg-neutral-50 z-20 p-6 flex flex-col justify-center text-left"
                       >
                          <button 
                            onClick={() => setShowRecipeId(null)}
-                           className="absolute top-4 right-4 text-white/40 hover:text-white"
+                           className="absolute top-4 right-4 text-neutral-500 hover:text-neutral-900"
                          >
                            <X size={20} />
                          </button>
                          <h4 className="text-[10px] font-black uppercase text-red-600 mb-2 tracking-[0.2em]">Recipe Intelligence</h4>
-                         <p className="text-[11px] font-bold text-white uppercase leading-relaxed tracking-wider">
+                         <p className="text-[11px] font-bold text-neutral-900 uppercase leading-relaxed tracking-wider">
                            {item.description || 'Calculated nutrition plan for high-performance recovery. Optimized proteins and complex carbohydrates.'}
                          </p>
                          <div className="mt-6 flex flex-wrap gap-2">
-                           <div className="bg-white/5 px-2 py-1 rounded text-[8px] font-black uppercase text-white/40">{item.calories} KCAL</div>
-                           <div className="bg-white/5 px-2 py-1 rounded text-[8px] font-black uppercase text-white/40">{item.protein}G PROT</div>
+                           <div className="bg-neutral-50 px-2 py-1 rounded text-[8px] font-black uppercase text-neutral-500">{item.calories} KCAL</div>
+                           <div className="bg-neutral-50 px-2 py-1 rounded text-[8px] font-black uppercase text-neutral-500">{item.protein}G PROT</div>
                          </div>
                       </motion.div>
                     )}
@@ -363,20 +363,20 @@ export default function UserDashboard() {
              ))}
           </div>
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-white/5">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-neutral-200">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-white/5 rounded-full flex items-center justify-center text-red-600 animate-pulse flex-shrink-0">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-neutral-50 rounded-full flex items-center justify-center text-red-600 animate-pulse flex-shrink-0">
                 <Clock size={20} />
               </div>
-              <div className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-white/60 italic">Updating to kitchen instantly...</div>
+              <div className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-neutral-500 italic">Updating to kitchen instantly...</div>
             </div>
             
             <button 
               disabled={!selectedItem || saving || isLocked}
               onClick={handleSaveToKitchen}
               className={`w-full md:w-auto px-10 py-4 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${
-                isLocked ? 'bg-neutral-800 text-white/40 cursor-not-allowed' :
-                selectedItem ? 'bg-red-600 hover:bg-red-700 text-white shadow-[0_0_30px_rgba(220,38,38,0.3)]' : 'bg-white/5 text-white/20 cursor-not-allowed'
+                isLocked ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed' :
+                selectedItem ? 'bg-red-600 hover:bg-red-700 text-white shadow-[0_0_30px_rgba(220,38,38,0.3)]' : 'bg-neutral-50 text-neutral-500 cursor-not-allowed'
               }`}
             >
               {isLocked ? 'LOCKED FOR SERVICE' : (saving ? 'UPDATING...' : message || 'SAVE TO KITCHEN →')}
@@ -391,18 +391,18 @@ export default function UserDashboard() {
         <section>
           <div className="flex items-center gap-4 mb-8">
             <h2 className="text-2xl font-black italic uppercase">Recent Orders</h2>
-            <div className="h-[1px] flex-grow bg-white/5" />
+            <div className="h-[1px] flex-grow bg-neutral-50" />
           </div>
           
           <div className="space-y-4">
              {orders.length === 0 ? (
-               <div className="p-12 border-2 border-dashed border-white/5 rounded-3xl text-center">
-                 <div className="text-white/20 font-black uppercase tracking-widest mb-2 italic">Nothing found</div>
-                 <p className="text-xs text-white/30 font-medium">Your nutrition journey starts here.</p>
+               <div className="p-12 border-2 border-dashed border-neutral-200 rounded-3xl text-center">
+                 <div className="text-neutral-500 font-black uppercase tracking-widest mb-2 italic">Nothing found</div>
+                 <p className="text-xs text-neutral-500 font-medium">Your nutrition journey starts here.</p>
                </div>
              ) : (
                orders.sort((a,b) => b.date.localeCompare(a.date)).map(order => (
-                 <div key={order.id} className="bg-neutral-900 border border-white/5 p-6 rounded-2xl flex justify-between items-center">
+                 <div key={order.id} className="bg-neutral-100 border border-neutral-200 p-6 rounded-2xl flex justify-between items-center">
                     <div className="flex items-center gap-6">
                       <div className="text-sm font-black italic text-red-600 uppercase w-24">{new Date(order.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</div>
                       <div className="font-bold uppercase text-sm">{order.items[0]?.name}</div>
@@ -428,20 +428,20 @@ export default function UserDashboard() {
               initial={{ opacity: 0, scale: 0.9, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 10 }}
-              className="bg-neutral-950/95 border border-white/10 rounded-2xl p-5 shadow-2xl w-64 backdrop-blur-md flex flex-col gap-3 text-white"
+              className="bg-neutral-950/95 border border-neutral-200 rounded-2xl p-5 shadow-2xl w-64 backdrop-blur-md flex flex-col gap-3 text-neutral-900"
             >
-              <div className="border-b border-white/5 pb-3">
+              <div className="border-b border-neutral-200 pb-3">
                 <div className="text-[10px] font-black uppercase tracking-wider text-red-600 mb-1">Subscriber Identity</div>
                 <div className="text-sm font-black italic uppercase tracking-tight truncate">{profile?.name || 'ALPINO USER'}</div>
-                <div className="text-[10px] text-white/40 truncate">{profile?.email}</div>
+                <div className="text-[10px] text-neutral-500 truncate">{profile?.email}</div>
               </div>
 
               {profile?.planStatus && (
-                <div className="bg-white/5 rounded-xl p-3 flex flex-col">
-                  <div className="text-[9px] font-black uppercase tracking-wider text-white/30">Active Protocol</div>
+                <div className="bg-neutral-50 rounded-xl p-3 flex flex-col">
+                  <div className="text-[9px] font-black uppercase tracking-wider text-neutral-500">Active Protocol</div>
                   <div className="text-xs font-black uppercase tracking-widest text-red-500 mt-0.5">{profile.planStatus}</div>
                   {profile.daysRemaining !== undefined && (
-                    <div className="text-[9px] text-white/40 mt-1 uppercase font-black tracking-wider">
+                    <div className="text-[9px] text-neutral-500 mt-1 uppercase font-black tracking-wider">
                       {profile.daysRemaining} Cycles Remaining
                     </div>
                   )}
@@ -451,7 +451,7 @@ export default function UserDashboard() {
               <div className="flex flex-col gap-2 mt-1">
                 <Link 
                   to="/" 
-                  className="flex items-center gap-2 justify-center py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                  className="flex items-center gap-2 justify-center py-2.5 bg-neutral-50 hover:bg-neutral-50 text-neutral-900 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
                 >
                   <Home size={12} /> Back to Home
                 </Link>
