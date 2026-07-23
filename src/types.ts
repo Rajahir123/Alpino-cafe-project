@@ -22,6 +22,8 @@ export interface UserProfile {
   socialMediaFeature?: string;
   fitnessTips?: string;
   heardAboutUs?: string;
+  dob?: string;
+  mealAddons?: string[];
   startDate?: string;
   role: UserRole;
   planId?: string;

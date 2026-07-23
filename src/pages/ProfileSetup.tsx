@@ -36,10 +36,13 @@ export default function ProfileSetup() {
     socialMediaFeature: profile?.socialMediaFeature || '',
     fitnessTips: profile?.fitnessTips || '',
     heardAboutUs: profile?.heardAboutUs || '',
+    dob: profile?.dob || '',
+    mealAddons: profile?.mealAddons || [],
     startDate: profile?.startDate || '',
   });
 
   const [saving, setSaving] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const navigate = useNavigate();
 
@@ -64,6 +67,8 @@ export default function ProfileSetup() {
         socialMediaFeature: profile.socialMediaFeature || '',
         fitnessTips: profile.fitnessTips || '',
         heardAboutUs: profile.heardAboutUs || '',
+        dob: profile.dob || '',
+        mealAddons: profile.mealAddons || [],
         startDate: profile.startDate || ''
       }));
     }
@@ -72,7 +77,7 @@ export default function ProfileSetup() {
   const validateStep = (step: number) => {
     switch (step) {
       case 0:
-        return !!(formData.name && formData.phone && formData.gender && formData.occupation);
+        return !!(formData.name && formData.phone && formData.dob && formData.gender && formData.occupation);
       case 1:
         return !!(formData.primaryGoal && formData.workoutFrequency);
       case 2:
@@ -80,7 +85,7 @@ export default function ProfileSetup() {
       case 3:
         return !!(formData.consumptionMethod && formData.address && formData.preferredTimeSlot && formData.startDate);
       case 4:
-        return true;
+        return !!(formData.heardAboutUs && termsAccepted);
       default:
         return true;
     }
@@ -116,7 +121,7 @@ export default function ProfileSetup() {
       const allowedKeys = [
         'name', 'phone', 'address', 'gender', 'occupation', 'primaryGoal', 'workoutFrequency', 
         'mealPreference', 'mealTypes', 'foodAllergies', 'consumptionMethod', 'preferredTimeSlot', 
-        'upgradeMeals', 'socialMediaFeature', 'fitnessTips', 'heardAboutUs', 'startDate'
+        'upgradeMeals', 'socialMediaFeature', 'fitnessTips', 'heardAboutUs', 'startDate', 'dob', 'mealAddons'
       ];
       const sanitizedData = Object.fromEntries(
         Object.entries(formData).filter(([k, v]) => v !== undefined && allowedKeys.includes(k))
@@ -137,7 +142,7 @@ export default function ProfileSetup() {
     }
   };
 
-  const updateField = (field: keyof UserProfile, value: string) => {
+  const updateField = (field: keyof UserProfile, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -212,69 +217,52 @@ export default function ProfileSetup() {
                         className="w-full bg-neutral-50 border border-neutral-200 rounded-2xl py-4 pl-14 pr-5 font-bold text-sm uppercase tracking-widest text-neutral-900 focus:outline-none focus:border-red-500 focus:bg-white transition-all placeholder:text-neutral-400"
                       />
                     </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                           <div className="text-[10px] text-neutral-400 font-black uppercase tracking-widest pl-2">Gender</div>
-                           <div className="flex gap-2">
-                             {['Male', 'Female'].map(g => (
-                               <button 
-                                 key={g} type="button"
-                                 onClick={() => updateField('gender', g)}
-                                 className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === g ? 'bg-red-600 text-white' : 'bg-white text-neutral-400 border border-neutral-200 hover:border-red-500 hover:bg-neutral-50'}`}
-                               >
-                                 {g}
-                               </button>
-                             ))}
-                           </div>
-                        </div>
-                        <div className="space-y-2">
-                           <div className="text-[10px] text-neutral-400 font-black uppercase tracking-widest pl-2">Occupation</div>
-                           <input 
-                              type="text" 
-                              placeholder="e.g. IT, Student"
-                              value={formData.occupation || ''}
-                              onChange={(e) => updateField('occupation', e.target.value)}
-                              className="w-full bg-neutral-50 border border-neutral-200 rounded-xl py-3 px-4 font-bold text-xs uppercase tracking-widest text-neutral-900 focus:outline-none focus:border-red-500 transition-all placeholder:text-neutral-400"
-                            />
-                        </div>
+                    <div>
+                      <label className="text-[10px] md:text-xs text-neutral-500 font-black uppercase tracking-[0.2em] pl-2 mb-2 block">Date of Birth</label>
+                      <div className="relative group">
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-red-500 transition-colors z-10" size={16} />
+                        <input 
+                          type="date" 
+                          value={formData.dob || ''}
+                          onChange={(e) => updateField('dob', e.target.value)}
+                          className="w-full bg-neutral-50 border border-neutral-200 rounded-2xl py-4 pl-14 pr-5 font-bold text-sm uppercase tracking-widest text-neutral-900 focus:outline-none focus:border-red-500 transition-all placeholder:text-neutral-400"
+                        />
+                      </div>
                     </div>
                  </div>
                )}
 
                {currentStep === 1 && (
-                 <div className="space-y-6">
-                    <div className="space-y-3">
-                       <div className="text-[10px] md:text-xs text-neutral-500 font-black uppercase tracking-[0.2em] pl-2">What is your primary goal?</div>
-                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {['Muscle Gain', 'Fat Loss', 'Healthy Lifestyle', 'Busy Professionals', 'Gym Athletes'].map(goal => (
+                 <div className="space-y-4">
+                    <div className="p-4 md:p-6 rounded-2xl bg-white border border-neutral-200">
+                       <div className="text-[10px] md:text-xs text-neutral-500 font-black uppercase tracking-[0.2em] pl-2 mb-3">Primary Goal</div>
+                       <div className="grid grid-cols-2 gap-2">
+                          {['Weight Loss', 'Muscle Gain', 'Maintenance', 'Performance'].map(goal => (
                              <button
                                key={goal} type="button"
                                onClick={() => updateField('primaryGoal', goal)}
-                               className={`p-4 rounded-2xl border text-left flex justify-between items-center transition-all ${
-                                 formData.primaryGoal === goal 
-                                  ? 'bg-red-50 border-red-500 text-red-600' 
-                                  : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                               className={`py-3 md:py-4 rounded-xl border transition-all ${
+                                 formData.primaryGoal === goal
+                                   ? 'bg-red-50 border-red-500 text-red-600'
+                                   : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'
                                 }`}
                              >
-                               <span className="text-sm font-bold uppercase tracking-widest">{goal}</span>
-                               {formData.primaryGoal === goal && <CheckCircle2 size={18} className="text-red-500" />}
+                               <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest">{goal}</span>
                              </button>
                           ))}
                        </div>
                     </div>
-                    
-                    <div className="space-y-3">
-                       <div className="text-[10px] md:text-xs text-neutral-500 font-black uppercase tracking-[0.2em] pl-2">Workout Frequency</div>
+                    <div className="p-4 md:p-6 rounded-2xl bg-white border border-neutral-200">
+                       <div className="text-[10px] md:text-xs text-neutral-500 font-black uppercase tracking-[0.2em] pl-2 mb-3">Workout Frequency (Weekly)</div>
                        <div className="flex gap-2">
                           {['0-2 days', '3-4 days', '5+ days'].map(freq => (
                              <button
                                key={freq} type="button"
                                onClick={() => updateField('workoutFrequency', freq)}
                                className={`flex-1 py-4 rounded-2xl border transition-all ${
-                                 formData.workoutFrequency === freq 
-                                  ? 'bg-red-50 border-red-500 text-red-600' 
-                                  : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                                 formData.workoutFrequency === freq
+                                   ? 'bg-red-50 border-red-500 text-red-600'
+                                   : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'
                                 }`}
                              >
                                <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest block text-center">{freq}</span>
@@ -284,107 +272,76 @@ export default function ProfileSetup() {
                     </div>
                  </div>
                )}
-
                {currentStep === 2 && (
-                 <div className="space-y-6">
-                    <div className="space-y-3">
-                       <div className="text-[10px] text-neutral-500 font-black uppercase tracking-[0.2em] pl-2">Meal Preference</div>
-                       <div className="flex gap-2">
-                          {['Veg', 'Non-Veg', 'Vegan', 'Jain'].map(pref => (
+                 <div className="space-y-4">
+                    <div className="p-4 md:p-6 rounded-2xl bg-white border border-neutral-200">
+                       <div className="text-[10px] md:text-xs text-neutral-500 font-black uppercase tracking-[0.2em] pl-2 mb-3">Meal Preference</div>
+                       <div className="grid grid-cols-2 gap-2">
+                          {['Veg', 'Non-Veg', 'Eggetarian', 'Vegan'].map(pref => (
                              <button
                                key={pref} type="button"
                                onClick={() => updateField('mealPreference', pref)}
-                               className={`flex-1 py-3 rounded-2xl border transition-all ${
-                                 formData.mealPreference === pref 
-                                  ? 'bg-red-50 border-red-500 text-red-600' 
-                                  : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                               className={`py-3 md:py-4 rounded-xl border transition-all ${
+                                 formData.mealPreference === pref
+                                   ? 'bg-red-50 border-red-500 text-red-600'
+                                   : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'
                                 }`}
                              >
-                               <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest block text-center">{pref}</span>
+                               <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest">{pref}</span>
                              </button>
                           ))}
                        </div>
                     </div>
-
-                    <div className="space-y-3">
-                       <div className="text-[10px] text-neutral-500 font-black uppercase tracking-[0.2em] pl-2">What type of meals do you prefer?</div>
-                       <div className="grid grid-cols-3 gap-3">
-                          {['Bowls', 'Wraps', 'Subs'].map(type => (
+                    <div className="p-4 md:p-6 rounded-2xl bg-white border border-neutral-200">
+                       <div className="text-[10px] md:text-xs text-neutral-500 font-black uppercase tracking-[0.2em] pl-2 mb-3">Meal Types Included</div>
+                       <div className="grid grid-cols-2 gap-2">
+                          {['All Meals', 'Lunch & Dinner', 'Lunch Only', 'Dinner Only'].map(type => (
                              <button
                                key={type} type="button"
                                onClick={() => updateField('mealTypes', type)}
-                               className={`py-6 rounded-2xl border flex flex-col items-center justify-center gap-2 transition-all ${
-                                 formData.mealTypes === type 
-                                  ? 'bg-red-50 border-red-500 text-red-600 scale-[1.02] shadow-[0_0_20px_rgba(220,38,38,0.2)]' 
-                                  : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                               className={`py-3 md:py-4 rounded-xl border transition-all ${
+                                 formData.mealTypes === type
+                                   ? 'bg-red-50 border-red-500 text-red-600'
+                                   : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'
                                 }`}
                              >
-                               <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">{type}</span>
-                               {formData.mealTypes === type && <CheckCircle2 size={16} className="text-red-500" />}
+                               <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest">{type}</span>
                              </button>
                           ))}
                        </div>
                     </div>
-
-                    <div className="space-y-3">
-                       <div className="text-[10px] text-neutral-500 font-black uppercase tracking-[0.2em] pl-2">Any Food Allergies? (Optional)</div>
-                       <div className="flex flex-wrap gap-2">
-                          {['Peanut', 'Soya', 'Milk (Lactose)'].map(allergy => {
-                            const currentAllergies = (formData.foodAllergies || '').split(',').map(s => s.trim()).filter(Boolean);
-                            const isSelected = currentAllergies.includes(allergy);
-                            return (
-                              <button
-                                key={allergy} type="button"
-                                onClick={() => {
-                                  if (isSelected) {
-                                    updateField('foodAllergies', currentAllergies.filter(a => a !== allergy).join(', '));
-                                  } else {
-                                    updateField('foodAllergies', [...currentAllergies, allergy].join(', '));
-                                  }
-                                }}
-                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                                  isSelected 
-                                    ? 'bg-red-50 border-red-500 text-red-600' 
-                                    : 'bg-white border-neutral-200 text-neutral-400 hover:bg-neutral-50 hover:text-neutral-900'
-                                }`}
-                              >
-                                {isSelected ? '✓ ' : '+ '}{allergy}
-                              </button>
-                            );
-                          })}
-                       </div>
-                       <input 
+                    <div className="relative group">
+                        <Activity className="absolute left-5 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-red-500 transition-colors z-10" size={18} />
+                        <input 
                           type="text" 
-                          placeholder="OTHER ALLERGIES? TYPE HERE..."
+                          placeholder="ANY FOOD ALLERGIES?"
                           value={formData.foodAllergies || ''}
                           onChange={(e) => updateField('foodAllergies', e.target.value)}
-                          className="w-full bg-neutral-50 border border-neutral-200 rounded-xl py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-neutral-900 focus:outline-none focus:border-red-500 transition-all placeholder:text-neutral-400"
+                          className="w-full bg-neutral-50 border border-neutral-200 rounded-xl py-3 px-4 pl-14 font-bold text-[10px] uppercase tracking-widest text-neutral-900 focus:outline-none focus:border-red-500 transition-all placeholder:text-neutral-400"
                         />
                     </div>
                  </div>
                )}
-
                {currentStep === 3 && (
-                 <div className="space-y-5">
-                    <div className="space-y-3">
-                       <div className="text-[10px] text-neutral-500 font-black uppercase tracking-[0.2em] pl-2">How to consume?</div>
+                 <div className="space-y-4">
+                    <div className="p-4 md:p-6 rounded-2xl bg-white border border-neutral-200">
+                       <div className="text-[10px] text-neutral-500 font-black uppercase tracking-[0.2em] pl-2 mb-3">How to consume?</div>
                        <div className="flex gap-2">
                           {['Dine-in', 'Takeaway', 'Delivery'].map(method => (
                              <button
                                key={method} type="button"
                                onClick={() => updateField('consumptionMethod', method)}
                                className={`flex-1 py-3 rounded-2xl border transition-all ${
-                                 formData.consumptionMethod === method 
-                                  ? 'bg-red-50 border-red-500 text-red-600' 
-                                  : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                                 formData.consumptionMethod === method
+                                   ? 'bg-red-50 border-red-500 text-red-600'
+                                   : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'
                                 }`}
                              >
-                               <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest block text-center">{method}</span>
+                               <span className="text-[10px] font-bold uppercase tracking-widest block text-center">{method}</span>
                              </button>
                           ))}
                        </div>
                     </div>
-
                     <div className="relative group">
                       <MapPin className="absolute left-5 top-4 text-neutral-400 group-focus-within:text-red-500 transition-colors z-10" size={18} />
                       <textarea 
@@ -395,26 +352,28 @@ export default function ProfileSetup() {
                         className="w-full bg-neutral-50 border border-neutral-200 rounded-2xl py-4 pl-14 pr-5 font-bold text-sm uppercase tracking-widest text-neutral-900 focus:outline-none focus:border-red-500 transition-all placeholder:text-neutral-400 resize-none"
                       />
                     </div>
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                        <div className="relative group">
                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-red-500 transition-colors z-10" size={16} />
                          <input 
-                            type="text" 
-                            placeholder="TIME SLOT"
+                             type="text" 
+                             placeholder="TIME SLOT"
                             value={formData.preferredTimeSlot || ''}
                             onChange={(e) => updateField('preferredTimeSlot', e.target.value)}
                             className="w-full bg-neutral-50 border border-neutral-200 rounded-xl py-4 pl-12 pr-4 font-bold text-xs uppercase tracking-widest text-neutral-900 focus:outline-none focus:border-red-500 transition-all placeholder:text-neutral-400"
                           />
                        </div>
-                       <div className="relative group">
-                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-red-500 transition-colors z-10" size={16} />
-                         <input 
-                            type="date" 
-                            value={formData.startDate || ''}
-                            onChange={(e) => updateField('startDate', e.target.value)}
-                            className="w-full bg-neutral-50 border border-neutral-200 rounded-xl py-4 pl-12 pr-4 font-bold text-xs uppercase tracking-widest text-neutral-900 focus:outline-none focus:border-red-500 transition-all placeholder:text-neutral-400"
-                          />
+                       <div>
+                         <label className="text-[8px] md:text-[10px] text-neutral-500 font-black uppercase tracking-[0.2em] pl-2 mb-1 block">Start Date</label>
+                         <div className="relative group">
+                           <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-red-500 transition-colors z-10" size={16} />
+                           <input 
+                               type="date" 
+                               value={formData.startDate || ''}
+                              onChange={(e) => updateField('startDate', e.target.value)}
+                              className="w-full bg-neutral-50 border border-neutral-200 rounded-xl py-4 pl-12 pr-4 font-bold text-xs uppercase tracking-widest text-neutral-900 focus:outline-none focus:border-red-500 transition-all placeholder:text-neutral-400"
+                            />
+                         </div>
                        </div>
                     </div>
                  </div>
@@ -423,13 +382,35 @@ export default function ProfileSetup() {
                {currentStep === 4 && (
                  <div className="space-y-6">
                     <div className="p-6 rounded-2xl bg-white border border-neutral-200 space-y-4">
-                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                       
+                       <div className="flex flex-col gap-4">
                          <span className="text-xs font-bold uppercase tracking-widest text-neutral-700">Want to upgrade your meals?</span>
-                         <div className="flex gap-2 w-full sm:w-auto">
-                           <button type="button" onClick={() => updateField('upgradeMeals', 'Yes')} className={`flex-1 sm:flex-none py-2 px-6 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${formData.upgradeMeals === 'Yes' ? 'bg-red-600 text-white' : 'bg-white border border-neutral-200 text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 hover:bg-neutral-50'}`}>Yes</button>
-                           <button type="button" onClick={() => updateField('upgradeMeals', 'No')} className={`flex-1 sm:flex-none py-2 px-6 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${formData.upgradeMeals === 'No' ? 'bg-red-600 text-white' : 'bg-white border border-neutral-200 text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 hover:bg-neutral-50'}`}>No</button>
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                           {['Extra Protein Add-on', 'Peanut Butter Add-on', 'Creatine Add-on', 'Coconut Water Add-on'].map(addon => {
+                             const isSelected = formData.mealAddons?.includes(addon);
+                             return (
+                               <button 
+                                 key={addon} type="button" 
+                                 onClick={() => {
+                                   const current = formData.mealAddons || [];
+                                   if (isSelected) {
+                                     updateField('mealAddons', current.filter(a => a !== addon));
+                                   } else {
+                                     updateField('mealAddons', [...current, addon]);
+                                   }
+                                 }} 
+                                 className={`text-left p-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${isSelected ? 'bg-red-600 text-white' : 'bg-white border border-neutral-200 text-neutral-500 hover:border-red-500 hover:text-red-600'}`}
+                               >
+                                 <div className="flex items-center justify-between">
+                                   <span>{addon}</span>
+                                   {isSelected && <CheckCircle2 size={16} />}
+                                 </div>
+                               </button>
+                             );
+                           })}
                          </div>
                        </div>
+
                        <div className="h-px bg-neutral-100 w-full" />
                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                          <span className="text-xs font-bold uppercase tracking-widest text-neutral-700">Okay being featured for transformation stories?</span>
@@ -446,6 +427,23 @@ export default function ProfileSetup() {
                            <button type="button" onClick={() => updateField('fitnessTips', 'No')} className={`flex-1 sm:flex-none py-2 px-6 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${formData.fitnessTips === 'No' ? 'bg-red-600 text-white' : 'bg-white border border-neutral-200 text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 hover:bg-neutral-50'}`}>No</button>
                          </div>
                        </div>
+
+                       <div className="h-px bg-neutral-100 w-full" />
+                       <div className="flex flex-col gap-4">
+                         <span className="text-xs font-bold uppercase tracking-widest text-neutral-700">Where did you hear about us? *</span>
+                         <div className="flex flex-wrap gap-2">
+                           {['Instagram', 'Gym Partnership', 'Friend Referral', 'Walk-In', 'Google', 'Influencer', 'Other'].map(source => (
+                             <button 
+                               key={source} type="button" 
+                               onClick={() => updateField('heardAboutUs', source)} 
+                               className={`py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${formData.heardAboutUs === source ? 'bg-red-600 text-white' : 'bg-white border border-neutral-200 text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 hover:bg-neutral-50'}`}
+                             >
+                               {source}
+                             </button>
+                           ))}
+                         </div>
+                       </div>
+
                     </div>
                  </div>
                )}

@@ -91,26 +91,29 @@ export default function LandingPage() {
       >
       {/* Navbar */}
       {/* Navbar with Off-White Glass Effect, Graphic Lines, and Round Geometric Shapes */}
-      <nav
-        className={`fixed top-3 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] md:w-[calc(100%-3rem)] max-w-7xl z-50 transition-all duration-500 ease-in-out px-5 md:px-10 flex justify-between items-center overflow-hidden rounded-2xl md:rounded-full ${
-          scrolled ? "py-1.5 md:py-3.5" : "py-2.5 md:py-6"
+      <motion.nav
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className={`fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] md:w-[calc(100%-3rem)] max-w-7xl z-50 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] px-5 md:px-8 flex justify-between items-center overflow-hidden rounded-3xl md:rounded-full ${
+          scrolled ? "py-2 md:py-3 shadow-2xl" : "py-4 md:py-6"
         }`}
         style={{
           background: scrolled 
-            ? "rgba(247, 246, 242, 0.88)" 
-            : "rgba(251, 250, 246, 0.75)",
-          backdropFilter: "blur(28px) saturate(190%)",
-          WebkitBackdropFilter: "blur(28px) saturate(190%)",
-          border: scrolled 
-            ? "1.5px solid rgba(220, 38, 38, 0.12)" 
-            : "1.5px solid rgba(255, 255, 255, 0.75)",
+            ? "linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 100%)"
+            : "linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%)",
+          backdropFilter: "blur(24px) saturate(160%)",
+          WebkitBackdropFilter: "blur(24px) saturate(160%)",
+          border: "1px solid rgba(255, 255, 255, 0.5)",
+          borderTop: "1px solid rgba(255, 255, 255, 0.8)",
+          borderBottom: scrolled ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(255, 255, 255, 0.3)",
           boxShadow: scrolled
-            ? "0 15px 35px -5px rgba(121, 142, 155, 0.15), 0 5px 15px -3px rgba(121, 142, 155, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.9)"
-            : "0 10px 25px -10px rgba(121, 142, 155, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.5)",
+           ? "0 8px 32px 0 rgba(31, 38, 135, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.9)"
+           : "0 8px 32px 0 rgba(31, 38, 135, 0.07), inset 0 1px 1px rgba(255, 255, 255, 0.5)",
         }}
       >
         {/* Dynamic Graphic Round Vector Shapes & Linear Path Grid Cover */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none mix-blend-overlay opacity-70">
           {/* Subtle horizontal baseline grid line */}
           <div className="absolute bottom-0 left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-red-600/10 to-transparent" />
           
@@ -212,7 +215,7 @@ export default function LandingPage() {
             {user ? "Enter App" : "Join Now"}
           </Link>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Hero Section */}
       <section className="relative min-h-[85vh] md:h-screen flex items-center justify-center pt-28 md:pt-20 overflow-hidden">
